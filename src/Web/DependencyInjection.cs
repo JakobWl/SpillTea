@@ -97,6 +97,18 @@ public static class DependencyInjection
                 });
         }
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(configurePolicy =>
+            {
+                configurePolicy
+                    .WithOrigins(builder.Configuration.GetSection("CorsOrigins").Get<string[]>() ?? [])
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .WithExposedHeaders("X-Request-Id");
+            });
+        });
+
         // Customise default API behaviour
         builder.Services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);

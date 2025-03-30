@@ -2,19 +2,28 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { ActivityIndicator, View } from 'react-native';
 import LoginScreen from '../screens/LoginScreen';
-import ChatScreen from '../screens/ChatScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import ChatsListScreen from '../screens/ChatsListScreen';
+import ChatConversationScreen from '../screens/ChatConversationScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import UsersScreen from '../screens/UsersScreen';
+import { useAuth } from '../contexts/AuthContext';
 
 // Define the types for our navigation stack
 export type AuthStackParamList = {
   Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
 };
 
 export type MainTabParamList = {
-  Chat: undefined;
-  Users: undefined;
+  ChatsList: undefined;
+  ChatConversation: {
+    chatId: string;
+    chatName: string;
+  };
   Profile: undefined;
 };
 
@@ -25,51 +34,101 @@ export type RootStackParamList = {
 
 // Create the navigators
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
-const MainTab = createBottomTabNavigator<MainTabParamList>();
+const MainStack = createNativeStackNavigator<MainTabParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 // Auth Navigator (when user is not logged in)
 const AuthNavigator = () => (
-  <AuthStack.Navigator screenOptions={{ headerShown: false }}>
-    <AuthStack.Screen name="Login" component={LoginScreen} />
+  <AuthStack.Navigator initialRouteName="Login">
+    <AuthStack.Screen 
+      name="Login" 
+      component={LoginScreen} 
+      options={{ headerShown: false }}
+    />
+    <AuthStack.Screen 
+      name="Register" 
+      component={RegisterScreen} 
+      options={{ 
+        headerTitle: 'Create Account',
+        headerBackTitleVisible: false
+      }}
+    />
+    <AuthStack.Screen 
+      name="ForgotPassword" 
+      component={ForgotPasswordScreen} 
+      options={{ 
+        headerTitle: 'Reset Password',
+        headerBackTitleVisible: false
+      }}
+    />
   </AuthStack.Navigator>
 );
 
-// Main Tab Navigator (when user is logged in)
-const MainNavigator = () => (
-  <MainTab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ focused, color, size }) => {
-        let iconName;
+// Main Stack Navigator (when user is logged in)
+const MainNavigator = () => {
+  return (
+    <MainStack.Navigator
+      initialRouteName="ChatsList"
+      screenOptions={({ route }) => ({
+        headerBackTitleVisible: false
+      })}
+    >
+      <MainStack.Screen 
+        name="ChatsList" 
+        component={ChatsListScreen} 
+        options={({ navigation }) => ({ 
+          title: 'Chats',
+          headerRight: () => (
+            <Ionicons 
+              name="person-circle-outline" 
+              size={28} 
+              color="#6200ee" 
+              style={{ marginRight: 10 }}
+              onPress={() => navigation.navigate('Profile')}
+            />
+          )
+        })}
+      />
+    <MainStack.Screen 
+      name="ChatConversation" 
+      component={ChatConversationScreen}
+    />
+    <MainStack.Screen 
+      name="Profile" 
+      component={ProfileScreen} 
+      options={{ title: 'Your Profile' }}
+    />
+  </MainStack.Navigator>
+  );
+};
 
-        if (route.name === 'Chat') {
-          iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
-        } else if (route.name === 'Users') {
-          iconName = focused ? 'people' : 'people-outline';
-        } else if (route.name === 'Profile') {
-          iconName = focused ? 'person' : 'person-outline';
-        }
-
-        // @ts-ignore - Ionicons has string index signature
-        return <Ionicons name={iconName} size={size} color={color} />;
-      },
-    })}
-  >
-    <MainTab.Screen name="Chat" component={ChatScreen} />
-    <MainTab.Screen name="Users" component={UsersScreen} />
-    <MainTab.Screen name="Profile" component={ProfileScreen} />
-  </MainTab.Navigator>
+// Loading component
+const LoadingScreen = () => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <ActivityIndicator size="large" color="#6200ee" />
+  </View>
 );
+
+// Create a navigation ref that can be used outside of components
+let navigation: any;
+
+export const setTopLevelNavigator = (nav: any) => {
+  navigation = nav;
+};
+
+export const navigate = (name: string, params?: any) => {
+  if (navigation) {
+    navigation.navigate(name, params);
+  }
+};
 
 // Root Navigator that handles authentication state
 const AppNavigator = () => {
-  // Simulating authentication state - in a real app this would come from a context
-  const [isAuthenticated, setIsAuthenticated] = React.useState(true);
-  const [isLoading, setIsLoading] = React.useState(false);
+  // Get auth state from context
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    // You could show a splash screen here
-    return null;
+    return <LoadingScreen />;
   }
 
   return (

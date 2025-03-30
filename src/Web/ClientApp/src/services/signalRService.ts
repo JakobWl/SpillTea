@@ -1,8 +1,7 @@
 import { HubConnectionBuilder, LogLevel, HubConnection } from '@microsoft/signalr';
-import * as SecureStore from 'expo-secure-store';
 import { ChatMessage } from '../types/chat';
-
-const SIGNALR_URL = 'https://your-backend-url.com/hubs/chat';
+import authStorage from '../utils/authStorage';
+import config from '../config';
 
 type MessageHandler = (message: ChatMessage) => void;
 type UserConnectionHandler = (userId: string, username: string) => void;
@@ -29,11 +28,11 @@ class SignalRService {
 
     this.connectionPromise = new Promise<HubConnection>(async (resolve, reject) => {
       try {
-        // Get the token from secure storage
-        const token = await SecureStore.getItemAsync('userToken');
+        // Get the token from storage
+        const token = await authStorage.getToken();
 
         this.connection = new HubConnectionBuilder()
-          .withUrl(SIGNALR_URL, {
+          .withUrl(config.signalRUrl, {
             accessTokenFactory: () => token || '',
           })
           .configureLogging(LogLevel.Information)
@@ -83,12 +82,12 @@ class SignalRService {
     }
   }
 
-  async sendMessage(message: string): Promise<void> {
-    if (!message || !message.trim()) return;
+  async sendMessage(chatId: string, message: string): Promise<void> {
+    if (!chatId || !message || !message.trim()) return;
     
     try {
       const connection = await this.startConnection();
-      await connection.invoke('SendMessage', message);
+      await connection.invoke('SendMessage', chatId, message);
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
@@ -103,6 +102,44 @@ class SignalRService {
       await connection.invoke('SendPrivateMessage', recipientId, message);
     } catch (error) {
       console.error('Error sending private message:', error);
+      throw error;
+    }
+  }
+  
+  async joinChat(chatId: string): Promise<void> {
+    if (!chatId) return;
+    
+    try {
+      const connection = await this.startConnection();
+      await connection.invoke('JoinChat', chatId);
+      console.log(`Joined chat: ${chatId}`);
+    } catch (error) {
+      console.error(`Error joining chat ${chatId}:`, error);
+      throw error;
+    }
+  }
+  
+  async leaveChat(chatId: string): Promise<void> {
+    if (!chatId) return;
+    
+    try {
+      const connection = await this.startConnection();
+      await connection.invoke('LeaveChat', chatId);
+      console.log(`Left chat: ${chatId}`);
+    } catch (error) {
+      console.error(`Error leaving chat ${chatId}:`, error);
+      throw error;
+    }
+  }
+  
+  async findRandomChat(): Promise<string> {
+    try {
+      const connection = await this.startConnection();
+      const chatId = await connection.invoke<string>('FindRandomChat');
+      console.log(`Found random chat: ${chatId}`);
+      return chatId;
+    } catch (error) {
+      console.error('Error finding random chat:', error);
       throw error;
     }
   }

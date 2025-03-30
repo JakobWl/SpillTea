@@ -33,6 +33,8 @@ app.UseSwaggerUi(settings =>
     settings.DocumentPath = "/api/specification.json";
 });
 
+app.UseCors();
+
 // Add authentication middleware
 app.UseAuthentication();
 app.UseAuthorization();
