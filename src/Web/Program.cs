@@ -1,4 +1,6 @@
 using FadeChat.Infrastructure.Data;
+using FadeChat.Web;
+using FadeChat.Web.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,12 +33,18 @@ app.UseSwaggerUi(settings =>
     settings.DocumentPath = "/api/specification.json";
 });
 
+// Add authentication middleware
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapRazorPages();
+
+// Map SignalR hubs
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.MapFallbackToFile("index.html");
 
 app.UseExceptionHandler(options => { });
-
 
 app.MapEndpoints();
 

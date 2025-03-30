@@ -6,6 +6,47 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/Chat": {
+      "get": {
+        "operationId": "GetChat",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/Chat/send": {
+      "post": {
+        "operationId": "PostChatSend",
+        "parameters": [
+          {
+            "name": "message",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
     "/api/TodoItems": {
       "get": {
         "tags": [
@@ -55,7 +96,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -86,7 +132,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       }
     },
     "/api/TodoItems/{id}": {
@@ -126,7 +177,12 @@
           "400": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -149,7 +205,12 @@
           "204": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       }
     },
     "/api/TodoItems/UpdateDetail/{id}": {
@@ -189,7 +250,12 @@
           "400": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       }
     },
     "/api/TodoLists": {
@@ -209,7 +275,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -240,7 +311,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       }
     },
     "/api/TodoLists/{id}": {
@@ -280,7 +356,12 @@
           "400": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -303,7 +384,12 @@
           "204": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       }
     },
     "/api/WeatherForecasts": {
@@ -326,7 +412,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
       }
     }
   },
@@ -579,6 +670,22 @@
           "summary": {
             "type": "string",
             "nullable": true
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://demo.duendesoftware.com/connect/authorize",
+            "tokenUrl": "https://demo.duendesoftware.com/connect/token",
+            "scopes": {
+              "openid": "OpenID",
+              "profile": "Profile",
+              "email": "Email"
+            }
           }
         }
       }
