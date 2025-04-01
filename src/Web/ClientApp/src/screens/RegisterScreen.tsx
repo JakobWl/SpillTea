@@ -1,42 +1,47 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AuthStackParamList } from '../navigation/AppNavigator';
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Button, Text, TextInput } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "../navigation/AppNavigator";
+import { authClient } from "../clients";
+import { RegisterRequest } from "../web-api-client";
 
-type RegisterScreenProps = NativeStackScreenProps<AuthStackParamList, 'Register'>;
+type RegisterScreenProps = NativeStackScreenProps<
+  AuthStackParamList,
+  "Register"
+>;
 
 const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [secureConfirmTextEntry, setSecureConfirmTextEntry] = useState(true);
 
   const validateForm = () => {
     if (!name || !email || !password || !confirmPassword) {
-      setErrorMessage('All fields are required');
+      setErrorMessage("All fields are required");
       return false;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match');
+      setErrorMessage("Passwords do not match");
       return false;
     }
 
     if (password.length < 6) {
-      setErrorMessage('Password must be at least 6 characters');
+      setErrorMessage("Password must be at least 6 characters");
       return false;
     }
 
     // Simple email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setErrorMessage('Please enter a valid email address');
+      setErrorMessage("Please enter a valid email address");
       return false;
     }
 
@@ -47,20 +52,23 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
     if (!validateForm()) {
       return;
     }
-    
+
     setIsLoading(true);
-    setErrorMessage('');
-    
+    setErrorMessage("");
+
     try {
-      // Simulate API call to register
-      setTimeout(() => {
-        setIsLoading(false);
-        // Navigate back to login after successful registration
-        navigation.navigate('Login');
-      }, 1500);
+      // Create registration request
+      const registerRequest = {
+        email,
+        password,
+      } as RegisterRequest;
+
+      await authClient.postRegister(registerRequest);
+      setIsLoading(false);
+      navigation.navigate("Login");
     } catch (error) {
-      setErrorMessage('Registration failed. Please try again.');
-      console.error('Registration error:', error);
+      setErrorMessage("Registration failed. Please try again.");
+      console.error("Registration error:", error);
       setIsLoading(false);
     }
   };
@@ -77,7 +85,7 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
             style={styles.input}
             disabled={isLoading}
           />
-          
+
           <TextInput
             label="Email"
             value={email}
@@ -88,7 +96,7 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
             style={styles.input}
             disabled={isLoading}
           />
-          
+
           <TextInput
             label="Password"
             value={password}
@@ -99,12 +107,12 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
             disabled={isLoading}
             right={
               <TextInput.Icon
-                icon={secureTextEntry ? 'eye-off' : 'eye'}
+                icon={secureTextEntry ? "eye-off" : "eye"}
                 onPress={() => setSecureTextEntry(!secureTextEntry)}
               />
             }
           />
-          
+
           <TextInput
             label="Confirm Password"
             value={confirmPassword}
@@ -115,16 +123,18 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
             disabled={isLoading}
             right={
               <TextInput.Icon
-                icon={secureConfirmTextEntry ? 'eye-off' : 'eye'}
-                onPress={() => setSecureConfirmTextEntry(!secureConfirmTextEntry)}
+                icon={secureConfirmTextEntry ? "eye-off" : "eye"}
+                onPress={() =>
+                  setSecureConfirmTextEntry(!secureConfirmTextEntry)
+                }
               />
             }
           />
-          
+
           {errorMessage ? (
             <Text style={styles.errorText}>{errorMessage}</Text>
           ) : null}
-          
+
           <Button
             mode="contained"
             onPress={handleRegister}
@@ -134,11 +144,11 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
           >
             Create Account
           </Button>
-          
+
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account?</Text>
             <TouchableOpacity
-              onPress={() => navigation.navigate('Login')}
+              onPress={() => navigation.navigate("Login")}
               disabled={isLoading}
             >
               <Text style={styles.loginLink}>Sign In</Text>
@@ -153,7 +163,7 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   scrollContainer: {
     flexGrow: 1,
@@ -165,7 +175,7 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   button: {
     marginTop: 8,
@@ -173,21 +183,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   errorText: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
     marginTop: -5,
   },
   loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 20,
   },
   loginText: {
     marginRight: 5,
   },
   loginLink: {
-    color: '#6200ee',
-    fontWeight: '500',
+    color: "#6200ee",
+    fontWeight: "500",
   },
 });
 

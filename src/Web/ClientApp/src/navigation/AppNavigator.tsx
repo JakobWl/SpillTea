@@ -50,7 +50,7 @@ const AuthNavigator = () => (
       component={RegisterScreen} 
       options={{ 
         headerTitle: 'Create Account',
-        headerBackTitleVisible: false
+        headerBackTitle: ''
       }}
     />
     <AuthStack.Screen 
@@ -58,7 +58,7 @@ const AuthNavigator = () => (
       component={ForgotPasswordScreen} 
       options={{ 
         headerTitle: 'Reset Password',
-        headerBackTitleVisible: false
+        headerBackTitle: ''
       }}
     />
   </AuthStack.Navigator>
@@ -69,9 +69,10 @@ const MainNavigator = () => {
   return (
     <MainStack.Navigator
       initialRouteName="ChatsList"
-      screenOptions={({ route }) => ({
-        headerBackTitleVisible: false
-      })}
+      screenOptions={{
+        headerBackTitle: '',
+        headerTitleAlign: 'center'
+      }}
     >
       <MainStack.Screen 
         name="ChatsList" 

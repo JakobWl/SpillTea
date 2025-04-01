@@ -10,13 +10,10 @@ public class Chat : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        var group = app.MapGroup(this.GetType().Name);
-        
-        group.MapGet("/", GetRecentMessages)
-             .RequireAuthorization();
-             
-        group.MapPost("/send", SendMessage)
-             .RequireAuthorization();
+        app.MapGroup(this)
+            .RequireAuthorization()
+            .MapGet(GetRecentMessages)
+            .MapPost(SendMessage);
     }
 
     public Task<IResult> GetRecentMessages(IIdentityService identityService)

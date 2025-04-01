@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import authStorage from '../utils/authStorage';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import authStorage from "../utils/authStorage";
+import { authClient } from "../clients";
+import { LoginRequest } from "../web-api-client";
 
 interface User {
   id: string;
@@ -49,11 +51,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Check for stored auth token on app load
     const checkAuthState = async () => {
       setIsLoading(true);
-      
+
       try {
         const userData = await authStorage.getUser();
         const token = await authStorage.getToken();
-        
+
         if (userData && token) {
           setUser(userData);
           setIsAuthenticated(true);
@@ -62,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setIsAuthenticated(false);
         }
       } catch (error) {
-        console.error('Error checking auth state:', error);
+        console.error("Error checking auth state:", error);
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -73,76 +75,68 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthState();
   }, []);
 
-  const saveUserData = async (userData: User, token: string) => {
+  const saveUserData = async (token: string) => {
     try {
-      await authStorage.setAuth(userData, token);
+      await authStorage.setAuth(token);
     } catch (error) {
-      console.error('Error saving auth data:', error);
+      console.error("Error saving auth data:", error);
     }
   };
 
-  const loginWithEmail = async (credentials: LoginCredentials): Promise<boolean> => {
+  const loginWithEmail = async (
+    credentials: LoginCredentials,
+  ): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
-      // In a real app, this would be an API call to your backend
-      // For now, we'll simulate a successful login
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const mockUser = {
-            id: '1',
-            name: credentials.email.split('@')[0],
-            email: credentials.email,
-            provider: 'email'
-          };
-          
-          const mockToken = 'mock-jwt-token-' + Date.now();
-          
-          setUser(mockUser);
-          setIsAuthenticated(true);
-          saveUserData(mockUser, mockToken);
-          
-          setIsLoading(false);
-          resolve(true);
-        }, 1500);
-      });
+      // Pass useCookies, useSessionCookies, and the login payload (credentials)
+      const response = await authClient.postLogin(true, false, {
+        email: credentials.email,
+        password: credentials.password,
+      } as LoginRequest);
+
+      await saveUserData(response.accessToken as string);
+      setIsAuthenticated(true);
+      return true;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       setUser(null);
       setIsAuthenticated(false);
-      setIsLoading(false);
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const loginWithGoogle = async (): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
       // In a real app, this would use expo-auth-session with Google OAuth
       // For now, we'll simulate a successful login
       return new Promise((resolve) => {
         setTimeout(() => {
           const mockUser = {
-            id: '2',
-            name: 'Google User',
-            email: 'google.user@gmail.com',
-            photoURL: 'https://ui-avatars.com/api/?name=Google+User&background=random',
-            provider: 'google'
+            id: "2",
+            name: "Google User",
+            email: "google.user@gmail.com",
+            photoURL:
+              "https://ui-avatars.com/api/?name=Google+User&background=random",
+            provider: "google",
           };
-          
-          const mockToken = 'mock-google-token-' + Date.now();
-          
+
+          const mockToken = "mock-google-token-" + Date.now();
+
           setUser(mockUser);
           setIsAuthenticated(true);
-          saveUserData(mockUser, mockToken);
-          
+          saveUserData(mockToken);
+
           setIsLoading(false);
           resolve(true);
         }, 1500);
       });
     } catch (error) {
-      console.error('Google login error:', error);
+      console.error("Google login error:", error);
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
@@ -152,32 +146,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const loginWithFacebook = async (): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
       // In a real app, this would use expo-auth-session with Facebook OAuth
       // For now, we'll simulate a successful login
       return new Promise((resolve) => {
         setTimeout(() => {
           const mockUser = {
-            id: '3',
-            name: 'Facebook User',
-            email: 'facebook.user@example.com',
-            photoURL: 'https://ui-avatars.com/api/?name=Facebook+User&background=random',
-            provider: 'facebook'
+            id: "3",
+            name: "Facebook User",
+            email: "facebook.user@example.com",
+            photoURL:
+              "https://ui-avatars.com/api/?name=Facebook+User&background=random",
+            provider: "facebook",
           };
-          
-          const mockToken = 'mock-facebook-token-' + Date.now();
-          
+
+          const mockToken = "mock-facebook-token-" + Date.now();
+
           setUser(mockUser);
           setIsAuthenticated(true);
-          saveUserData(mockUser, mockToken);
-          
+          saveUserData(mockToken);
+
           setIsLoading(false);
           resolve(true);
         }, 1500);
       });
     } catch (error) {
-      console.error('Facebook login error:', error);
+      console.error("Facebook login error:", error);
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
@@ -187,15 +182,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async (): Promise<void> => {
     setIsLoading(true);
-    
+
     try {
       // Clear stored credentials
       await authStorage.clearAuth();
-      
+
       setUser(null);
       setIsAuthenticated(false);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,6 @@
 ﻿using FadeChat.Application.Common.Interfaces;
 using FadeChat.Domain.Constants;
+using FadeChat.Domain.Entities;
 using FadeChat.Infrastructure.Data;
 using FadeChat.Infrastructure.Data.Interceptors;
 using FadeChat.Infrastructure.Identity;
@@ -7,9 +8,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace FadeChat.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -26,7 +28,6 @@ public static class DependencyInjection
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
             options.UseSqlServer(connectionString);
         });
-
 
         builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 

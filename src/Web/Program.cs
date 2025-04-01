@@ -1,4 +1,6 @@
+using FadeChat.Infrastructure;
 using FadeChat.Infrastructure.Data;
+using FadeChat.Infrastructure.Identity;
 using FadeChat.Web;
 using FadeChat.Web.Hubs;
 
@@ -24,7 +26,12 @@ else
 }
 
 app.UseHealthChecks("/health");
-app.UseHttpsRedirection();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 
 app.UseSwaggerUi(settings =>
@@ -49,6 +56,7 @@ app.MapFallbackToFile("index.html");
 app.UseExceptionHandler(options => { });
 
 app.MapEndpoints();
+app.MapIdentityApi<ApplicationUser>();
 
 app.Run();
 

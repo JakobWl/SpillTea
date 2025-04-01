@@ -1,10 +1,10 @@
-import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
+import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 
 // Constants for storage keys
 export const STORAGE_KEYS = {
-  USER: 'user',
-  AUTH_TOKEN: 'authToken',
+  USER: "user",
+  AUTH_TOKEN: "authToken",
 };
 
 /**
@@ -17,15 +17,15 @@ class AuthStorage {
    * Store a value securely
    */
   async setItem(key: string, value: string): Promise<void> {
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       // For web environment - we'll use localStorage in development
       // In production, SecureStore will handle this appropriately
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         localStorage.setItem(key, value);
         return;
       }
     }
-    
+
     // Use SecureStore for all platforms in production
     await SecureStore.setItemAsync(key, value);
   }
@@ -34,13 +34,13 @@ class AuthStorage {
    * Get a stored value
    */
   async getItem(key: string): Promise<string | null> {
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       // For web environment
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         return localStorage.getItem(key);
       }
     }
-    
+
     return await SecureStore.getItemAsync(key);
   }
 
@@ -48,14 +48,14 @@ class AuthStorage {
    * Remove a stored value
    */
   async removeItem(key: string): Promise<void> {
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       // For web environment
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         localStorage.removeItem(key);
         return;
       }
     }
-    
+
     await SecureStore.deleteItemAsync(key);
   }
 
@@ -82,7 +82,7 @@ class AuthStorage {
       try {
         return JSON.parse(userJson);
       } catch (error) {
-        console.error('Error parsing user JSON:', error);
+        console.error("Error parsing user JSON:", error);
         return null;
       }
     }
@@ -99,11 +99,8 @@ class AuthStorage {
   /**
    * Store both user and token at once
    */
-  async setAuth(user: any, token: string): Promise<void> {
-    await Promise.all([
-      this.setUser(user),
-      this.setToken(token)
-    ]);
+  async setAuth(token: string): Promise<void> {
+    await Promise.all([this.setToken(token)]);
   }
 
   /**
@@ -112,7 +109,7 @@ class AuthStorage {
   async clearAuth(): Promise<void> {
     await Promise.all([
       this.removeItem(STORAGE_KEYS.USER),
-      this.removeItem(STORAGE_KEYS.AUTH_TOKEN)
+      this.removeItem(STORAGE_KEYS.AUTH_TOKEN),
     ]);
   }
 }

@@ -2,11 +2,11 @@
 using FadeChat.Application.Common.Interfaces;
 using FadeChat.Infrastructure.Data;
 using FadeChat.Web.Services;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.Extensions.Primitives;
 
 namespace FadeChat.Web;
 
@@ -30,72 +30,36 @@ public static class DependencyInjection
         builder.Services.AddSignalR();
 
         // Configure Authentication
-        builder.Services.AddAuthentication(options =>
+        builder.Services.AddAuthentication()
+            .AddBearerToken(IdentityConstants.BearerScheme, options =>
             {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-            })
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-            {
-                options.LoginPath = "/Identity/Account/Login";
-                options.LogoutPath = "/Identity/Account/Logout";
-            })
-            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
-            {
-                options.Authority = builder.Configuration["Authentication:OIDC:Authority"];
-                options.ClientId = builder.Configuration["Authentication:OIDC:ClientId"];
-                options.ClientSecret = builder.Configuration["Authentication:OIDC:ClientSecret"];
-                options.ResponseType = OpenIdConnectResponseType.Code;
-                options.SaveTokens = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
-                options.Scope.Add("openid");
-                options.Scope.Add("profile");
-                options.Scope.Add("email");
-            })
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.Authority = builder.Configuration["Authentication:OIDC:Authority"];
-                options.Audience = builder.Configuration["Authentication:OIDC:ClientId"];
-                
-                // Configure for SignalR with JWT support
-                options.Events = new JwtBearerEvents
+                options.Events = new BearerTokenEvents
                 {
                     OnMessageReceived = context =>
                     {
-                        var accessToken = context.Request.Query["access_token"];
-                        var path = context.HttpContext.Request.Path;
-                        
-                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                        StringValues accessToken = context.Request.Query["access_token"];
+
+                        PathString path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            path.StartsWithSegments("/hubs/"))
                         {
                             context.Token = accessToken;
                         }
-                        
+
                         return Task.CompletedTask;
                     }
                 };
+            })
+            .AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+                googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+            })
+            .AddFacebook(facebookOptions =>
+            {
+                facebookOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
+                facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
             });
-
-        // Add Google authentication when configured
-        if (!string.IsNullOrEmpty(builder.Configuration["Authentication:Google:ClientId"]))
-        {
-            builder.Services.AddAuthentication()
-                .AddGoogle(options =>
-                {
-                    options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-                    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-                });
-        }
-
-        // Add Facebook authentication when configured
-        if (!string.IsNullOrEmpty(builder.Configuration["Authentication:Facebook:AppId"]))
-        {
-            builder.Services.AddAuthentication()
-                .AddFacebook(options =>
-                {
-                    options.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
-                    options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
-                });
-        }
 
         builder.Services.AddCors(options =>
         {
@@ -105,7 +69,7 @@ public static class DependencyInjection
                     .WithOrigins(builder.Configuration.GetSection("CorsOrigins").Get<string[]>() ?? [])
                     .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .WithExposedHeaders("X-Request-Id");
+                    .AllowCredentials();
             });
         });
 
