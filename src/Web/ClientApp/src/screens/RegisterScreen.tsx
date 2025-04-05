@@ -4,8 +4,8 @@ import { Button, Text, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../navigation/AppNavigator";
-import { authClient } from "../clients";
-import { RegisterRequest } from "../web-api-client";
+import { RegisterRequest } from "../api/client";
+import { authClient } from "../api";
 
 type RegisterScreenProps = NativeStackScreenProps<
   AuthStackParamList,

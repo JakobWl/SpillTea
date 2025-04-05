@@ -1,15 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import authStorage from "../utils/authStorage";
-import { authClient } from "../clients";
-import { LoginRequest } from "../web-api-client";
-
-interface User {
-  id: string;
-  name: string;
-  email?: string;
-  photoURL?: string;
-  provider?: string;
-}
+import { CurrentUserDto, LoginRequest } from "../api/client";
+import { authClient, userClient } from "../api";
 
 interface LoginCredentials {
   email: string;
@@ -17,7 +9,7 @@ interface LoginCredentials {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: CurrentUserDto | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   loginWithEmail: (credentials: LoginCredentials) => Promise<boolean>;
@@ -43,7 +35,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<CurrentUserDto | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -53,14 +45,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
 
       try {
-        const userData = await authStorage.getUser();
         const token = await authStorage.getToken();
 
-        if (userData && token) {
-          setUser(userData);
+        if (token) {
+          const user = await userClient.getCurrentUser();
+          setUser(user);
           setIsAuthenticated(true);
         } else {
-          setUser(null);
           setIsAuthenticated(false);
         }
       } catch (error) {
@@ -72,7 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
-    checkAuthState();
+    checkAuthState().then();
   }, []);
 
   const saveUserData = async (token: string) => {
@@ -90,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       // Pass useCookies, useSessionCookies, and the login payload (credentials)
-      const response = await authClient.postLogin(true, false, {
+      const response = await authClient.postLogin({
         email: credentials.email,
         password: credentials.password,
       } as LoginRequest);
@@ -120,10 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             id: "2",
             name: "Google User",
             email: "google.user@gmail.com",
-            photoURL:
-              "https://ui-avatars.com/api/?name=Google+User&background=random",
-            provider: "google",
-          };
+          } as CurrentUserDto;
 
           const mockToken = "mock-google-token-" + Date.now();
 
@@ -156,10 +144,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             id: "3",
             name: "Facebook User",
             email: "facebook.user@example.com",
-            photoURL:
-              "https://ui-avatars.com/api/?name=Facebook+User&background=random",
-            provider: "facebook",
-          };
+          } as CurrentUserDto;
 
           const mockToken = "mock-facebook-token-" + Date.now();
 

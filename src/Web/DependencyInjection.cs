@@ -3,10 +3,11 @@ using FadeChat.Application.Common.Interfaces;
 using FadeChat.Infrastructure.Data;
 using FadeChat.Web.Services;
 using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 
 namespace FadeChat.Web;
 
@@ -50,10 +51,11 @@ public static class DependencyInjection
                     }
                 };
             })
-            .AddGoogle(googleOptions =>
+            .AddCookie()
+            .AddGoogleOpenIdConnect(options =>
             {
-                googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-                googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+                options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
             })
             .AddFacebook(facebookOptions =>
             {
@@ -66,7 +68,9 @@ public static class DependencyInjection
             options.AddDefaultPolicy(configurePolicy =>
             {
                 configurePolicy
-                    .WithOrigins(builder.Configuration.GetSection("CorsOrigins").Get<string[]>() ?? [])
+                    .WithOrigins(builder.Configuration.GetSection("CorsOrigins").Get<string[]>() ??
+                    [
+                    ])
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
@@ -82,31 +86,37 @@ public static class DependencyInjection
         builder.Services.AddOpenApiDocument((configure, _) =>
         {
             configure.Title = "FadeChat API";
-            configure.AddSecurity("oauth2", new NSwag.OpenApiSecurityScheme
+            configure.AddSecurity("oauth2", new OpenApiSecurityScheme
             {
-                Type = NSwag.OpenApiSecuritySchemeType.OAuth2,
-                Flows = new NSwag.OpenApiOAuthFlows
+                Type = OpenApiSecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows
                 {
-                    AuthorizationCode = new NSwag.OpenApiOAuthFlow
+                    AuthorizationCode = new OpenApiOAuthFlow
                     {
                         AuthorizationUrl = $"{builder.Configuration["Authentication:OIDC:Authority"]}/connect/authorize",
                         TokenUrl = $"{builder.Configuration["Authentication:OIDC:Authority"]}/connect/token",
                         Scopes = new Dictionary<string, string>
                         {
-                            { "openid", "OpenID" },
-                            { "profile", "Profile" },
-                            { "email", "Email" }
+                            {
+                                "openid", "OpenID"
+                            },
+                            {
+                                "profile", "Profile"
+                            },
+                            {
+                                "email", "Email"
+                            }
                         }
                     }
                 }
             });
-            configure.OperationProcessors.Add(new NSwag.Generation.Processors.Security.AspNetCoreOperationSecurityScopeProcessor("oauth2"));
+            configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("oauth2"));
         });
     }
 
     public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
     {
-        var keyVaultUri = builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"];
+        string? keyVaultUri = builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"];
         if (!string.IsNullOrWhiteSpace(keyVaultUri))
         {
             builder.Configuration.AddAzureKeyVault(

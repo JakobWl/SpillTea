@@ -1,11 +1,8 @@
 using FadeChat.Application.Chat.Models;
 using FadeChat.Application.Common.Interfaces;
-using FadeChat.Web.Infrastructure;
-using Microsoft.AspNetCore.Authorization;
 
 namespace FadeChat.Web.Endpoints;
 
-[Authorize]
 public class Chat : EndpointGroupBase
 {
     public override void Map(WebApplication app)
@@ -26,19 +23,19 @@ public class Chat : EndpointGroupBase
     public async Task<IResult> SendMessage(string message, IUser currentUser, IIdentityService identityService)
     {
         if (currentUser.Id == null)
-            return Results.Unauthorized();
-
-        var username = await identityService.GetUserNameAsync(currentUser.Id) ?? "Anonymous";
-
-        var chatMessage = new ChatMessage
         {
-            SenderId = currentUser.Id,
-            SenderName = username,
-            Content = message
+            return Results.Unauthorized();
+        }
+
+        string username = await identityService.GetUserNameAsync(currentUser.Id) ?? "Anonymous";
+
+        ChatMessage chatMessage = new()
+        {
+            SenderId = currentUser.Id, SenderName = username, Content = message
         };
 
         // In a real implementation, this would store the message in a database
-        
+
         return Results.Ok(chatMessage);
     }
 }

@@ -8,50 +8,73 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
-import followIfLoginRedirect from './components/api-authorization/followIfLoginRedirect';
+import { ClientBase } from "./client-base";import axios, { AxiosError } from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, CancelToken } from 'axios';
 
-export class ChatClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
+import { DateTime, Duration } from "luxon";
+
+export class ChatClient extends ClientBase {
+    protected instance: AxiosInstance;
+    protected baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    constructor(baseUrl?: string, instance?: AxiosInstance) {
+
+        super();
+
+        this.instance = instance || axios.create();
+
+        this.baseUrl = baseUrl ?? "";
+
     }
 
-    getRecentMessages(): Promise<void> {
+    getRecentMessages( cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Chat";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
+        let options_: AxiosRequestConfig = {
             method: "GET",
+            url: url_,
             headers: {
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processGetRecentMessages(_response);
         });
     }
 
-    protected processGetRecentMessages(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processGetRecentMessages(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 
-    sendMessage(message: string): Promise<void> {
+    sendMessage(message: string, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Chat?";
         if (message === undefined || message === null)
             throw new Error("The parameter 'message' must be defined and cannot be null.");
@@ -59,45 +82,65 @@ export class ChatClient {
             url_ += "message=" + encodeURIComponent("" + message) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
+        let options_: AxiosRequestConfig = {
             method: "POST",
+            url: url_,
             headers: {
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processSendMessage(_response);
         });
     }
 
-    protected processSendMessage(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processSendMessage(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 }
 
-export class TodoItemsClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
+export class TodoItemsClient extends ClientBase {
+    protected instance: AxiosInstance;
+    protected baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    constructor(baseUrl?: string, instance?: AxiosInstance) {
+
+        super();
+
+        this.instance = instance || axios.create();
+
+        this.baseUrl = baseUrl ?? "";
+
     }
 
-    getTodoItemsWithPagination(listId: number, pageNumber: number, pageSize: number): Promise<PaginatedListOfTodoItemBriefDto> {
+    getTodoItemsWithPagination(listId: number, pageNumber: number, pageSize: number, cancelToken?: CancelToken): Promise<PaginatedListOfTodoItemBriefDto> {
         let url_ = this.baseUrl + "/api/TodoItems?";
         if (listId === undefined || listId === null)
             throw new Error("The parameter 'listId' must be defined and cannot be null.");
@@ -113,78 +156,108 @@ export class TodoItemsClient {
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
+        let options_: AxiosRequestConfig = {
             method: "GET",
+            url: url_,
             headers: {
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processGetTodoItemsWithPagination(_response);
         });
     }
 
-    protected processGetTodoItemsWithPagination(response: Response): Promise<PaginatedListOfTodoItemBriefDto> {
-        followIfLoginRedirect(response);
+    protected processGetTodoItemsWithPagination(response: AxiosResponse): Promise<PaginatedListOfTodoItemBriefDto> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData200  = _responseText;
             result200 = PaginatedListOfTodoItemBriefDto.fromJS(resultData200);
-            return result200;
-            });
+            return Promise.resolve<PaginatedListOfTodoItemBriefDto>(result200);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<PaginatedListOfTodoItemBriefDto>(null as any);
     }
 
-    createTodoItem(command: CreateTodoItemCommand): Promise<number> {
+    createTodoItem(command: CreateTodoItemCommand, cancelToken?: CancelToken): Promise<number> {
         let url_ = this.baseUrl + "/api/TodoItems";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processCreateTodoItem(_response);
         });
     }
 
-    protected processCreateTodoItem(response: Response): Promise<number> {
-        followIfLoginRedirect(response);
+    protected processCreateTodoItem(response: AxiosResponse): Promise<number> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 201) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result201: any = null;
-            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData201  = _responseText;
                 result201 = resultData201 !== undefined ? resultData201 : <any>null;
     
-            return result201;
-            });
+            return Promise.resolve<number>(result201);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<number>(null as any);
     }
 
-    updateTodoItem(id: number, command: UpdateTodoItemCommand): Promise<void> {
+    updateTodoItem(id: number, command: UpdateTodoItemCommand, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoItems/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -193,74 +266,104 @@ export class TodoItemsClient {
 
         const content_ = JSON.stringify(command);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "PUT",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processUpdateTodoItem(_response);
         });
     }
 
-    protected processUpdateTodoItem(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processUpdateTodoItem(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 204) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status === 400) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("A server side error occurred.", status, _responseText, _headers);
-            });
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 
-    deleteTodoItem(id: number): Promise<void> {
+    deleteTodoItem(id: number, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoItems/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
+        let options_: AxiosRequestConfig = {
             method: "DELETE",
+            url: url_,
             headers: {
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processDeleteTodoItem(_response);
         });
     }
 
-    protected processDeleteTodoItem(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processDeleteTodoItem(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 204) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 
-    updateTodoItemDetail(id: number, command: UpdateTodoItemDetailCommand): Promise<void> {
+    updateTodoItemDetail(id: number, command: UpdateTodoItemDetailCommand, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoItems/UpdateDetail/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -269,126 +372,176 @@ export class TodoItemsClient {
 
         const content_ = JSON.stringify(command);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "PUT",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processUpdateTodoItemDetail(_response);
         });
     }
 
-    protected processUpdateTodoItemDetail(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processUpdateTodoItemDetail(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 204) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status === 400) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("A server side error occurred.", status, _responseText, _headers);
-            });
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 }
 
-export class TodoListsClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
+export class TodoListsClient extends ClientBase {
+    protected instance: AxiosInstance;
+    protected baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    constructor(baseUrl?: string, instance?: AxiosInstance) {
+
+        super();
+
+        this.instance = instance || axios.create();
+
+        this.baseUrl = baseUrl ?? "";
+
     }
 
-    getTodoLists(): Promise<TodosVm> {
+    getTodoLists( cancelToken?: CancelToken): Promise<TodosVm> {
         let url_ = this.baseUrl + "/api/TodoLists";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
+        let options_: AxiosRequestConfig = {
             method: "GET",
+            url: url_,
             headers: {
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processGetTodoLists(_response);
         });
     }
 
-    protected processGetTodoLists(response: Response): Promise<TodosVm> {
-        followIfLoginRedirect(response);
+    protected processGetTodoLists(response: AxiosResponse): Promise<TodosVm> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData200  = _responseText;
             result200 = TodosVm.fromJS(resultData200);
-            return result200;
-            });
+            return Promise.resolve<TodosVm>(result200);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<TodosVm>(null as any);
     }
 
-    createTodoList(command: CreateTodoListCommand): Promise<number> {
+    createTodoList(command: CreateTodoListCommand, cancelToken?: CancelToken): Promise<number> {
         let url_ = this.baseUrl + "/api/TodoLists";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processCreateTodoList(_response);
         });
     }
 
-    protected processCreateTodoList(response: Response): Promise<number> {
-        followIfLoginRedirect(response);
+    protected processCreateTodoList(response: AxiosResponse): Promise<number> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 201) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result201: any = null;
-            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData201  = _responseText;
                 result201 = resultData201 !== undefined ? resultData201 : <any>null;
     
-            return result201;
-            });
+            return Promise.resolve<number>(result201);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<number>(null as any);
     }
 
-    updateTodoList(id: number, command: UpdateTodoListCommand): Promise<void> {
+    updateTodoList(id: number, command: UpdateTodoListCommand, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -397,108 +550,225 @@ export class TodoListsClient {
 
         const content_ = JSON.stringify(command);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "PUT",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processUpdateTodoList(_response);
         });
     }
 
-    protected processUpdateTodoList(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processUpdateTodoList(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 204) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status === 400) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("A server side error occurred.", status, _responseText, _headers);
-            });
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 
-    deleteTodoList(id: number): Promise<void> {
+    deleteTodoList(id: number, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/TodoLists/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
+        let options_: AxiosRequestConfig = {
             method: "DELETE",
+            url: url_,
             headers: {
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processDeleteTodoList(_response);
         });
     }
 
-    protected processDeleteTodoList(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processDeleteTodoList(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 204) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 }
 
-export class WeatherForecastsClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
+export class UserClient extends ClientBase {
+    protected instance: AxiosInstance;
+    protected baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    constructor(baseUrl?: string, instance?: AxiosInstance) {
+
+        super();
+
+        this.instance = instance || axios.create();
+
+        this.baseUrl = baseUrl ?? "";
+
     }
 
-    getWeatherForecasts(): Promise<WeatherForecast[]> {
+    getCurrentUser( cancelToken?: CancelToken): Promise<CurrentUserDto> {
+        let url_ = this.baseUrl + "/api/User";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetCurrentUser(_response);
+        });
+    }
+
+    protected processGetCurrentUser(response: AxiosResponse): Promise<CurrentUserDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = CurrentUserDto.fromJS(resultData200);
+            return Promise.resolve<CurrentUserDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<CurrentUserDto>(null as any);
+    }
+}
+
+export class WeatherForecastsClient extends ClientBase {
+    protected instance: AxiosInstance;
+    protected baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, instance?: AxiosInstance) {
+
+        super();
+
+        this.instance = instance || axios.create();
+
+        this.baseUrl = baseUrl ?? "";
+
+    }
+
+    getWeatherForecasts( cancelToken?: CancelToken): Promise<WeatherForecast[]> {
         let url_ = this.baseUrl + "/api/WeatherForecasts";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
+        let options_: AxiosRequestConfig = {
             method: "GET",
+            url: url_,
             headers: {
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processGetWeatherForecasts(_response);
         });
     }
 
-    protected processGetWeatherForecasts(response: Response): Promise<WeatherForecast[]> {
-        followIfLoginRedirect(response);
+    protected processGetWeatherForecasts(response: AxiosResponse): Promise<WeatherForecast[]> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData200  = _responseText;
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
@@ -507,70 +777,89 @@ export class WeatherForecastsClient {
             else {
                 result200 = <any>null;
             }
-            return result200;
-            });
+            return Promise.resolve<WeatherForecast[]>(result200);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<WeatherForecast[]>(null as any);
     }
 }
 
-export class Client {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
+export class Client extends ClientBase {
+    protected instance: AxiosInstance;
+    protected baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    constructor(baseUrl?: string, instance?: AxiosInstance) {
+
+        super();
+
+        this.instance = instance || axios.create();
+
+        this.baseUrl = baseUrl ?? "";
+
     }
 
-    postRegister(registration: RegisterRequest): Promise<void> {
+    postRegister(registration: RegisterRequest, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/register";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(registration);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processPostRegister(_response);
         });
     }
 
-    protected processPostRegister(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processPostRegister(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status === 400) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData400  = _responseText;
             result400 = HttpValidationProblemDetails.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            });
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 
-    postLogin(useCookies: boolean | null | undefined, useSessionCookies: boolean | null | undefined, login: LoginRequest): Promise<AccessTokenResponse> {
+    postLogin(login: LoginRequest, useCookies?: boolean | null | undefined, useSessionCookies?: boolean | null | undefined, cancelToken?: CancelToken): Promise<AccessTokenResponse> {
         let url_ = this.baseUrl + "/login?";
         if (useCookies !== undefined && useCookies !== null)
             url_ += "useCookies=" + encodeURIComponent("" + useCookies) + "&";
@@ -580,79 +869,109 @@ export class Client {
 
         const content_ = JSON.stringify(login);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processPostLogin(_response);
         });
     }
 
-    protected processPostLogin(response: Response): Promise<AccessTokenResponse> {
-        followIfLoginRedirect(response);
+    protected processPostLogin(response: AxiosResponse): Promise<AccessTokenResponse> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData200  = _responseText;
             result200 = AccessTokenResponse.fromJS(resultData200);
-            return result200;
-            });
+            return Promise.resolve<AccessTokenResponse>(result200);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<AccessTokenResponse>(null as any);
     }
 
-    postRefresh(refreshRequest: RefreshRequest): Promise<AccessTokenResponse> {
+    postRefresh(refreshRequest: RefreshRequest, cancelToken?: CancelToken): Promise<AccessTokenResponse> {
         let url_ = this.baseUrl + "/refresh";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(refreshRequest);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processPostRefresh(_response);
         });
     }
 
-    protected processPostRefresh(response: Response): Promise<AccessTokenResponse> {
-        followIfLoginRedirect(response);
+    protected processPostRefresh(response: AxiosResponse): Promise<AccessTokenResponse> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData200  = _responseText;
             result200 = AccessTokenResponse.fromJS(resultData200);
-            return result200;
-            });
+            return Promise.resolve<AccessTokenResponse>(result200);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<AccessTokenResponse>(null as any);
     }
 
-    getConfirmEmail(userId: string | null, code: string | null, changedEmail: string | null | undefined): Promise<void> {
+    getConfirmEmail(userId: string | null, code: string | null, changedEmail?: string | null | undefined, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/confirmEmail?";
         if (userId === undefined)
             throw new Error("The parameter 'userId' must be defined.");
@@ -666,294 +985,399 @@ export class Client {
             url_ += "changedEmail=" + encodeURIComponent("" + changedEmail) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
+        let options_: AxiosRequestConfig = {
             method: "GET",
+            url: url_,
             headers: {
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processGetConfirmEmail(_response);
         });
     }
 
-    protected processGetConfirmEmail(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processGetConfirmEmail(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 
-    postResendConfirmationEmail(resendRequest: ResendConfirmationEmailRequest): Promise<void> {
+    postResendConfirmationEmail(resendRequest: ResendConfirmationEmailRequest, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/resendConfirmationEmail";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(resendRequest);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processPostResendConfirmationEmail(_response);
         });
     }
 
-    protected processPostResendConfirmationEmail(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processPostResendConfirmationEmail(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 
-    postForgotPassword(resetRequest: ForgotPasswordRequest): Promise<void> {
+    postForgotPassword(resetRequest: ForgotPasswordRequest, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/forgotPassword";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(resetRequest);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processPostForgotPassword(_response);
         });
     }
 
-    protected processPostForgotPassword(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processPostForgotPassword(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status === 400) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData400  = _responseText;
             result400 = HttpValidationProblemDetails.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            });
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 
-    postResetPassword(resetRequest: ResetPasswordRequest): Promise<void> {
+    postResetPassword(resetRequest: ResetPasswordRequest, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/resetPassword";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(resetRequest);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processPostResetPassword(_response);
         });
     }
 
-    protected processPostResetPassword(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processPostResetPassword(response: AxiosResponse): Promise<void> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
         } else if (status === 400) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData400  = _responseText;
             result400 = HttpValidationProblemDetails.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            });
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<void>(null as any);
     }
 
-    postManage2fa(tfaRequest: TwoFactorRequest): Promise<TwoFactorResponse> {
+    postManage2fa(tfaRequest: TwoFactorRequest, cancelToken?: CancelToken): Promise<TwoFactorResponse> {
         let url_ = this.baseUrl + "/manage/2fa";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(tfaRequest);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processPostManage2fa(_response);
         });
     }
 
-    protected processPostManage2fa(response: Response): Promise<TwoFactorResponse> {
-        followIfLoginRedirect(response);
+    protected processPostManage2fa(response: AxiosResponse): Promise<TwoFactorResponse> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData200  = _responseText;
             result200 = TwoFactorResponse.fromJS(resultData200);
-            return result200;
-            });
+            return Promise.resolve<TwoFactorResponse>(result200);
+
         } else if (status === 400) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData400  = _responseText;
             result400 = HttpValidationProblemDetails.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            });
+
         } else if (status === 404) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("A server side error occurred.", status, _responseText, _headers);
-            });
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<TwoFactorResponse>(null as any);
     }
 
-    getManageInfo(): Promise<InfoResponse> {
+    getManageInfo( cancelToken?: CancelToken): Promise<InfoResponse> {
         let url_ = this.baseUrl + "/manage/info";
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
+        let options_: AxiosRequestConfig = {
             method: "GET",
+            url: url_,
             headers: {
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processGetManageInfo(_response);
         });
     }
 
-    protected processGetManageInfo(response: Response): Promise<InfoResponse> {
-        followIfLoginRedirect(response);
+    protected processGetManageInfo(response: AxiosResponse): Promise<InfoResponse> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData200  = _responseText;
             result200 = InfoResponse.fromJS(resultData200);
-            return result200;
-            });
+            return Promise.resolve<InfoResponse>(result200);
+
         } else if (status === 400) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData400  = _responseText;
             result400 = HttpValidationProblemDetails.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            });
+
         } else if (status === 404) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("A server side error occurred.", status, _responseText, _headers);
-            });
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<InfoResponse>(null as any);
     }
 
-    postManageInfo(infoRequest: InfoRequest): Promise<InfoResponse> {
+    postManageInfo(infoRequest: InfoRequest, cancelToken?: CancelToken): Promise<InfoResponse> {
         let url_ = this.baseUrl + "/manage/info";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(infoRequest);
 
-        let options_: RequestInit = {
-            body: content_,
+        let options_: AxiosRequestConfig = {
+            data: content_,
             method: "POST",
+            url: url_,
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
-            }
+            },
+            cancelToken
         };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
             return this.processPostManageInfo(_response);
         });
     }
 
-    protected processPostManageInfo(response: Response): Promise<InfoResponse> {
-        followIfLoginRedirect(response);
+    protected processPostManageInfo(response: AxiosResponse): Promise<InfoResponse> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
         if (status === 200) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData200  = _responseText;
             result200 = InfoResponse.fromJS(resultData200);
-            return result200;
-            });
+            return Promise.resolve<InfoResponse>(result200);
+
         } else if (status === 400) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            let resultData400  = _responseText;
             result400 = HttpValidationProblemDetails.fromJS(resultData400);
             return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            });
+
         } else if (status === 404) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("A server side error occurred.", status, _responseText, _headers);
-            });
+
         } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
+            const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
         }
         return Promise.resolve<InfoResponse>(null as any);
     }
@@ -972,6 +1396,13 @@ export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItem
             for (var property in data) {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
+            }
+            if (data.items) {
+                this.items = [];
+                for (let i = 0; i < data.items.length; i++) {
+                    let item = data.items[i];
+                    this.items[i] = item && !(<any>item).toJSON ? new TodoItemBriefDto(item) : <TodoItemBriefDto>item;
+                }
             }
         }
     }
@@ -1015,7 +1446,7 @@ export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItem
 }
 
 export interface IPaginatedListOfTodoItemBriefDto {
-    items?: TodoItemBriefDto[];
+    items?: ITodoItemBriefDto[];
     pageNumber?: number;
     totalPages?: number;
     totalCount?: number;
@@ -1220,6 +1651,20 @@ export class TodosVm implements ITodosVm {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
+            if (data.priorityLevels) {
+                this.priorityLevels = [];
+                for (let i = 0; i < data.priorityLevels.length; i++) {
+                    let item = data.priorityLevels[i];
+                    this.priorityLevels[i] = item && !(<any>item).toJSON ? new LookupDto(item) : <LookupDto>item;
+                }
+            }
+            if (data.lists) {
+                this.lists = [];
+                for (let i = 0; i < data.lists.length; i++) {
+                    let item = data.lists[i];
+                    this.lists[i] = item && !(<any>item).toJSON ? new TodoListDto(item) : <TodoListDto>item;
+                }
+            }
         }
     }
 
@@ -1262,8 +1707,8 @@ export class TodosVm implements ITodosVm {
 }
 
 export interface ITodosVm {
-    priorityLevels?: LookupDto[];
-    lists?: TodoListDto[];
+    priorityLevels?: ILookupDto[];
+    lists?: ITodoListDto[];
 }
 
 export class LookupDto implements ILookupDto {
@@ -1318,6 +1763,13 @@ export class TodoListDto implements ITodoListDto {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
+            if (data.items) {
+                this.items = [];
+                for (let i = 0; i < data.items.length; i++) {
+                    let item = data.items[i];
+                    this.items[i] = item && !(<any>item).toJSON ? new TodoItemDto(item) : <TodoItemDto>item;
+                }
+            }
         }
     }
 
@@ -1359,7 +1811,7 @@ export interface ITodoListDto {
     id?: number;
     title?: string | undefined;
     colour?: string | undefined;
-    items?: TodoItemDto[];
+    items?: ITodoItemDto[];
 }
 
 export class TodoItemDto implements ITodoItemDto {
@@ -1494,8 +1946,52 @@ export interface IUpdateTodoListCommand {
     title?: string | undefined;
 }
 
+export class CurrentUserDto implements ICurrentUserDto {
+    id?: string;
+    name?: string;
+    email?: string;
+
+    constructor(data?: ICurrentUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): CurrentUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CurrentUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["email"] = this.email;
+        return data;
+    }
+}
+
+export interface ICurrentUserDto {
+    id?: string;
+    name?: string;
+    email?: string;
+}
+
 export class WeatherForecast implements IWeatherForecast {
-    date?: Date;
+    date?: DateTime;
     temperatureC?: number;
     temperatureF?: number;
     summary?: string | undefined;
@@ -1511,7 +2007,7 @@ export class WeatherForecast implements IWeatherForecast {
 
     init(_data?: any) {
         if (_data) {
-            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.date = _data["date"] ? DateTime.fromISO(_data["date"].toString()) : <any>undefined;
             this.temperatureC = _data["temperatureC"];
             this.temperatureF = _data["temperatureF"];
             this.summary = _data["summary"];
@@ -1527,7 +2023,7 @@ export class WeatherForecast implements IWeatherForecast {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["date"] = this.date ? this.date.toString() : <any>undefined;
         data["temperatureC"] = this.temperatureC;
         data["temperatureF"] = this.temperatureF;
         data["summary"] = this.summary;
@@ -1536,7 +2032,7 @@ export class WeatherForecast implements IWeatherForecast {
 }
 
 export interface IWeatherForecast {
-    date?: Date;
+    date?: DateTime;
     temperatureC?: number;
     temperatureF?: number;
     summary?: string | undefined;
@@ -2147,7 +2643,7 @@ export interface IInfoRequest {
     oldPassword?: string | undefined;
 }
 
-export class SwaggerException extends Error {
+export class ApiException extends Error {
     override message: string;
     status: number;
     response: string;
@@ -2164,10 +2660,10 @@ export class SwaggerException extends Error {
         this.result = result;
     }
 
-    protected isSwaggerException = true;
+    protected isApiException = true;
 
-    static isSwaggerException(obj: any): obj is SwaggerException {
-        return obj.isSwaggerException === true;
+    static isApiException(obj: any): obj is ApiException {
+        return obj.isApiException === true;
     }
 }
 
@@ -2175,5 +2671,12 @@ function throwException(message: string, status: number, response: string, heade
     if (result !== null && result !== undefined)
         throw result;
     else
-        throw new SwaggerException(message, status, response, headers, null);
+        throw new ApiException(message, status, response, headers, null);
 }
+
+function isAxiosError(obj: any): obj is AxiosError {
+    return obj && obj.isAxiosError === true;
+}
+
+/* eslint-disable */
+// noinspection ES6UnusedImports
