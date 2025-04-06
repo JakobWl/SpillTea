@@ -1,16 +1,16 @@
 using FadeChat.Application.Common.Interfaces;
 using FadeChat.Application.Common.Models;
+using FadeChat.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace FadeChat.Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
+    private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
@@ -31,10 +31,8 @@ public class IdentityService : IIdentityService
 
     public async Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password)
     {
-        var user = new ApplicationUser
-        {
-            UserName = userName,
-            Email = userName,
+        var user = new ApplicationUser {
+            UserName = userName, Email = userName
         };
 
         var result = await _userManager.CreateAsync(user, password);

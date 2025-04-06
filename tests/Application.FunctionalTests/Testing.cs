@@ -1,4 +1,5 @@
 ﻿using FadeChat.Domain.Constants;
+using FadeChat.Domain.Entities;
 using FadeChat.Infrastructure.Data;
 using FadeChat.Infrastructure.Identity;
 using MediatR;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace FadeChat.Application.FunctionalTests;
 
 [SetUpFixture]
-public partial class Testing
+public class Testing
 {
     private static ITestDatabase _database = null!;
     private static CustomWebApplicationFactory _factory = null!;
@@ -44,20 +45,13 @@ public partial class Testing
         await mediator.Send(request);
     }
 
-    public static string? GetUserId()
-    {
-        return _userId;
-    }
+    public static string? GetUserId() => _userId;
 
-    public static async Task<string> RunAsDefaultUserAsync()
-    {
-        return await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());
-    }
+    public static async Task<string> RunAsDefaultUserAsync() => await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());
 
-    public static async Task<string> RunAsAdministratorAsync()
-    {
-        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Roles.Administrator });
-    }
+    public static async Task<string> RunAsAdministratorAsync() => await RunAsUserAsync("administrator@local", "Administrator1234!", new[] {
+        Roles.Administrator
+    });
 
     public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
     {
@@ -65,7 +59,9 @@ public partial class Testing
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        var user = new ApplicationUser { UserName = userName, Email = userName };
+        var user = new ApplicationUser {
+            UserName = userName, Email = userName
+        };
 
         var result = await userManager.CreateAsync(user, password);
 
@@ -99,9 +95,8 @@ public partial class Testing
         {
             await _database.ResetAsync();
         }
-        catch (Exception) 
-        {
-        }
+        catch (Exception)
+        { }
 
         _userId = null;
     }

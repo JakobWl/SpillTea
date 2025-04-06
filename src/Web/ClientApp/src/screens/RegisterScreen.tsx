@@ -121,6 +121,7 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
             mode="outlined"
             style={styles.input}
             disabled={isLoading}
+            onSubmitEditing={handleRegister}
             right={
               <TextInput.Icon
                 icon={secureConfirmTextEntry ? "eye-off" : "eye"}

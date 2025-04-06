@@ -28,7 +28,7 @@ export class ChatClient extends ClientBase {
 
     }
 
-    getRecentMessages( cancelToken?: CancelToken): Promise<void> {
+    getChats( cancelToken?: CancelToken): Promise<PaginatedListOfChatDto> {
         let url_ = this.baseUrl + "/api/Chat";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -36,130 +36,6 @@ export class ChatClient extends ClientBase {
             method: "GET",
             url: url_,
             headers: {
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetRecentMessages(_response);
-        });
-    }
-
-    protected processGetRecentMessages(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    sendMessage(message: string, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/Chat?";
-        if (message === undefined || message === null)
-            throw new Error("The parameter 'message' must be defined and cannot be null.");
-        else
-            url_ += "message=" + encodeURIComponent("" + message) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "POST",
-            url: url_,
-            headers: {
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processSendMessage(_response);
-        });
-    }
-
-    protected processSendMessage(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-}
-
-export class TodoItemsClient extends ClientBase {
-    protected instance: AxiosInstance;
-    protected baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-
-        super();
-
-        this.instance = instance || axios.create();
-
-        this.baseUrl = baseUrl ?? "";
-
-    }
-
-    getTodoItemsWithPagination(listId: number, pageNumber: number, pageSize: number, cancelToken?: CancelToken): Promise<PaginatedListOfTodoItemBriefDto> {
-        let url_ = this.baseUrl + "/api/TodoItems?";
-        if (listId === undefined || listId === null)
-            throw new Error("The parameter 'listId' must be defined and cannot be null.");
-        else
-            url_ += "ListId=" + encodeURIComponent("" + listId) + "&";
-        if (pageNumber === undefined || pageNumber === null)
-            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
-        else
-            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
-        if (pageSize === undefined || pageSize === null)
-            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
-        else
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
                 "Accept": "application/json"
             },
             cancelToken
@@ -174,11 +50,11 @@ export class TodoItemsClient extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetTodoItemsWithPagination(_response);
+            return this.processGetChats(_response);
         });
     }
 
-    protected processGetTodoItemsWithPagination(response: AxiosResponse): Promise<PaginatedListOfTodoItemBriefDto> {
+    protected processGetChats(response: AxiosResponse): Promise<PaginatedListOfChatDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -192,459 +68,14 @@ export class TodoItemsClient extends ClientBase {
             const _responseText = response.data;
             let result200: any = null;
             let resultData200  = _responseText;
-            result200 = PaginatedListOfTodoItemBriefDto.fromJS(resultData200);
-            return Promise.resolve<PaginatedListOfTodoItemBriefDto>(result200);
+            result200 = PaginatedListOfChatDto.fromJS(resultData200);
+            return Promise.resolve<PaginatedListOfChatDto>(result200);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<PaginatedListOfTodoItemBriefDto>(null as any);
-    }
-
-    createTodoItem(command: CreateTodoItemCommand, cancelToken?: CancelToken): Promise<number> {
-        let url_ = this.baseUrl + "/api/TodoItems";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "POST",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processCreateTodoItem(_response);
-        });
-    }
-
-    protected processCreateTodoItem(response: AxiosResponse): Promise<number> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 201) {
-            const _responseText = response.data;
-            let result201: any = null;
-            let resultData201  = _responseText;
-                result201 = resultData201 !== undefined ? resultData201 : <any>null;
-    
-            return Promise.resolve<number>(result201);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<number>(null as any);
-    }
-
-    updateTodoItem(id: number, command: UpdateTodoItemCommand, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/TodoItems/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUpdateTodoItem(_response);
-        });
-    }
-
-    protected processUpdateTodoItem(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status === 400) {
-            const _responseText = response.data;
-            return throwException("A server side error occurred.", status, _responseText, _headers);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    deleteTodoItem(id: number, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/TodoItems/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "DELETE",
-            url: url_,
-            headers: {
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processDeleteTodoItem(_response);
-        });
-    }
-
-    protected processDeleteTodoItem(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    updateTodoItemDetail(id: number, command: UpdateTodoItemDetailCommand, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/TodoItems/UpdateDetail/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUpdateTodoItemDetail(_response);
-        });
-    }
-
-    protected processUpdateTodoItemDetail(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status === 400) {
-            const _responseText = response.data;
-            return throwException("A server side error occurred.", status, _responseText, _headers);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-}
-
-export class TodoListsClient extends ClientBase {
-    protected instance: AxiosInstance;
-    protected baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-
-        super();
-
-        this.instance = instance || axios.create();
-
-        this.baseUrl = baseUrl ?? "";
-
-    }
-
-    getTodoLists( cancelToken?: CancelToken): Promise<TodosVm> {
-        let url_ = this.baseUrl + "/api/TodoLists";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetTodoLists(_response);
-        });
-    }
-
-    protected processGetTodoLists(response: AxiosResponse): Promise<TodosVm> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = TodosVm.fromJS(resultData200);
-            return Promise.resolve<TodosVm>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<TodosVm>(null as any);
-    }
-
-    createTodoList(command: CreateTodoListCommand, cancelToken?: CancelToken): Promise<number> {
-        let url_ = this.baseUrl + "/api/TodoLists";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "POST",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processCreateTodoList(_response);
-        });
-    }
-
-    protected processCreateTodoList(response: AxiosResponse): Promise<number> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 201) {
-            const _responseText = response.data;
-            let result201: any = null;
-            let resultData201  = _responseText;
-                result201 = resultData201 !== undefined ? resultData201 : <any>null;
-    
-            return Promise.resolve<number>(result201);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<number>(null as any);
-    }
-
-    updateTodoList(id: number, command: UpdateTodoListCommand, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/TodoLists/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUpdateTodoList(_response);
-        });
-    }
-
-    protected processUpdateTodoList(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status === 400) {
-            const _responseText = response.data;
-            return throwException("A server side error occurred.", status, _responseText, _headers);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    deleteTodoList(id: number, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/TodoLists/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "DELETE",
-            url: url_,
-            headers: {
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processDeleteTodoList(_response);
-        });
-    }
-
-    protected processDeleteTodoList(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<PaginatedListOfChatDto>(null as any);
     }
 }
 
@@ -711,79 +142,6 @@ export class UserClient extends ClientBase {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<CurrentUserDto>(null as any);
-    }
-}
-
-export class WeatherForecastsClient extends ClientBase {
-    protected instance: AxiosInstance;
-    protected baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-
-        super();
-
-        this.instance = instance || axios.create();
-
-        this.baseUrl = baseUrl ?? "";
-
-    }
-
-    getWeatherForecasts( cancelToken?: CancelToken): Promise<WeatherForecast[]> {
-        let url_ = this.baseUrl + "/api/WeatherForecasts";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.transformOptions(options_).then(transformedOptions_ => {
-            return this.instance.request(transformedOptions_);
-        }).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetWeatherForecasts(_response);
-        });
-    }
-
-    protected processGetWeatherForecasts(response: AxiosResponse): Promise<WeatherForecast[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(WeatherForecast.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<WeatherForecast[]>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<WeatherForecast[]>(null as any);
     }
 }
 
@@ -1383,15 +741,15 @@ export class Client extends ClientBase {
     }
 }
 
-export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {
-    items?: TodoItemBriefDto[];
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
+export class PaginatedListOfChatDto implements IPaginatedListOfChatDto {
+    items!: ChatDto[];
+    pageNumber!: number;
+    totalPages!: number;
+    totalCount!: number;
+    hasPreviousPage!: boolean;
+    hasNextPage!: boolean;
 
-    constructor(data?: IPaginatedListOfTodoItemBriefDto) {
+    constructor(data?: IPaginatedListOfChatDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1401,9 +759,12 @@ export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItem
                 this.items = [];
                 for (let i = 0; i < data.items.length; i++) {
                     let item = data.items[i];
-                    this.items[i] = item && !(<any>item).toJSON ? new TodoItemBriefDto(item) : <TodoItemBriefDto>item;
+                    this.items[i] = item && !(<any>item).toJSON ? new ChatDto(item) : <ChatDto>item;
                 }
             }
+        }
+        if (!data) {
+            this.items = [];
         }
     }
 
@@ -1412,7 +773,7 @@ export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItem
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(TodoItemBriefDto.fromJS(item));
+                    this.items!.push(ChatDto.fromJS(item));
             }
             this.pageNumber = _data["pageNumber"];
             this.totalPages = _data["totalPages"];
@@ -1422,9 +783,9 @@ export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItem
         }
     }
 
-    static fromJS(data: any): PaginatedListOfTodoItemBriefDto {
+    static fromJS(data: any): PaginatedListOfChatDto {
         data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfTodoItemBriefDto();
+        let result = new PaginatedListOfChatDto();
         result.init(data);
         return result;
     }
@@ -1445,22 +806,22 @@ export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItem
     }
 }
 
-export interface IPaginatedListOfTodoItemBriefDto {
-    items?: ITodoItemBriefDto[];
-    pageNumber?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
+export interface IPaginatedListOfChatDto {
+    items: IChatDto[];
+    pageNumber: number;
+    totalPages: number;
+    totalCount: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
 }
 
-export class TodoItemBriefDto implements ITodoItemBriefDto {
-    id?: number;
-    listId?: number;
-    title?: string | undefined;
-    done?: boolean;
+export class ChatDto implements IChatDto {
+    id!: number;
+    unreadCount!: number;
+    lastModified!: DateTime;
+    lastMessage!: string;
 
-    constructor(data?: ITodoItemBriefDto) {
+    constructor(data?: IChatDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1472,15 +833,15 @@ export class TodoItemBriefDto implements ITodoItemBriefDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.listId = _data["listId"];
-            this.title = _data["title"];
-            this.done = _data["done"];
+            this.unreadCount = _data["unreadCount"];
+            this.lastModified = _data["lastModified"] ? DateTime.fromISO(_data["lastModified"].toString()) : <any>undefined;
+            this.lastMessage = _data["lastMessage"];
         }
     }
 
-    static fromJS(data: any): TodoItemBriefDto {
+    static fromJS(data: any): ChatDto {
         data = typeof data === 'object' ? data : {};
-        let result = new TodoItemBriefDto();
+        let result = new ChatDto();
         result.init(data);
         return result;
     }
@@ -1488,468 +849,24 @@ export class TodoItemBriefDto implements ITodoItemBriefDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["listId"] = this.listId;
-        data["title"] = this.title;
-        data["done"] = this.done;
+        data["unreadCount"] = this.unreadCount;
+        data["lastModified"] = this.lastModified ? this.lastModified.toString() : <any>undefined;
+        data["lastMessage"] = this.lastMessage;
         return data;
     }
 }
 
-export interface ITodoItemBriefDto {
-    id?: number;
-    listId?: number;
-    title?: string | undefined;
-    done?: boolean;
-}
-
-export class CreateTodoItemCommand implements ICreateTodoItemCommand {
-    listId?: number;
-    title?: string | undefined;
-
-    constructor(data?: ICreateTodoItemCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.listId = _data["listId"];
-            this.title = _data["title"];
-        }
-    }
-
-    static fromJS(data: any): CreateTodoItemCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateTodoItemCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["listId"] = this.listId;
-        data["title"] = this.title;
-        return data;
-    }
-}
-
-export interface ICreateTodoItemCommand {
-    listId?: number;
-    title?: string | undefined;
-}
-
-export class UpdateTodoItemCommand implements IUpdateTodoItemCommand {
-    id?: number;
-    title?: string | undefined;
-    done?: boolean;
-
-    constructor(data?: IUpdateTodoItemCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-            this.done = _data["done"];
-        }
-    }
-
-    static fromJS(data: any): UpdateTodoItemCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateTodoItemCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        data["done"] = this.done;
-        return data;
-    }
-}
-
-export interface IUpdateTodoItemCommand {
-    id?: number;
-    title?: string | undefined;
-    done?: boolean;
-}
-
-export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand {
-    id?: number;
-    listId?: number;
-    priority?: PriorityLevel;
-    note?: string | undefined;
-
-    constructor(data?: IUpdateTodoItemDetailCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.listId = _data["listId"];
-            this.priority = _data["priority"];
-            this.note = _data["note"];
-        }
-    }
-
-    static fromJS(data: any): UpdateTodoItemDetailCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateTodoItemDetailCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["listId"] = this.listId;
-        data["priority"] = this.priority;
-        data["note"] = this.note;
-        return data;
-    }
-}
-
-export interface IUpdateTodoItemDetailCommand {
-    id?: number;
-    listId?: number;
-    priority?: PriorityLevel;
-    note?: string | undefined;
-}
-
-export enum PriorityLevel {
-    None = 0,
-    Low = 1,
-    Medium = 2,
-    High = 3,
-}
-
-export class TodosVm implements ITodosVm {
-    priorityLevels?: LookupDto[];
-    lists?: TodoListDto[];
-
-    constructor(data?: ITodosVm) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-            if (data.priorityLevels) {
-                this.priorityLevels = [];
-                for (let i = 0; i < data.priorityLevels.length; i++) {
-                    let item = data.priorityLevels[i];
-                    this.priorityLevels[i] = item && !(<any>item).toJSON ? new LookupDto(item) : <LookupDto>item;
-                }
-            }
-            if (data.lists) {
-                this.lists = [];
-                for (let i = 0; i < data.lists.length; i++) {
-                    let item = data.lists[i];
-                    this.lists[i] = item && !(<any>item).toJSON ? new TodoListDto(item) : <TodoListDto>item;
-                }
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["priorityLevels"])) {
-                this.priorityLevels = [] as any;
-                for (let item of _data["priorityLevels"])
-                    this.priorityLevels!.push(LookupDto.fromJS(item));
-            }
-            if (Array.isArray(_data["lists"])) {
-                this.lists = [] as any;
-                for (let item of _data["lists"])
-                    this.lists!.push(TodoListDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): TodosVm {
-        data = typeof data === 'object' ? data : {};
-        let result = new TodosVm();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.priorityLevels)) {
-            data["priorityLevels"] = [];
-            for (let item of this.priorityLevels)
-                data["priorityLevels"].push(item.toJSON());
-        }
-        if (Array.isArray(this.lists)) {
-            data["lists"] = [];
-            for (let item of this.lists)
-                data["lists"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ITodosVm {
-    priorityLevels?: ILookupDto[];
-    lists?: ITodoListDto[];
-}
-
-export class LookupDto implements ILookupDto {
-    id?: number;
-    title?: string | undefined;
-
-    constructor(data?: ILookupDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-        }
-    }
-
-    static fromJS(data: any): LookupDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new LookupDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        return data;
-    }
-}
-
-export interface ILookupDto {
-    id?: number;
-    title?: string | undefined;
-}
-
-export class TodoListDto implements ITodoListDto {
-    id?: number;
-    title?: string | undefined;
-    colour?: string | undefined;
-    items?: TodoItemDto[];
-
-    constructor(data?: ITodoListDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-            if (data.items) {
-                this.items = [];
-                for (let i = 0; i < data.items.length; i++) {
-                    let item = data.items[i];
-                    this.items[i] = item && !(<any>item).toJSON ? new TodoItemDto(item) : <TodoItemDto>item;
-                }
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-            this.colour = _data["colour"];
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(TodoItemDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): TodoListDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TodoListDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        data["colour"] = this.colour;
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ITodoListDto {
-    id?: number;
-    title?: string | undefined;
-    colour?: string | undefined;
-    items?: ITodoItemDto[];
-}
-
-export class TodoItemDto implements ITodoItemDto {
-    id?: number;
-    listId?: number;
-    title?: string | undefined;
-    done?: boolean;
-    priority?: number;
-    note?: string | undefined;
-
-    constructor(data?: ITodoItemDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.listId = _data["listId"];
-            this.title = _data["title"];
-            this.done = _data["done"];
-            this.priority = _data["priority"];
-            this.note = _data["note"];
-        }
-    }
-
-    static fromJS(data: any): TodoItemDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TodoItemDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["listId"] = this.listId;
-        data["title"] = this.title;
-        data["done"] = this.done;
-        data["priority"] = this.priority;
-        data["note"] = this.note;
-        return data;
-    }
-}
-
-export interface ITodoItemDto {
-    id?: number;
-    listId?: number;
-    title?: string | undefined;
-    done?: boolean;
-    priority?: number;
-    note?: string | undefined;
-}
-
-export class CreateTodoListCommand implements ICreateTodoListCommand {
-    title?: string | undefined;
-
-    constructor(data?: ICreateTodoListCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.title = _data["title"];
-        }
-    }
-
-    static fromJS(data: any): CreateTodoListCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateTodoListCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["title"] = this.title;
-        return data;
-    }
-}
-
-export interface ICreateTodoListCommand {
-    title?: string | undefined;
-}
-
-export class UpdateTodoListCommand implements IUpdateTodoListCommand {
-    id?: number;
-    title?: string | undefined;
-
-    constructor(data?: IUpdateTodoListCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.title = _data["title"];
-        }
-    }
-
-    static fromJS(data: any): UpdateTodoListCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateTodoListCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["title"] = this.title;
-        return data;
-    }
-}
-
-export interface IUpdateTodoListCommand {
-    id?: number;
-    title?: string | undefined;
+export interface IChatDto {
+    id: number;
+    unreadCount: number;
+    lastModified: DateTime;
+    lastMessage: string;
 }
 
 export class CurrentUserDto implements ICurrentUserDto {
-    id?: string;
-    name?: string;
-    email?: string;
+    id!: string;
+    name!: string;
+    email!: string;
 
     constructor(data?: ICurrentUserDto) {
         if (data) {
@@ -1985,65 +902,17 @@ export class CurrentUserDto implements ICurrentUserDto {
 }
 
 export interface ICurrentUserDto {
-    id?: string;
-    name?: string;
-    email?: string;
-}
-
-export class WeatherForecast implements IWeatherForecast {
-    date?: DateTime;
-    temperatureC?: number;
-    temperatureF?: number;
-    summary?: string | undefined;
-
-    constructor(data?: IWeatherForecast) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.date = _data["date"] ? DateTime.fromISO(_data["date"].toString()) : <any>undefined;
-            this.temperatureC = _data["temperatureC"];
-            this.temperatureF = _data["temperatureF"];
-            this.summary = _data["summary"];
-        }
-    }
-
-    static fromJS(data: any): WeatherForecast {
-        data = typeof data === 'object' ? data : {};
-        let result = new WeatherForecast();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["date"] = this.date ? this.date.toString() : <any>undefined;
-        data["temperatureC"] = this.temperatureC;
-        data["temperatureF"] = this.temperatureF;
-        data["summary"] = this.summary;
-        return data;
-    }
-}
-
-export interface IWeatherForecast {
-    date?: DateTime;
-    temperatureC?: number;
-    temperatureF?: number;
-    summary?: string | undefined;
+    id: string;
+    name: string;
+    email: string;
 }
 
 export class ProblemDetails implements IProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
 
     [key: string]: any;
 
@@ -2093,22 +962,25 @@ export class ProblemDetails implements IProblemDetails {
 }
 
 export interface IProblemDetails {
-    type?: string | undefined;
-    title?: string | undefined;
-    status?: number | undefined;
-    detail?: string | undefined;
-    instance?: string | undefined;
+    type?: string;
+    title?: string;
+    status?: number;
+    detail?: string;
+    instance?: string;
 
     [key: string]: any;
 }
 
 export class HttpValidationProblemDetails extends ProblemDetails implements IHttpValidationProblemDetails {
-    errors?: { [key: string]: string[]; };
+    errors!: { [key: string]: string[]; };
 
     [key: string]: any;
 
     constructor(data?: IHttpValidationProblemDetails) {
         super(data);
+        if (!data) {
+            this.errors = {};
+        }
     }
 
     override init(_data?: any) {
@@ -2154,14 +1026,14 @@ export class HttpValidationProblemDetails extends ProblemDetails implements IHtt
 }
 
 export interface IHttpValidationProblemDetails extends IProblemDetails {
-    errors?: { [key: string]: string[]; };
+    errors: { [key: string]: string[]; };
 
     [key: string]: any;
 }
 
 export class RegisterRequest implements IRegisterRequest {
-    email?: string;
-    password?: string;
+    email!: string;
+    password!: string;
 
     constructor(data?: IRegisterRequest) {
         if (data) {
@@ -2195,15 +1067,15 @@ export class RegisterRequest implements IRegisterRequest {
 }
 
 export interface IRegisterRequest {
-    email?: string;
-    password?: string;
+    email: string;
+    password: string;
 }
 
 export class AccessTokenResponse implements IAccessTokenResponse {
-    tokenType?: string;
-    accessToken?: string;
-    expiresIn?: number;
-    refreshToken?: string;
+    tokenType!: string;
+    accessToken!: string;
+    expiresIn!: number;
+    refreshToken!: string;
 
     constructor(data?: IAccessTokenResponse) {
         if (data) {
@@ -2241,17 +1113,17 @@ export class AccessTokenResponse implements IAccessTokenResponse {
 }
 
 export interface IAccessTokenResponse {
-    tokenType?: string;
-    accessToken?: string;
-    expiresIn?: number;
-    refreshToken?: string;
+    tokenType: string;
+    accessToken: string;
+    expiresIn: number;
+    refreshToken: string;
 }
 
 export class LoginRequest implements ILoginRequest {
-    email?: string;
-    password?: string;
-    twoFactorCode?: string | undefined;
-    twoFactorRecoveryCode?: string | undefined;
+    email!: string;
+    password!: string;
+    twoFactorCode?: string;
+    twoFactorRecoveryCode?: string;
 
     constructor(data?: ILoginRequest) {
         if (data) {
@@ -2289,14 +1161,14 @@ export class LoginRequest implements ILoginRequest {
 }
 
 export interface ILoginRequest {
-    email?: string;
-    password?: string;
-    twoFactorCode?: string | undefined;
-    twoFactorRecoveryCode?: string | undefined;
+    email: string;
+    password: string;
+    twoFactorCode?: string;
+    twoFactorRecoveryCode?: string;
 }
 
 export class RefreshRequest implements IRefreshRequest {
-    refreshToken?: string;
+    refreshToken!: string;
 
     constructor(data?: IRefreshRequest) {
         if (data) {
@@ -2328,11 +1200,11 @@ export class RefreshRequest implements IRefreshRequest {
 }
 
 export interface IRefreshRequest {
-    refreshToken?: string;
+    refreshToken: string;
 }
 
 export class ResendConfirmationEmailRequest implements IResendConfirmationEmailRequest {
-    email?: string;
+    email!: string;
 
     constructor(data?: IResendConfirmationEmailRequest) {
         if (data) {
@@ -2364,11 +1236,11 @@ export class ResendConfirmationEmailRequest implements IResendConfirmationEmailR
 }
 
 export interface IResendConfirmationEmailRequest {
-    email?: string;
+    email: string;
 }
 
 export class ForgotPasswordRequest implements IForgotPasswordRequest {
-    email?: string;
+    email!: string;
 
     constructor(data?: IForgotPasswordRequest) {
         if (data) {
@@ -2400,13 +1272,13 @@ export class ForgotPasswordRequest implements IForgotPasswordRequest {
 }
 
 export interface IForgotPasswordRequest {
-    email?: string;
+    email: string;
 }
 
 export class ResetPasswordRequest implements IResetPasswordRequest {
-    email?: string;
-    resetCode?: string;
-    newPassword?: string;
+    email!: string;
+    resetCode!: string;
+    newPassword!: string;
 
     constructor(data?: IResetPasswordRequest) {
         if (data) {
@@ -2442,17 +1314,17 @@ export class ResetPasswordRequest implements IResetPasswordRequest {
 }
 
 export interface IResetPasswordRequest {
-    email?: string;
-    resetCode?: string;
-    newPassword?: string;
+    email: string;
+    resetCode: string;
+    newPassword: string;
 }
 
 export class TwoFactorResponse implements ITwoFactorResponse {
-    sharedKey?: string;
-    recoveryCodesLeft?: number;
-    recoveryCodes?: string[] | undefined;
-    isTwoFactorEnabled?: boolean;
-    isMachineRemembered?: boolean;
+    sharedKey!: string;
+    recoveryCodesLeft!: number;
+    recoveryCodes?: string[];
+    isTwoFactorEnabled!: boolean;
+    isMachineRemembered!: boolean;
 
     constructor(data?: ITwoFactorResponse) {
         if (data) {
@@ -2500,19 +1372,19 @@ export class TwoFactorResponse implements ITwoFactorResponse {
 }
 
 export interface ITwoFactorResponse {
-    sharedKey?: string;
-    recoveryCodesLeft?: number;
-    recoveryCodes?: string[] | undefined;
-    isTwoFactorEnabled?: boolean;
-    isMachineRemembered?: boolean;
+    sharedKey: string;
+    recoveryCodesLeft: number;
+    recoveryCodes?: string[];
+    isTwoFactorEnabled: boolean;
+    isMachineRemembered: boolean;
 }
 
 export class TwoFactorRequest implements ITwoFactorRequest {
-    enable?: boolean | undefined;
-    twoFactorCode?: string | undefined;
-    resetSharedKey?: boolean;
-    resetRecoveryCodes?: boolean;
-    forgetMachine?: boolean;
+    enable?: boolean;
+    twoFactorCode?: string;
+    resetSharedKey!: boolean;
+    resetRecoveryCodes!: boolean;
+    forgetMachine!: boolean;
 
     constructor(data?: ITwoFactorRequest) {
         if (data) {
@@ -2552,16 +1424,16 @@ export class TwoFactorRequest implements ITwoFactorRequest {
 }
 
 export interface ITwoFactorRequest {
-    enable?: boolean | undefined;
-    twoFactorCode?: string | undefined;
-    resetSharedKey?: boolean;
-    resetRecoveryCodes?: boolean;
-    forgetMachine?: boolean;
+    enable?: boolean;
+    twoFactorCode?: string;
+    resetSharedKey: boolean;
+    resetRecoveryCodes: boolean;
+    forgetMachine: boolean;
 }
 
 export class InfoResponse implements IInfoResponse {
-    email?: string;
-    isEmailConfirmed?: boolean;
+    email!: string;
+    isEmailConfirmed!: boolean;
 
     constructor(data?: IInfoResponse) {
         if (data) {
@@ -2595,14 +1467,14 @@ export class InfoResponse implements IInfoResponse {
 }
 
 export interface IInfoResponse {
-    email?: string;
-    isEmailConfirmed?: boolean;
+    email: string;
+    isEmailConfirmed: boolean;
 }
 
 export class InfoRequest implements IInfoRequest {
-    newEmail?: string | undefined;
-    newPassword?: string | undefined;
-    oldPassword?: string | undefined;
+    newEmail?: string;
+    newPassword?: string;
+    oldPassword?: string;
 
     constructor(data?: IInfoRequest) {
         if (data) {
@@ -2638,9 +1510,9 @@ export class InfoRequest implements IInfoRequest {
 }
 
 export interface IInfoRequest {
-    newEmail?: string | undefined;
-    newPassword?: string | undefined;
-    oldPassword?: string | undefined;
+    newEmail?: string;
+    newPassword?: string;
+    oldPassword?: string;
 }
 
 export class ApiException extends Error {

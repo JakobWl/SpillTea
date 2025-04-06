@@ -1,11 +1,11 @@
 using FadeChat.Application;
-using FadeChat.Application.Hubs;
+using FadeChat.Application.Chat.Hubs;
+using FadeChat.Domain.Entities;
 using FadeChat.Infrastructure;
 using FadeChat.Infrastructure.Data;
-using FadeChat.Infrastructure.Identity;
 using FadeChat.Web;
 
-WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.AddKeyVaultIfConfigured();
@@ -13,7 +13,7 @@ builder.AddApplicationServices();
 builder.AddInfrastructureServices();
 builder.AddWebServices();
 
-WebApplication? app = builder.Build();
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -61,6 +61,8 @@ app.MapIdentityApi<ApplicationUser>();
 
 app.Run();
 
-public partial class Program
+namespace FadeChat.Web
 {
+    public class Program
+    { }
 }

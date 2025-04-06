@@ -1,0 +1,7 @@
+namespace FadeChat.Infrastructure.Data.Encryption.Interfaces;
+
+public interface IStringEncryptionProvider
+{
+    string Encrypt(string dataToEncrypt);
+    string Decrypt(string dataToDecrypt);
+}

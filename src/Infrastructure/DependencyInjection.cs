@@ -2,6 +2,8 @@
 using FadeChat.Domain.Constants;
 using FadeChat.Domain.Entities;
 using FadeChat.Infrastructure.Data;
+using FadeChat.Infrastructure.Data.Encryption;
+using FadeChat.Infrastructure.Data.Encryption.Interfaces;
 using FadeChat.Infrastructure.Data.Interceptors;
 using FadeChat.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -22,6 +24,9 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+        builder.Services.AddSingleton<IStringEncryptionProvider, GenerateStringEncryptionProvider>();
+        builder.Services.AddSingleton<IBinaryEncryptionProvider, GenerateBinaryEncryptionProvider>();
+        builder.Services.AddSingleton<IStorageEncryptionProvider, StorageEncryptionProvider>();
 
         builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {

@@ -5,15 +5,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace FadeChat.Infrastructure.Data.Interceptors;
 
-public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
+public class DispatchDomainEventsInterceptor(IMediator mediator) : SaveChangesInterceptor
 {
-    private readonly IMediator _mediator;
-
-    public DispatchDomainEventsInterceptor(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         DispatchDomainEvents(eventData.Context).GetAwaiter().GetResult();
@@ -29,14 +22,14 @@ public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    public async Task DispatchDomainEvents(DbContext? context)
+    private async Task DispatchDomainEvents(DbContext? context)
     {
         if (context == null) return;
 
         var entities = context.ChangeTracker
             .Entries<BaseEntity>()
-            .Where(e => e.Entity.DomainEvents.Any())
-            .Select(e => e.Entity);
+            .Where(e => e.Entity.DomainEvents.Count != 0)
+            .Select(e => e.Entity).ToList();
 
         var domainEvents = entities
             .SelectMany(e => e.DomainEvents)
@@ -45,6 +38,6 @@ public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
         entities.ToList().ForEach(e => e.ClearDomainEvents());
 
         foreach (var domainEvent in domainEvents)
-            await _mediator.Publish(domainEvent);
+            await mediator.Publish(domainEvent);
     }
 }

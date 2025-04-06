@@ -1,23 +1,23 @@
-﻿using System.Reflection;
-using FadeChat.Application.Common.Interfaces;
+﻿using FadeChat.Application.Common.Interfaces;
 using FadeChat.Domain.Entities;
+using FadeChat.Infrastructure.Data.Encryption.Interfaces;
+using FadeChat.Infrastructure.Data.Extensions;
 using FadeChat.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace FadeChat.Infrastructure.Data;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options), IApplicationDbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-
-    public DbSet<TodoList> TodoLists => Set<TodoList>();
-
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+    public DbSet<Chat> Chats => Set<Chat>();
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.UseEncryption(this.GetService<IStringEncryptionProvider>(),
+            this.GetService<IBinaryEncryptionProvider>());
     }
 }

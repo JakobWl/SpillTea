@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
 using FadeChat.Application.Common.Interfaces;
 using FadeChat.Infrastructure.Data;
+using FadeChat.Web;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -24,8 +25,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         _connectionString = connectionString;
     }
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
+    protected override void ConfigureWebHost(IWebHostBuilder builder) =>
         builder.ConfigureTestServices(services =>
         {
             services
@@ -39,5 +39,4 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                     options.UseSqlServer(_connection);
                 });
         });
-    }
 }

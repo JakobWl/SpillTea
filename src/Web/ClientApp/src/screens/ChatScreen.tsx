@@ -94,7 +94,7 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 
     try {
       // For a real app, we'll use SignalR
-      await signalRService.sendPrivateMessage(chatId, newMessage);
+      await signalRService.sendMessage(chatId, newMessage);
 
       // Add it locally for immediate feedback
       const newMsg: ChatMessage = {

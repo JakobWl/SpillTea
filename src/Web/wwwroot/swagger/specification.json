@@ -11,382 +11,17 @@
         "tags": [
           "Chat"
         ],
-        "operationId": "GetRecentMessages",
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Chat"
-        ],
-        "operationId": "SendMessage",
-        "parameters": [
-          {
-            "name": "message",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
-    },
-    "/api/TodoItems": {
-      "get": {
-        "tags": [
-          "TodoItems"
-        ],
-        "operationId": "GetTodoItemsWithPagination",
-        "parameters": [
-          {
-            "name": "ListId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 3
-          }
-        ],
+        "operationId": "GetChats",
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedListOfTodoItemBriefDto"
+                  "$ref": "#/components/schemas/PaginatedListOfChatDto"
                 }
               }
             }
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "TodoItems"
-        ],
-        "operationId": "CreateTodoItem",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTodoItemCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
-    },
-    "/api/TodoItems/{id}": {
-      "put": {
-        "tags": [
-          "TodoItems"
-        ],
-        "operationId": "UpdateTodoItem",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTodoItemCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "TodoItems"
-        ],
-        "operationId": "DeleteTodoItem",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
-    },
-    "/api/TodoItems/UpdateDetail/{id}": {
-      "put": {
-        "tags": [
-          "TodoItems"
-        ],
-        "operationId": "UpdateTodoItemDetail",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTodoItemDetailCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
-    },
-    "/api/TodoLists": {
-      "get": {
-        "tags": [
-          "TodoLists"
-        ],
-        "operationId": "GetTodoLists",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TodosVm"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "TodoLists"
-        ],
-        "operationId": "CreateTodoList",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTodoListCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
-    },
-    "/api/TodoLists/{id}": {
-      "put": {
-        "tags": [
-          "TodoLists"
-        ],
-        "operationId": "UpdateTodoList",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTodoListCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "TodoLists"
-        ],
-        "operationId": "DeleteTodoList",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
           }
         },
         "security": [
@@ -409,34 +44,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CurrentUserDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
-    },
-    "/api/WeatherForecasts": {
-      "get": {
-        "tags": [
-          "WeatherForecasts"
-        ],
-        "operationId": "GetWeatherForecasts",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WeatherForecast"
-                  }
                 }
               }
             }
@@ -816,14 +423,22 @@
   },
   "components": {
     "schemas": {
-      "PaginatedListOfTodoItemBriefDto": {
+      "PaginatedListOfChatDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "items",
+          "pageNumber",
+          "totalPages",
+          "totalCount",
+          "hasPreviousPage",
+          "hasNextPage"
+        ],
         "properties": {
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TodoItemBriefDto"
+              "$ref": "#/components/schemas/ChatDto"
             }
           },
           "pageNumber": {
@@ -846,207 +461,41 @@
           }
         }
       },
-      "TodoItemBriefDto": {
+      "ChatDto": {
         "type": "object",
         "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "listId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "done": {
-            "type": "boolean"
-          }
-        }
-      },
-      "CreateTodoItemCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "listId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UpdateTodoItemCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "done": {
-            "type": "boolean"
-          }
-        }
-      },
-      "UpdateTodoItemDetailCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "listId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "priority": {
-            "$ref": "#/components/schemas/PriorityLevel"
-          },
-          "note": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "PriorityLevel": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "None",
-          "Low",
-          "Medium",
-          "High"
+        "required": [
+          "id",
+          "unreadCount",
+          "lastModified",
+          "lastMessage"
         ],
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ]
-      },
-      "TodosVm": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "priorityLevels": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/LookupDto"
-            }
-          },
-          "lists": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TodoListDto"
-            }
-          }
-        }
-      },
-      "LookupDto": {
-        "type": "object",
-        "additionalProperties": false,
         "properties": {
           "id": {
             "type": "integer",
             "format": "int32"
           },
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "TodoListDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
+          "unreadCount": {
             "type": "integer",
             "format": "int32"
           },
-          "title": {
+          "lastModified": {
             "type": "string",
-            "nullable": true
+            "format": "date-time"
           },
-          "colour": {
-            "type": "string",
-            "nullable": true
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TodoItemDto"
-            }
-          }
-        }
-      },
-      "TodoItemDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "listId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "done": {
-            "type": "boolean"
-          },
-          "priority": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "note": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "CreateTodoListCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UpdateTodoListCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
+          "lastMessage": {
+            "type": "string"
           }
         }
       },
       "CurrentUserDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "email"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -1056,28 +505,6 @@
           },
           "email": {
             "type": "string"
-          }
-        }
-      },
-      "WeatherForecast": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "temperatureC": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "temperatureF": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "summary": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -1091,6 +518,9 @@
             "additionalProperties": {
               "nullable": true
             },
+            "required": [
+              "errors"
+            ],
             "properties": {
               "errors": {
                 "type": "object",
@@ -1113,30 +543,34 @@
         "properties": {
           "type": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           },
           "title": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           },
           "status": {
             "type": "integer",
             "format": "int32",
-            "nullable": true
+            "nullable": false
           },
           "detail": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           },
           "instance": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           }
         }
       },
       "RegisterRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "email",
+          "password"
+        ],
         "properties": {
           "email": {
             "type": "string"
@@ -1149,6 +583,12 @@
       "AccessTokenResponse": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "tokenType",
+          "accessToken",
+          "expiresIn",
+          "refreshToken"
+        ],
         "properties": {
           "tokenType": {
             "type": "string"
@@ -1168,6 +608,10 @@
       "LoginRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "email",
+          "password"
+        ],
         "properties": {
           "email": {
             "type": "string"
@@ -1177,17 +621,20 @@
           },
           "twoFactorCode": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           },
           "twoFactorRecoveryCode": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           }
         }
       },
       "RefreshRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "refreshToken"
+        ],
         "properties": {
           "refreshToken": {
             "type": "string"
@@ -1197,6 +644,9 @@
       "ResendConfirmationEmailRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "email"
+        ],
         "properties": {
           "email": {
             "type": "string"
@@ -1206,6 +656,9 @@
       "ForgotPasswordRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "email"
+        ],
         "properties": {
           "email": {
             "type": "string"
@@ -1215,6 +668,11 @@
       "ResetPasswordRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "email",
+          "resetCode",
+          "newPassword"
+        ],
         "properties": {
           "email": {
             "type": "string"
@@ -1230,6 +688,12 @@
       "TwoFactorResponse": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "sharedKey",
+          "recoveryCodesLeft",
+          "isTwoFactorEnabled",
+          "isMachineRemembered"
+        ],
         "properties": {
           "sharedKey": {
             "type": "string"
@@ -1240,7 +704,7 @@
           },
           "recoveryCodes": {
             "type": "array",
-            "nullable": true,
+            "nullable": false,
             "items": {
               "type": "string"
             }
@@ -1256,14 +720,19 @@
       "TwoFactorRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "resetSharedKey",
+          "resetRecoveryCodes",
+          "forgetMachine"
+        ],
         "properties": {
           "enable": {
             "type": "boolean",
-            "nullable": true
+            "nullable": false
           },
           "twoFactorCode": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           },
           "resetSharedKey": {
             "type": "boolean"
@@ -1279,6 +748,10 @@
       "InfoResponse": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "email",
+          "isEmailConfirmed"
+        ],
         "properties": {
           "email": {
             "type": "string"
@@ -1294,15 +767,15 @@
         "properties": {
           "newEmail": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           },
           "newPassword": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           },
           "oldPassword": {
             "type": "string",
-            "nullable": true
+            "nullable": false
           }
         }
       }

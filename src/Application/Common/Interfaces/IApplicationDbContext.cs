@@ -4,9 +4,9 @@ namespace FadeChat.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {
-    DbSet<TodoList> TodoLists { get; }
+    DbSet<Domain.Entities.Chat> Chats { get; }
 
-    DbSet<TodoItem> TodoItems { get; }
+    DbSet<ChatMessage> ChatMessages { get; }
 
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
