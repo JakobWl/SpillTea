@@ -1,27 +1,10 @@
 import { Platform } from 'react-native';
-import Constants from 'expo-constants';
 import { API_URL, SIGNALR_URL, ENV } from '@env';
 
-// Get config from Expo Constants if available
-const getExpoValue = (key: string): string | undefined => {
-  // @ts-ignore - Constants.manifest exists but may have different structure 
-  // depending on Expo version
-  if (Constants.manifest && Constants.manifest.extra && Constants.manifest.extra[key]) {
-    // @ts-ignore
-    return Constants.manifest.extra[key];
-  }
-  // @ts-ignore - Newer Expo versions use expoConfig
-  if (Constants.expoConfig && Constants.expoConfig.extra && Constants.expoConfig.extra[key]) {
-    // @ts-ignore
-    return Constants.expoConfig.extra[key];
-  }
-  return undefined;
-};
-
 // Try to get values from different sources, with fallbacks
-const apiUrl = getExpoValue('apiUrl') || API_URL || 'https://localhost:5001'; 
-const signalrUrl = getExpoValue('signalrUrl') || SIGNALR_URL || 'https://localhost:5001/hubs/chat';
-const environment = getExpoValue('env') || ENV || 'development';
+const apiUrl = API_URL || 'https://localhost:5001'; 
+const signalrUrl = SIGNALR_URL || 'https://localhost:5001/hubs/chat';
+const environment = ENV || 'development';
 
 // Helper to convert local URLs to the correct IP when running in an emulator
 const convertLocalhost = (url: string): string => {

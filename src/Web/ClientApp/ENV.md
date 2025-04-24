@@ -43,7 +43,7 @@ During development, the app will use development values:
 npm start
 
 # Or specify env variables inline
-API_URL=http://localhost:3000 npm start
+API_URL=https://localhost:5001 npm start
 ```
 
 ### Production Build
