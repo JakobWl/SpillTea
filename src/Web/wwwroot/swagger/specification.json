@@ -6,10 +6,10 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/Chat": {
+    "/api/Chats": {
       "get": {
         "tags": [
-          "Chat"
+          "Chats"
         ],
         "operationId": "GetChats",
         "responses": {
@@ -31,10 +31,10 @@
         ]
       }
     },
-    "/api/User": {
+    "/api/Users": {
       "get": {
         "tags": [
-          "User"
+          "Users"
         ],
         "operationId": "GetCurrentUser",
         "responses": {
@@ -56,9 +56,12 @@
         ]
       }
     },
-    "/register": {
+    "/api/Users/register": {
       "post": {
-        "operationId": "PostRegister",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiUsersRegister",
         "requestBody": {
           "x-name": "registration",
           "content": {
@@ -88,9 +91,12 @@
         }
       }
     },
-    "/login": {
+    "/api/Users/login": {
       "post": {
-        "operationId": "PostLogin",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiUsersLogin",
         "parameters": [
           {
             "name": "useCookies",
@@ -137,9 +143,12 @@
         }
       }
     },
-    "/refresh": {
+    "/api/Users/refresh": {
       "post": {
-        "operationId": "PostRefresh",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiUsersRefresh",
         "requestBody": {
           "x-name": "refreshRequest",
           "content": {
@@ -166,9 +175,12 @@
         }
       }
     },
-    "/confirmEmail": {
+    "/api/Users/confirmEmail": {
       "get": {
-        "operationId": "GetConfirmEmail",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiUsersConfirmEmail",
         "parameters": [
           {
             "name": "userId",
@@ -207,9 +219,12 @@
         }
       }
     },
-    "/resendConfirmationEmail": {
+    "/api/Users/resendConfirmationEmail": {
       "post": {
-        "operationId": "PostResendConfirmationEmail",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiUsersResendConfirmationEmail",
         "requestBody": {
           "x-name": "resendRequest",
           "content": {
@@ -229,9 +244,12 @@
         }
       }
     },
-    "/forgotPassword": {
+    "/api/Users/forgotPassword": {
       "post": {
-        "operationId": "PostForgotPassword",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiUsersForgotPassword",
         "requestBody": {
           "x-name": "resetRequest",
           "content": {
@@ -261,9 +279,12 @@
         }
       }
     },
-    "/resetPassword": {
+    "/api/Users/resetPassword": {
       "post": {
-        "operationId": "PostResetPassword",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiUsersResetPassword",
         "requestBody": {
           "x-name": "resetRequest",
           "content": {
@@ -293,9 +314,12 @@
         }
       }
     },
-    "/manage/2fa": {
+    "/api/Users/manage/2fa": {
       "post": {
-        "operationId": "PostManage2fa",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiUsersManage2fa",
         "requestBody": {
           "x-name": "tfaRequest",
           "content": {
@@ -340,9 +364,12 @@
         ]
       }
     },
-    "/manage/info": {
+    "/api/Users/manage/info": {
       "get": {
-        "operationId": "GetManageInfo",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiUsersManageInfo",
         "responses": {
           "200": {
             "description": "",
@@ -375,7 +402,10 @@
         ]
       },
       "post": {
-        "operationId": "PostManageInfo",
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiUsersManageInfo",
         "requestBody": {
           "x-name": "infoRequest",
           "content": {
@@ -418,6 +448,50 @@
             "oauth2": []
           }
         ]
+      }
+    },
+    "/api/Users/google/login": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "LoginWithGoogle",
+        "parameters": [
+          {
+            "name": "returnUrl",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/Users/cookie-logout": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "LogoutUser",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },

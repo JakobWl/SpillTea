@@ -13,7 +13,7 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, CancelToken } fr
 
 import { DateTime, Duration } from "luxon";
 
-export class ChatClient extends ClientBase {
+export class ChatsClient extends ClientBase {
     protected instance: AxiosInstance;
     protected baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -29,7 +29,7 @@ export class ChatClient extends ClientBase {
     }
 
     getChats( cancelToken?: CancelToken): Promise<PaginatedListOfChatDto> {
-        let url_ = this.baseUrl + "/api/Chat";
+        let url_ = this.baseUrl + "/api/Chats";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {
@@ -79,7 +79,7 @@ export class ChatClient extends ClientBase {
     }
 }
 
-export class UserClient extends ClientBase {
+export class UsersClient extends ClientBase {
     protected instance: AxiosInstance;
     protected baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -95,7 +95,7 @@ export class UserClient extends ClientBase {
     }
 
     getCurrentUser( cancelToken?: CancelToken): Promise<CurrentUserDto> {
-        let url_ = this.baseUrl + "/api/User";
+        let url_ = this.baseUrl + "/api/Users";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {
@@ -143,25 +143,9 @@ export class UserClient extends ClientBase {
         }
         return Promise.resolve<CurrentUserDto>(null as any);
     }
-}
 
-export class Client extends ClientBase {
-    protected instance: AxiosInstance;
-    protected baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, instance?: AxiosInstance) {
-
-        super();
-
-        this.instance = instance || axios.create();
-
-        this.baseUrl = baseUrl ?? "";
-
-    }
-
-    postRegister(registration: RegisterRequest, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/register";
+    postApiUsersRegister(registration: RegisterRequest, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/register";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(registration);
@@ -185,11 +169,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processPostRegister(_response);
+            return this.processPostApiUsersRegister(_response);
         });
     }
 
-    protected processPostRegister(response: AxiosResponse): Promise<void> {
+    protected processPostApiUsersRegister(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -217,8 +201,8 @@ export class Client extends ClientBase {
         return Promise.resolve<void>(null as any);
     }
 
-    postLogin(login: LoginRequest, useCookies?: boolean | null | undefined, useSessionCookies?: boolean | null | undefined, cancelToken?: CancelToken): Promise<AccessTokenResponse> {
-        let url_ = this.baseUrl + "/login?";
+    postApiUsersLogin(login: LoginRequest, useCookies?: boolean | null | undefined, useSessionCookies?: boolean | null | undefined, cancelToken?: CancelToken): Promise<AccessTokenResponse> {
+        let url_ = this.baseUrl + "/api/Users/login?";
         if (useCookies !== undefined && useCookies !== null)
             url_ += "useCookies=" + encodeURIComponent("" + useCookies) + "&";
         if (useSessionCookies !== undefined && useSessionCookies !== null)
@@ -247,11 +231,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processPostLogin(_response);
+            return this.processPostApiUsersLogin(_response);
         });
     }
 
-    protected processPostLogin(response: AxiosResponse): Promise<AccessTokenResponse> {
+    protected processPostApiUsersLogin(response: AxiosResponse): Promise<AccessTokenResponse> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -275,8 +259,8 @@ export class Client extends ClientBase {
         return Promise.resolve<AccessTokenResponse>(null as any);
     }
 
-    postRefresh(refreshRequest: RefreshRequest, cancelToken?: CancelToken): Promise<AccessTokenResponse> {
-        let url_ = this.baseUrl + "/refresh";
+    postApiUsersRefresh(refreshRequest: RefreshRequest, cancelToken?: CancelToken): Promise<AccessTokenResponse> {
+        let url_ = this.baseUrl + "/api/Users/refresh";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(refreshRequest);
@@ -301,11 +285,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processPostRefresh(_response);
+            return this.processPostApiUsersRefresh(_response);
         });
     }
 
-    protected processPostRefresh(response: AxiosResponse): Promise<AccessTokenResponse> {
+    protected processPostApiUsersRefresh(response: AxiosResponse): Promise<AccessTokenResponse> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -329,8 +313,8 @@ export class Client extends ClientBase {
         return Promise.resolve<AccessTokenResponse>(null as any);
     }
 
-    getConfirmEmail(userId: string | null, code: string | null, changedEmail?: string | null | undefined, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/confirmEmail?";
+    getApiUsersConfirmEmail(userId: string | null, code: string | null, changedEmail?: string | null | undefined, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/confirmEmail?";
         if (userId === undefined)
             throw new Error("The parameter 'userId' must be defined.");
         else if(userId !== null)
@@ -360,11 +344,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetConfirmEmail(_response);
+            return this.processGetApiUsersConfirmEmail(_response);
         });
     }
 
-    protected processGetConfirmEmail(response: AxiosResponse): Promise<void> {
+    protected processGetApiUsersConfirmEmail(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -385,8 +369,8 @@ export class Client extends ClientBase {
         return Promise.resolve<void>(null as any);
     }
 
-    postResendConfirmationEmail(resendRequest: ResendConfirmationEmailRequest, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/resendConfirmationEmail";
+    postApiUsersResendConfirmationEmail(resendRequest: ResendConfirmationEmailRequest, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/resendConfirmationEmail";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(resendRequest);
@@ -410,11 +394,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processPostResendConfirmationEmail(_response);
+            return this.processPostApiUsersResendConfirmationEmail(_response);
         });
     }
 
-    protected processPostResendConfirmationEmail(response: AxiosResponse): Promise<void> {
+    protected processPostApiUsersResendConfirmationEmail(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -435,8 +419,8 @@ export class Client extends ClientBase {
         return Promise.resolve<void>(null as any);
     }
 
-    postForgotPassword(resetRequest: ForgotPasswordRequest, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/forgotPassword";
+    postApiUsersForgotPassword(resetRequest: ForgotPasswordRequest, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/forgotPassword";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(resetRequest);
@@ -460,11 +444,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processPostForgotPassword(_response);
+            return this.processPostApiUsersForgotPassword(_response);
         });
     }
 
-    protected processPostForgotPassword(response: AxiosResponse): Promise<void> {
+    protected processPostApiUsersForgotPassword(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -492,8 +476,8 @@ export class Client extends ClientBase {
         return Promise.resolve<void>(null as any);
     }
 
-    postResetPassword(resetRequest: ResetPasswordRequest, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/resetPassword";
+    postApiUsersResetPassword(resetRequest: ResetPasswordRequest, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/resetPassword";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(resetRequest);
@@ -517,11 +501,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processPostResetPassword(_response);
+            return this.processPostApiUsersResetPassword(_response);
         });
     }
 
-    protected processPostResetPassword(response: AxiosResponse): Promise<void> {
+    protected processPostApiUsersResetPassword(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -549,8 +533,8 @@ export class Client extends ClientBase {
         return Promise.resolve<void>(null as any);
     }
 
-    postManage2fa(tfaRequest: TwoFactorRequest, cancelToken?: CancelToken): Promise<TwoFactorResponse> {
-        let url_ = this.baseUrl + "/manage/2fa";
+    postApiUsersManage2fa(tfaRequest: TwoFactorRequest, cancelToken?: CancelToken): Promise<TwoFactorResponse> {
+        let url_ = this.baseUrl + "/api/Users/manage/2fa";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(tfaRequest);
@@ -575,11 +559,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processPostManage2fa(_response);
+            return this.processPostApiUsersManage2fa(_response);
         });
     }
 
-    protected processPostManage2fa(response: AxiosResponse): Promise<TwoFactorResponse> {
+    protected processPostApiUsersManage2fa(response: AxiosResponse): Promise<TwoFactorResponse> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -614,8 +598,8 @@ export class Client extends ClientBase {
         return Promise.resolve<TwoFactorResponse>(null as any);
     }
 
-    getManageInfo( cancelToken?: CancelToken): Promise<InfoResponse> {
-        let url_ = this.baseUrl + "/manage/info";
+    getApiUsersManageInfo( cancelToken?: CancelToken): Promise<InfoResponse> {
+        let url_ = this.baseUrl + "/api/Users/manage/info";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {
@@ -636,11 +620,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetManageInfo(_response);
+            return this.processGetApiUsersManageInfo(_response);
         });
     }
 
-    protected processGetManageInfo(response: AxiosResponse): Promise<InfoResponse> {
+    protected processGetApiUsersManageInfo(response: AxiosResponse): Promise<InfoResponse> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -675,8 +659,8 @@ export class Client extends ClientBase {
         return Promise.resolve<InfoResponse>(null as any);
     }
 
-    postManageInfo(infoRequest: InfoRequest, cancelToken?: CancelToken): Promise<InfoResponse> {
-        let url_ = this.baseUrl + "/manage/info";
+    postApiUsersManageInfo(infoRequest: InfoRequest, cancelToken?: CancelToken): Promise<InfoResponse> {
+        let url_ = this.baseUrl + "/api/Users/manage/info";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(infoRequest);
@@ -701,11 +685,11 @@ export class Client extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processPostManageInfo(_response);
+            return this.processPostApiUsersManageInfo(_response);
         });
     }
 
-    protected processPostManageInfo(response: AxiosResponse): Promise<InfoResponse> {
+    protected processPostApiUsersManageInfo(response: AxiosResponse): Promise<InfoResponse> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -738,6 +722,105 @@ export class Client extends ClientBase {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<InfoResponse>(null as any);
+    }
+
+    loginWithGoogle(returnUrl?: string | null | undefined, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/google/login?";
+        if (returnUrl !== undefined && returnUrl !== null)
+            url_ += "returnUrl=" + encodeURIComponent("" + returnUrl) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+            },
+            cancelToken
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processLoginWithGoogle(_response);
+        });
+    }
+
+    protected processLoginWithGoogle(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    logoutUser( cancelToken?: CancelToken): Promise<string> {
+        let url_ = this.baseUrl + "/api/Users/cookie-logout";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "POST",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processLogoutUser(_response);
+        });
+    }
+
+    protected processLogoutUser(response: AxiosResponse): Promise<string> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return Promise.resolve<string>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<string>(null as any);
     }
 }
 

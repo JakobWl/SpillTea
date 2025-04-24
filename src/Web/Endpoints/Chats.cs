@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FadeChat.Web.Endpoints;
 
-public class Chat : EndpointGroupBase
+public class Chats : EndpointGroupBase
 {
     public override void Map(WebApplication app) =>
         app.MapGroup(this)

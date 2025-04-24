@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace FadeChat.Web;
 
@@ -24,8 +25,6 @@ public static class DependencyInjection
             .AddDbContextCheck<ApplicationDbContext>();
 
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-
-        builder.Services.AddRazorPages();
 
         // Add SignalR
         builder.Services.AddSignalR();
@@ -51,7 +50,7 @@ public static class DependencyInjection
                 };
             })
             .AddCookie()
-            .AddGoogleOpenIdConnect(options =>
+            .AddGoogleOpenIdConnect(GoogleDefaults.AuthenticationScheme, options =>
             {
                 options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
                 options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
