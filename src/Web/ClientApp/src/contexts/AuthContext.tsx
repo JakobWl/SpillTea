@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import authStorage from "../utils/authStorage";
 import { CurrentUserDto, LoginRequest } from "../api/client";
-import { authClient, identityClient, userClient } from "../api";
+import { usersClient } from "../api";
 
 interface LoginCredentials {
 	email: string;
@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				const token = await authStorage.getToken();
 
 				if (token) {
-					const user = await userClient.getCurrentUser();
+					const user = await usersClient.getCurrentUser();
 					setUser(user);
 					setIsAuthenticated(true);
 				} else {
@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 		try {
 			// Pass useCookies, useSessionCookies, and the login payload (credentials)
-			const response = await identityClient.postLogin({
+			const response = await usersClient.postApiUsersLogin({
 				email: credentials.email,
 				password: credentials.password,
 			} as LoginRequest);
@@ -103,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		setIsLoading(true);
 
 		try {
-			await authClient.loginWithGoogle();
+			await usersClient.loginWithGoogle();
 			return true;
 		} catch (error) {
 			console.error("Google login error:", error);
@@ -151,7 +151,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		try {
 			await authStorage.clearAuth();
 
-			await authClient.logoutUser();
+			await usersClient.logoutUser();
 
 			setUser(null);
 			setIsAuthenticated(false);

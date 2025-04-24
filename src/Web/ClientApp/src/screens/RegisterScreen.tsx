@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../navigation/AppNavigator";
 import { RegisterRequest } from "../api/client";
-import { identityClient } from "../api";
+import { usersClient } from "../api";
 
 type RegisterScreenProps = NativeStackScreenProps<
 	AuthStackParamList,
@@ -63,7 +63,7 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
 				password,
 			} as RegisterRequest;
 
-			await identityClient.postRegister(registerRequest);
+			await usersClient.postApiUsersRegister(registerRequest);
 			setIsLoading(false);
 			navigation.navigate("Login");
 		} catch (error) {

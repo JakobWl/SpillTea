@@ -14,8 +14,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { MainTabParamList } from "../navigation/AppNavigator";
 import signalRService from "../services/signalRService";
 import { useQuery } from "@tanstack/react-query";
-import { chatClient } from "../api";
 import { ChatDto } from "../api/client";
+import { chatsClient } from "../api";
 
 type ChatsListNavigationProp = NativeStackNavigationProp<
 	MainTabParamList,
@@ -32,7 +32,7 @@ const ChatsListScreen = () => {
 	const getChats = async () => {
 		try {
 			setIsLoading(true);
-			const response = await chatClient.getChats();
+			const response = await chatsClient.getChats();
 			setChats(response.items ?? []);
 		} catch (error) {
 			console.error("Error fetching chats:", error);

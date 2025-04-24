@@ -21,7 +21,7 @@ type ChatConversationScreenProps = NativeStackScreenProps<
 >;
 
 const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
-  const { chatId, chatName } = route.params;
+  const { chatId } = route.params;
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -32,9 +32,9 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
   // Set the header title
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: chatName,
+      title: chatId.toString(),
     });
-  }, [navigation, chatName]);
+  }, [navigation, chatId]);
 
   useEffect(() => {
     let unsubscribeMessageHandler: (() => void) | null = null;
@@ -87,7 +87,7 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
         console.error(`Error leaving chat ${chatId}:`, err);
       });
     };
-  }, [chatId, chatName, user]);
+  }, [chatId, user]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !user) return;

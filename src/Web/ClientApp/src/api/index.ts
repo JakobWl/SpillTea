@@ -1,14 +1,12 @@
 import axios from "axios";
-import { AuthClient, ChatClient, Client, UserClient } from "./client";
 import config from "../config";
+import { ChatsClient, UsersClient } from "./client";
 
 export const axiosInstance = axios.create({
 	baseURL: config.apiUrl,
 });
 
-const identityClient = new Client(undefined, axiosInstance);
-const authClient = new AuthClient(undefined, axiosInstance);
-const chatClient = new ChatClient(undefined, axiosInstance);
-const userClient = new UserClient(undefined, axiosInstance);
+const chatsClient = new ChatsClient(undefined, axiosInstance);
+const usersClient = new UsersClient(undefined, axiosInstance);
 
-export { identityClient, chatClient, userClient, authClient };
+export { chatsClient, usersClient };

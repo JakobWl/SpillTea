@@ -3,9 +3,9 @@ import {
 	HubConnectionBuilder,
 	LogLevel,
 } from "@microsoft/signalr";
-import { ChatMessage } from "../types/chat";
 import authStorage from "../utils/authStorage";
 import config from "../config";
+import { ChatMessage } from "../types/chat";
 
 type MessageHandler = (message: ChatMessage) => void;
 type UserConnectionHandler = (userId: string, username: string) => void;
@@ -100,19 +100,19 @@ class SignalRService {
 		}
 	}
 
-	async sendMessage(recipientId: string, message: string): Promise<void> {
+	async sendMessage(chatId: number, message: string): Promise<void> {
 		if (!message || !message.trim()) return;
 
 		try {
 			const connection = await this.startConnection();
-			await connection.invoke("SendMessage", recipientId, message);
+			await connection.invoke("SendMessage", chatId, message);
 		} catch (error) {
 			console.error("Error sending message:", error);
 			throw error;
 		}
 	}
 
-	async joinChat(chatId: string): Promise<void> {
+	async joinChat(chatId: number): Promise<void> {
 		if (!chatId) return;
 
 		try {
@@ -125,7 +125,7 @@ class SignalRService {
 		}
 	}
 
-	async leaveChat(chatId: string): Promise<void> {
+	async leaveChat(chatId: number): Promise<void> {
 		if (!chatId) return;
 
 		try {
