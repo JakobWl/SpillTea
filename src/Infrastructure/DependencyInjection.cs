@@ -1,4 +1,5 @@
 ﻿using FadeChat.Application.Common.Interfaces;
+using FadeChat.Application.User.Interfaces;
 using FadeChat.Domain.Constants;
 using FadeChat.Domain.Entities;
 using FadeChat.Infrastructure.Data;
@@ -6,6 +7,7 @@ using FadeChat.Infrastructure.Data.Encryption;
 using FadeChat.Infrastructure.Data.Encryption.Interfaces;
 using FadeChat.Infrastructure.Data.Interceptors;
 using FadeChat.Infrastructure.Identity;
+using FadeChat.Infrastructure.Processors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -37,9 +39,10 @@ public static class DependencyInjection
         builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         builder.Services.AddScoped<ApplicationDbContextInitialiser>();
+        builder.Services.AddScoped<IAuthTokenProcessor, AuthTokenProcessor>();
 
         builder.Services
-            .AddDefaultIdentity<ApplicationUser>()
+            .AddDefaultIdentity<User>()
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
 

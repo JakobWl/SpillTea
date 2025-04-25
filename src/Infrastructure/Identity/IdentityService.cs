@@ -9,12 +9,12 @@ namespace FadeChat.Infrastructure.Identity;
 public class IdentityService : IIdentityService
 {
     private readonly IAuthorizationService _authorizationService;
-    private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IUserClaimsPrincipalFactory<User> _userClaimsPrincipalFactory;
+    private readonly UserManager<User> _userManager;
 
     public IdentityService(
-        UserManager<ApplicationUser> userManager,
-        IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
+        UserManager<User> userManager,
+        IUserClaimsPrincipalFactory<User> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService)
     {
         _userManager = userManager;
@@ -31,7 +31,7 @@ public class IdentityService : IIdentityService
 
     public async Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password)
     {
-        var user = new ApplicationUser {
+        var user = new User {
             UserName = userName, Email = userName
         };
 
@@ -70,7 +70,7 @@ public class IdentityService : IIdentityService
         return user != null ? await DeleteUserAsync(user) : Result.Success();
     }
 
-    public async Task<Result> DeleteUserAsync(ApplicationUser user)
+    public async Task<Result> DeleteUserAsync(User user)
     {
         var result = await _userManager.DeleteAsync(user);
 

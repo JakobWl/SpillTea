@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import authStorage from "../utils/authStorage";
 import { CurrentUserDto, LoginRequest } from "../api/client";
 import { usersClient } from "../api";
+import config from "../config";
 
 interface LoginCredentials {
 	email: string;
@@ -103,7 +104,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		setIsLoading(true);
 
 		try {
-			await usersClient.loginWithGoogle();
+			window.location.href =
+				config.apiUrl +
+				"/api/Users/google/login/?returnUrl=" +
+				window.location.href;
 			return true;
 		} catch (error) {
 			console.error("Google login error:", error);
@@ -150,8 +154,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 		try {
 			await authStorage.clearAuth();
-
-			await usersClient.logoutUser();
 
 			setUser(null);
 			setIsAuthenticated(false);

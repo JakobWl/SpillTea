@@ -772,15 +772,18 @@ export class UsersClient extends ClientBase {
         return Promise.resolve<void>(null as any);
     }
 
-    logoutUser( cancelToken?: CancelToken): Promise<string> {
-        let url_ = this.baseUrl + "/api/Users/cookie-logout";
+    googleLoginCallback(returnUrl: string, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/google/login/callback?";
+        if (returnUrl === undefined || returnUrl === null)
+            throw new Error("The parameter 'returnUrl' must be defined and cannot be null.");
+        else
+            url_ += "returnUrl=" + encodeURIComponent("" + returnUrl) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {
-            method: "POST",
+            method: "GET",
             url: url_,
             headers: {
-                "Accept": "application/json"
             },
             cancelToken
         };
@@ -794,11 +797,11 @@ export class UsersClient extends ClientBase {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processLogoutUser(_response);
+            return this.processGoogleLoginCallback(_response);
         });
     }
 
-    protected processLogoutUser(response: AxiosResponse): Promise<string> {
+    protected processGoogleLoginCallback(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -810,17 +813,13 @@ export class UsersClient extends ClientBase {
         }
         if (status === 200) {
             const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
-            return Promise.resolve<string>(result200);
+            return Promise.resolve<void>(null as any);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<string>(null as any);
+        return Promise.resolve<void>(null as any);
     }
 }
 

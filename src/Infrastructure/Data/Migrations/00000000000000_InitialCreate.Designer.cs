@@ -25,7 +25,7 @@ namespace FadeChat.Infrastructure.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FadeChat.Infrastructure.Identity.ApplicationUser", b =>
+            modelBuilder.Entity("FadeChat.Infrastructure.Identity.User", b =>
             {
                 b.Property<string>("Id")
                     .HasColumnType("nvarchar(450)");
@@ -239,7 +239,7 @@ namespace FadeChat.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
             {
-                b.HasOne("FadeChat.Infrastructure.Identity.ApplicationUser", null)
+                b.HasOne("FadeChat.Infrastructure.Identity.User", null)
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -248,7 +248,7 @@ namespace FadeChat.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
             {
-                b.HasOne("FadeChat.Infrastructure.Identity.ApplicationUser", null)
+                b.HasOne("FadeChat.Infrastructure.Identity.User", null)
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -263,7 +263,7 @@ namespace FadeChat.Infrastructure.Data.Migrations
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired();
 
-                b.HasOne("FadeChat.Infrastructure.Identity.ApplicationUser", null)
+                b.HasOne("FadeChat.Infrastructure.Identity.User", null)
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -272,7 +272,7 @@ namespace FadeChat.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
             {
-                b.HasOne("FadeChat.Infrastructure.Identity.ApplicationUser", null)
+                b.HasOne("FadeChat.Infrastructure.Identity.User", null)
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)

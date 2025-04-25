@@ -4,11 +4,11 @@ using FadeChat.Infrastructure.Data;
 using FadeChat.Web.Nswag;
 using FadeChat.Web.Services;
 using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
-using Microsoft.AspNetCore.Authentication.Google;
 
 namespace FadeChat.Web;
 
@@ -50,10 +50,11 @@ public static class DependencyInjection
                 };
             })
             .AddCookie()
-            .AddGoogleOpenIdConnect(GoogleDefaults.AuthenticationScheme, options =>
+            .AddGoogle(options =>
             {
                 options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
                 options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
             .AddFacebook(facebookOptions =>
             {

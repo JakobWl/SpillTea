@@ -474,22 +474,26 @@
         }
       }
     },
-    "/api/Users/cookie-logout": {
-      "post": {
+    "/api/Users/google/login/callback": {
+      "get": {
         "tags": [
           "Users"
         ],
-        "operationId": "LogoutUser",
+        "operationId": "GoogleLoginCallback",
+        "parameters": [
+          {
+            "name": "returnUrl",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "description": ""
           }
         }
       }
@@ -859,8 +863,8 @@
         "type": "oauth2",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://your-identity-provider.com/connect/authorize",
-            "tokenUrl": "https://your-identity-provider.com/connect/token",
+            "authorizationUrl": "/connect/authorize",
+            "tokenUrl": "/connect/token",
             "scopes": {
               "openid": "OpenID",
               "profile": "Profile",

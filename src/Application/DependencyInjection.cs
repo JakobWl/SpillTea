@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using FadeChat.Application.Common.Behaviours;
+using FadeChat.Application.User.Interfaces;
+using FadeChat.Application.User.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -12,6 +14,8 @@ public static class DependencyInjection
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+        builder.Services.AddScoped<IAccountService, AccountService>();
 
         builder.Services.AddMediatR(cfg =>
         {

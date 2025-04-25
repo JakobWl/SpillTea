@@ -1,5 +1,4 @@
 ﻿using FadeChat.Domain.Constants;
-using FadeChat.Domain.Entities;
 using FadeChat.Infrastructure.Data;
 using FadeChat.Infrastructure.Identity;
 using MediatR;
@@ -57,9 +56,9 @@ public class Testing
     {
         using var scope = _scopeFactory.CreateScope();
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
-        var user = new ApplicationUser {
+        var user = new User {
             UserName = userName, Email = userName
         };
 

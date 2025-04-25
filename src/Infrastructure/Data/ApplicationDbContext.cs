@@ -2,14 +2,13 @@
 using FadeChat.Domain.Entities;
 using FadeChat.Infrastructure.Data.Encryption.Interfaces;
 using FadeChat.Infrastructure.Data.Extensions;
-using FadeChat.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace FadeChat.Infrastructure.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options), IApplicationDbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User>(options), IApplicationDbContext
 {
     public DbSet<Chat> Chats => Set<Chat>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();

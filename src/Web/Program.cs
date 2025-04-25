@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using FadeChat.Application;
 using FadeChat.Application.Chat.Hubs;
+using FadeChat.Application.User.Dtos;
 using FadeChat.Infrastructure;
 using FadeChat.Infrastructure.Data;
 using FadeChat.Web;
@@ -34,6 +35,9 @@ try
     builder.AddWebServices();
 
     builder.Logging.ClearProviders();
+
+    builder.Services.Configure<JwtOptions>(
+        builder.Configuration.GetSection(JwtOptions.JwtOptionsKey));
 
     PrintBanner(builder, builder.Configuration.GetSection("ASPNETCORE_ENVIRONMENT").Value ?? string.Empty);
 
