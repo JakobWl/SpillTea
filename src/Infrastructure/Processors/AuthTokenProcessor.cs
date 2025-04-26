@@ -50,14 +50,27 @@ public class AuthTokenProcessor(IOptions<JwtOptions> jwtOptions, IHttpContextAcc
         return Convert.ToBase64String(randomNumber);
     }
 
-    public void WriteAuthTokenAsHttpOnlyCookie(string cookieName, string token,
-        DateTime expiration) =>
-        httpContextAccessor.HttpContext?.Response.Cookies.Append(cookieName,
-            token, new CookieOptions {
-                HttpOnly = true,
-                Expires = expiration,
-                IsEssential = true,
-                Secure = true,
-                SameSite = SameSiteMode.None
-            });
+    public void WriteAuthTokenAsHttpOnlyCookie(string cookieName, string token, DateTime expiration)
+    {
+        var cookieOptions = GetCookieOptions(expiration);
+        httpContextAccessor.HttpContext?.Response.Cookies.Append(cookieName, token, cookieOptions);
+    }
+
+    public void ClearAuthTokenCookie(string cookieName)
+    {
+        var cookieOptions = GetCookieOptions(DateTime.UtcNow.AddDays(-1));
+        httpContextAccessor.HttpContext?.Response.Cookies.Append(cookieName, "", cookieOptions);
+        httpContextAccessor.HttpContext?.Response.Cookies.Delete(cookieName, cookieOptions);
+    }
+
+    private static CookieOptions GetCookieOptions(DateTime expiration)
+    {
+        return new CookieOptions {
+            HttpOnly = true,
+            Expires = expiration,
+            IsEssential = true,
+            Secure = true,
+            SameSite = SameSiteMode.None
+        };
+    }
 }

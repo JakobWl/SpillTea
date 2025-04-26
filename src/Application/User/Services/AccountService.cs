@@ -7,7 +7,7 @@ namespace FadeChat.Application.User.Services;
 
 using User = Domain.Entities.User;
 
-public class AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<User> userManager) : IAccountService
+public class AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<User> userManager, SignInManager<User> signInManager) : IAccountService
 {
     public async Task LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal)
     {
@@ -28,7 +28,9 @@ public class AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<
         if (user == null)
         {
             var newUser = new User {
-                Email = email, UserName = claimsPrincipal.FindFirstValue(ClaimTypes.Email) ?? string.Empty, EmailConfirmed = true
+                Email = email,
+                UserName = claimsPrincipal.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+                EmailConfirmed = true
             };
 
             var result = await userManager.CreateAsync(newUser);
@@ -49,13 +51,16 @@ public class AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<
             claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty,
             "Google");
 
-        var loginResult = await userManager.AddLoginAsync(user, info);
-
-        if (!loginResult.Succeeded)
+        var existingLogins = await userManager.GetLoginsAsync(user);
+        if (!existingLogins.Any(l => l.LoginProvider == info.LoginProvider && l.ProviderKey == info.ProviderKey))
         {
-            throw new ExternalLoginProviderException("Google",
-                $"Unable to login user: {string.Join(", ",
-                    loginResult.Errors.Select(x => x.Description))}");
+            var loginResult = await userManager.AddLoginAsync(user, info);
+            if (!loginResult.Succeeded)
+            {
+                throw new ExternalLoginProviderException("Google",
+                    $"Unable to add login: {string.Join(", ",
+                        loginResult.Errors.Select(x => x.Description))}");
+            }
         }
 
         var (jwtToken, expirationDateInUtc) = authTokenProcessor.GenerateJwtToken(user);
@@ -70,5 +75,13 @@ public class AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<
 
         authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, expirationDateInUtc);
         authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("REFRESH_TOKEN", user.RefreshToken, refreshTokenExpirationDateInUtc);
+    }
+
+    public async Task LogoutAsync()
+    {
+        await signInManager.SignOutAsync();
+
+        authTokenProcessor.ClearAuthTokenCookie("ACCESS_TOKEN");
+        authTokenProcessor.ClearAuthTokenCookie("REFRESH_TOKEN");
     }
 }

@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const loginWithGoogle = async () => {
 		try {
 			const returnUrl = window.location.href;
-			window.location.href = `${config.apiUrl}/api/Users/google/login?returnUrl=${encodeURIComponent(returnUrl)}`;
+			window.location.href = `${config.apiUrl}/api/Users/google/login?returnUrl=${returnUrl}`;
 			return true;
 		} catch (error) {
 			console.error("Google login initiation error:", error);
@@ -146,8 +146,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			// Call the server endpoint to clear HttpOnly cookies
 			// Assuming an endpoint like /api/Users/logout exists and uses POST
 			// TODO: Uncomment and ensure client is regenerated after creating the backend endpoint
-			// await usersClient.postApiUsersLogout();
-			console.log("Logout requested (server call commented out for now).");
+			await usersClient.logout();
+			// console.log("Logout requested (server call commented out for now).");
 		} catch (error) {
 			console.error("Server logout error:", error);
 			// Proceed to clear client state even if server call fails?

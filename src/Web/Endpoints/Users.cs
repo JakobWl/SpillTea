@@ -14,26 +14,25 @@ public class Users : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
+            .MapIdentityApi<User>();
+
+        app.MapGroup(this)
+            .MapGet(LoginWithGoogle, "/google/login")
+            .MapGet(GoogleLoginCallback, "/google/login/callback")
+            .MapPost(Logout, "/logout");
+
+        app.MapGroup(this)
             .RequireAuthorization()
-            .MapGet(GetCurrentUser);
-
-        app.MapGroup(this).MapIdentityApi<User>();
-
-        app.MapGroup(this).MapGet(LoginWithGoogle, "/google/login");
-        app.MapGroup(this).MapGet(GoogleLoginCallback, "/google/login/callback");
+            .MapGet(GetCurrentUser, "/me");
     }
 
     private async Task<Ok<CurrentUserDto>> GetCurrentUser(ISender sender) => TypedResults.Ok(await sender.Send(new GetCurrentUserQuery()));
 
     private IResult LoginWithGoogle(HttpContext context, LinkGenerator linkGenerator, SignInManager<User> signInManager, [FromQuery] string? returnUrl)
     {
-        var properties = signInManager.ConfigureExternalAuthenticationProperties("Google",
-            linkGenerator.GetPathByName(context, nameof(GoogleLoginCallback))
-            + $"?returnUrl={returnUrl}");
-
-        return Results.Challenge(properties, [
-            "Google"
-        ]);
+        var callbackUrl = linkGenerator.GetPathByName(context, nameof(GoogleLoginCallback)) + $"?returnUrl={returnUrl}";
+        var properties = signInManager.ConfigureExternalAuthenticationProperties(GoogleDefaults.AuthenticationScheme, callbackUrl);
+        return Results.Challenge(properties, [GoogleDefaults.AuthenticationScheme]);
     }
 
     private async Task<IResult> GoogleLoginCallback(IAccountService accountService, HttpContext context, [FromQuery] string returnUrl)
@@ -48,5 +47,18 @@ public class Users : EndpointGroupBase
         await accountService.LoginWithGoogleAsync(result.Principal);
 
         return Results.Redirect(returnUrl);
+    }
+
+    private async Task<Results<Ok, ProblemHttpResult>> Logout(IAccountService accountService)
+    {
+        try
+        {
+            await accountService.LogoutAsync();
+            return TypedResults.Ok();
+        }
+        catch (Exception)
+        {
+            return TypedResults.Problem("An error occurred during logout.", statusCode: 500);
+        }
     }
 }
