@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FadeChat.Application.FunctionalTests;
+using User = FadeChat.Domain.Entities.User;
 
 [SetUpFixture]
 public class Testing

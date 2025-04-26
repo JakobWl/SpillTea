@@ -4,58 +4,60 @@ import { Platform } from "react-native";
 // Constants for storage keys
 export const STORAGE_KEYS = {
   USER: "user",
-  AUTH_TOKEN: "authToken",
 };
 
 /**
- * Storage utility for authentication data
+ * Storage utility for non-HttpOnly authentication data (like user info)
  * Uses SecureStore for mobile platforms
  * For web, uses localStorage in development and SecureStore's web implementation in production
  */
 class AuthStorage {
   /**
-   * Store a value securely
+   * Store a value securely (native) or in localStorage (web)
    */
-  async setItem(key: string, value: string): Promise<void> {
+  private async setItem(key: string, value: string): Promise<void> {
     if (Platform.OS === "web") {
-      // For web environment - we'll use localStorage in development
-      // In production, SecureStore will handle this appropriately
       if (process.env.NODE_ENV === "development") {
         localStorage.setItem(key, value);
         return;
+      } else {
+        // Use SecureStore's web implementation for production user info storage
+        await SecureStore.setItemAsync(key, value);
+        return;
       }
     }
-
-    // Use SecureStore for all platforms in production
+    // Use SecureStore for native platforms
     await SecureStore.setItemAsync(key, value);
   }
 
   /**
-   * Get a stored value
+   * Get a stored value (native) or from localStorage (web)
    */
-  async getItem(key: string): Promise<string | null> {
+  private async getItem(key: string): Promise<string | null> {
     if (Platform.OS === "web") {
-      // For web environment
       if (process.env.NODE_ENV === "development") {
         return localStorage.getItem(key);
+      } else {
+        return await SecureStore.getItemAsync(key);
       }
     }
-
+    // Use SecureStore for native platforms
     return await SecureStore.getItemAsync(key);
   }
 
   /**
-   * Remove a stored value
+   * Remove a stored value (native) or from localStorage (web)
    */
-  async removeItem(key: string): Promise<void> {
+  private async removeItem(key: string): Promise<void> {
     if (Platform.OS === "web") {
-      // For web environment
       if (process.env.NODE_ENV === "development") {
         localStorage.removeItem(key);
         return;
+      } else {
+        await SecureStore.deleteItemAsync(key);
+        return;
       }
     }
-
     await SecureStore.deleteItemAsync(key);
   }
 
@@ -64,13 +66,6 @@ class AuthStorage {
    */
   async setUser(user: any): Promise<void> {
     await this.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-  }
-
-  /**
-   * Store authentication token
-   */
-  async setToken(token: string): Promise<void> {
-    await this.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
   }
 
   /**
@@ -83,6 +78,8 @@ class AuthStorage {
         return JSON.parse(userJson);
       } catch (error) {
         console.error("Error parsing user JSON:", error);
+        // Consider removing the invalid item
+        await this.clearUser();
         return null;
       }
     }
@@ -90,27 +87,17 @@ class AuthStorage {
   }
 
   /**
-   * Get auth token
+   * Clear stored user object
    */
-  async getToken(): Promise<string | null> {
-    return await this.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  async clearUser(): Promise<void> {
+    await this.removeItem(STORAGE_KEYS.USER);
   }
 
   /**
-   * Store both user and token at once
-   */
-  async setAuth(token: string): Promise<void> {
-    await Promise.all([this.setToken(token)]);
-  }
-
-  /**
-   * Clear all auth data
+   * Clear all locally stored auth data (only USER in this case)
    */
   async clearAuth(): Promise<void> {
-    await Promise.all([
-      this.removeItem(STORAGE_KEYS.USER),
-      this.removeItem(STORAGE_KEYS.AUTH_TOKEN),
-    ]);
+    await this.clearUser();
   }
 }
 

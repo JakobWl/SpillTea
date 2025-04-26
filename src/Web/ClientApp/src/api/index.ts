@@ -4,6 +4,7 @@ import { ChatsClient, UsersClient } from "./client";
 
 export const axiosInstance = axios.create({
 	baseURL: config.apiUrl,
+	withCredentials: true,
 });
 
 const chatsClient = new ChatsClient(undefined, axiosInstance);

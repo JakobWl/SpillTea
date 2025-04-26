@@ -1,12 +1,14 @@
-﻿using Azure.Identity;
+﻿using System.Text;
+using Azure.Identity;
 using FadeChat.Application.Common.Interfaces;
+using FadeChat.Application.User.Dtos;
 using FadeChat.Infrastructure.Data;
 using FadeChat.Web.Nswag;
 using FadeChat.Web.Services;
-using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
@@ -30,24 +32,11 @@ public static class DependencyInjection
         builder.Services.AddSignalR();
 
         // Configure Authentication
-        builder.Services.AddAuthentication()
-            .AddBearerToken(IdentityConstants.BearerScheme, options =>
+        builder.Services.AddAuthentication(opt =>
             {
-                options.Events = new BearerTokenEvents {
-                    OnMessageReceived = context =>
-                    {
-                        var accessToken = context.Request.Query["access_token"];
-
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) &&
-                            path.StartsWithSegments("/hubs/"))
-                        {
-                            context.Token = accessToken;
-                        }
-
-                        return Task.CompletedTask;
-                    }
-                };
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddCookie()
             .AddGoogle(options =>
@@ -60,6 +49,29 @@ public static class DependencyInjection
             {
                 facebookOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
                 facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
+            })
+            .AddJwtBearer(options =>
+            {
+                var jwtOptions = builder.Configuration.GetSection(JwtOptions.JwtOptionsKey)
+                    .Get<JwtOptions>() ?? throw new ArgumentException(nameof(JwtOptions));
+
+                options.TokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
+                };
+
+                options.Events = new JwtBearerEvents {
+                    OnMessageReceived = context =>
+                    {
+                        context.Token = context.Request.Cookies["ACCESS_TOKEN"];
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         builder.Services.AddCors(options =>
