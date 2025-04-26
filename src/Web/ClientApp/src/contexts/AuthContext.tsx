@@ -111,31 +111,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	};
 
 	const loginWithFacebook = async (): Promise<boolean> => {
-		setIsLoading(true);
-		console.warn("Facebook login is currently mocked!");
 		try {
-			return new Promise((resolve) => {
-				setTimeout(async () => {
-					const mockUser = {
-						id: "3",
-						name: "Facebook User",
-						email: "facebook.user@example.com",
-					} as CurrentUserDto;
-
-					setUser(mockUser);
-					setIsAuthenticated(true);
-					await authStorage.setUser(mockUser);
-
-					setIsLoading(false);
-					resolve(true);
-				}, 1000);
-			});
+			const returnUrl = window.location.href;
+			window.location.href = `${config.apiUrl}/api/Users/facebook/login?returnUrl=${returnUrl}`;
+			return true;
 		} catch (error) {
-			console.error("Mock Facebook login error:", error);
-			setUser(null);
-			setIsAuthenticated(false);
-			await authStorage.clearUser();
-			setIsLoading(false);
+			console.error("Facebook login initiation error:", error);
 			return false;
 		}
 	};

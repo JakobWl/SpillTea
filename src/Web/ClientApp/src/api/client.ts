@@ -772,6 +772,104 @@ export class UsersClient extends ClientBase {
         return Promise.resolve<void>(null as any);
     }
 
+    loginWithFacebook(returnUrl?: string | null | undefined, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/facebook/login?";
+        if (returnUrl !== undefined && returnUrl !== null)
+            url_ += "returnUrl=" + encodeURIComponent("" + returnUrl) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+            },
+            cancelToken
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processLoginWithFacebook(_response);
+        });
+    }
+
+    protected processLoginWithFacebook(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    facebookLoginCallback(returnUrl: string, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/facebook/login/callback?";
+        if (returnUrl === undefined || returnUrl === null)
+            throw new Error("The parameter 'returnUrl' must be defined and cannot be null.");
+        else
+            url_ += "returnUrl=" + encodeURIComponent("" + returnUrl) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+            },
+            cancelToken
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processFacebookLoginCallback(_response);
+        });
+    }
+
+    protected processFacebookLoginCallback(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     logout( cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Users/logout";
         url_ = url_.replace(/[?&]$/, "");

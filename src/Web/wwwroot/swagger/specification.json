@@ -473,6 +473,54 @@
         }
       }
     },
+    "/api/Users/facebook/login": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "LoginWithFacebook",
+        "parameters": [
+          {
+            "name": "returnUrl",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/Users/facebook/login/callback": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "FacebookLoginCallback",
+        "parameters": [
+          {
+            "name": "returnUrl",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/Users/logout": {
       "post": {
         "tags": [

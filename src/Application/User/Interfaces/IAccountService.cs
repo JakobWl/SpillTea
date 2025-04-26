@@ -4,6 +4,6 @@ namespace FadeChat.Application.User.Interfaces;
 
 public interface IAccountService
 {
-    Task LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal);
-    Task LogoutAsync();
+    Task<ClaimsPrincipal> LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal);
+    Task<ClaimsPrincipal> LoginWithFacebookAsync(ClaimsPrincipal? claimsPrincipal);
 }

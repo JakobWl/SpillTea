@@ -7,9 +7,9 @@ namespace FadeChat.Application.User.Services;
 
 using User = Domain.Entities.User;
 
-public class AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<User> userManager, SignInManager<User> signInManager) : IAccountService
+public class AccountService(UserManager<User> userManager, SignInManager<User> signInManager) : IAccountService
 {
-    public async Task LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal)
+    public async Task<ClaimsPrincipal> LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal)
     {
         if (claimsPrincipal == null)
         {
@@ -28,9 +28,7 @@ public class AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<
         if (user == null)
         {
             var newUser = new User {
-                Email = email,
-                UserName = claimsPrincipal.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
-                EmailConfirmed = true
+                Email = email, UserName = claimsPrincipal.FindFirstValue(ClaimTypes.Email) ?? string.Empty, EmailConfirmed = true
             };
 
             var result = await userManager.CreateAsync(newUser);
@@ -63,25 +61,84 @@ public class AccountService(IAuthTokenProcessor authTokenProcessor, UserManager<
             }
         }
 
-        var (jwtToken, expirationDateInUtc) = authTokenProcessor.GenerateJwtToken(user);
-        var refreshTokenValue = authTokenProcessor.GenerateRefreshToken();
+        var principal = await signInManager.CreateUserPrincipalAsync(user);
 
-        var refreshTokenExpirationDateInUtc = DateTime.UtcNow.AddDays(7);
+        return principal;
 
-        user.RefreshToken = refreshTokenValue;
-        user.RefreshTokenExpiresAtUtc = refreshTokenExpirationDateInUtc;
-
-        await userManager.UpdateAsync(user);
-
-        authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, expirationDateInUtc);
-        authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("REFRESH_TOKEN", user.RefreshToken, refreshTokenExpirationDateInUtc);
+        // var (jwtToken, expirationDateInUtc) = authTokenProcessor.GenerateJwtToken(user);
+        // var refreshTokenValue = authTokenProcessor.GenerateRefreshToken();
+        //
+        // var refreshTokenExpirationDateInUtc = DateTime.UtcNow.AddDays(7);
+        //
+        // user.RefreshToken = refreshTokenValue;
+        // user.RefreshTokenExpiresAtUtc = refreshTokenExpirationDateInUtc;
+        //
+        // await userManager.UpdateAsync(user);
+        //
+        // authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, expirationDateInUtc);
+        // authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("REFRESH_TOKEN", user.RefreshToken, refreshTokenExpirationDateInUtc);
     }
 
-    public async Task LogoutAsync()
+    public async Task<ClaimsPrincipal> LoginWithFacebookAsync(ClaimsPrincipal? claimsPrincipal)
     {
-        await signInManager.SignOutAsync();
+        if (claimsPrincipal == null)
+        {
+            throw new ExternalLoginProviderException("Facebook", "ClaimsPrincipal is null");
+        }
 
-        authTokenProcessor.ClearAuthTokenCookie("ACCESS_TOKEN");
-        authTokenProcessor.ClearAuthTokenCookie("REFRESH_TOKEN");
+        var email = claimsPrincipal.FindFirstValue(ClaimTypes.Email);
+        if (email == null)
+        {
+            throw new ExternalLoginProviderException("Facebook", "Email claim not found");
+        }
+
+        var user = await userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            var newUser = new User {
+                Email = email, UserName = claimsPrincipal.FindFirstValue(ClaimTypes.Name) ?? email, EmailConfirmed = true
+            };
+
+            var createResult = await userManager.CreateAsync(newUser);
+            if (!createResult.Succeeded)
+            {
+                throw new ExternalLoginProviderException("Facebook",
+                    $"Unable to create user: {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
+            }
+            user = newUser;
+        }
+
+        var providerKey = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (providerKey == null)
+        {
+            throw new ExternalLoginProviderException("Facebook", "NameIdentifier claim not found");
+        }
+        var info = new UserLoginInfo("Facebook", providerKey, "Facebook");
+
+        var existingLogins = await userManager.GetLoginsAsync(user);
+        if (!existingLogins.Any(l => l.LoginProvider == info.LoginProvider && l.ProviderKey == info.ProviderKey))
+        {
+            var addLoginResult = await userManager.AddLoginAsync(user, info);
+            if (!addLoginResult.Succeeded)
+            {
+                throw new ExternalLoginProviderException("Facebook",
+                    $"Unable to add login: {string.Join(", ", addLoginResult.Errors.Select(e => e.Description))}");
+            }
+        }
+
+        var principal = await signInManager.CreateUserPrincipalAsync(user);
+
+        return principal;
+
+        // var (jwtToken, expirationDateInUtc) = authTokenProcessor.GenerateJwtToken(user);
+        // var refreshTokenValue = authTokenProcessor.GenerateRefreshToken();
+        // var refreshTokenExpirationDateInUtc = DateTime.UtcNow.AddDays(7);
+        //
+        // user.RefreshToken = refreshTokenValue;
+        // user.RefreshTokenExpiresAtUtc = refreshTokenExpirationDateInUtc;
+        // await userManager.UpdateAsync(user);
+        //
+        // authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, expirationDateInUtc);
+        // authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("REFRESH_TOKEN", user.RefreshToken, refreshTokenExpirationDateInUtc);
     }
 }
