@@ -29,9 +29,6 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
         if (user != null)
             return await signInManager.CreateUserPrincipalAsync(user);
 
-        // 3) if not, try to find a user with that email
-        user = await userManager.FindByEmailAsync(email);
-
         if (user == null)
         {
             // 4) still nothing? create a new user
