@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using FadeChat.Application.Common.Exceptions;
+using FadeChat.Application.Common.Interfaces;
 using FadeChat.Application.User.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
@@ -7,7 +8,7 @@ namespace FadeChat.Application.User.Services;
 
 using User = Domain.Entities.User;
 
-public class AccountService(UserManager<User> userManager, SignInManager<User> signInManager) : IAccountService
+public class AccountService(UserManager<User> userManager, SignInManager<User> signInManager, IApplicationDbContext context) : IAccountService
 {
     public async Task<ClaimsPrincipal> LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal)
     {
@@ -28,7 +29,9 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
         if (user == null)
         {
             var newUser = new User {
-                Email = email, UserName = claimsPrincipal.FindFirstValue(ClaimTypes.Email) ?? string.Empty, EmailConfirmed = true
+                Email = email,
+                UserName = claimsPrincipal.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+                EmailConfirmed = true
             };
 
             var result = await userManager.CreateAsync(newUser);
@@ -39,8 +42,6 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
                     $"Unable to create user: {string.Join(", ",
                         result.Errors.Select(x => x.Description))}");
             }
-
-
 
             user = newUser;
         }
@@ -64,19 +65,6 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
         var principal = await signInManager.CreateUserPrincipalAsync(user);
 
         return principal;
-
-        // var (jwtToken, expirationDateInUtc) = authTokenProcessor.GenerateJwtToken(user);
-        // var refreshTokenValue = authTokenProcessor.GenerateRefreshToken();
-        //
-        // var refreshTokenExpirationDateInUtc = DateTime.UtcNow.AddDays(7);
-        //
-        // user.RefreshToken = refreshTokenValue;
-        // user.RefreshTokenExpiresAtUtc = refreshTokenExpirationDateInUtc;
-        //
-        // await userManager.UpdateAsync(user);
-        //
-        // authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, expirationDateInUtc);
-        // authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("REFRESH_TOKEN", user.RefreshToken, refreshTokenExpirationDateInUtc);
     }
 
     public async Task<ClaimsPrincipal> LoginWithFacebookAsync(ClaimsPrincipal? claimsPrincipal)
@@ -92,11 +80,15 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
             throw new ExternalLoginProviderException("Facebook", "Email claim not found");
         }
 
-        var user = await userManager.FindByEmailAsync(email);
+        var providerUserName = $"Facebook:{email}";
+        var user = await userManager.FindByNameAsync(providerUserName);
+
         if (user == null)
         {
             var newUser = new User {
-                Email = email, UserName = claimsPrincipal.FindFirstValue(ClaimTypes.Name) ?? email, EmailConfirmed = true
+                Email = email,
+                UserName = providerUserName,
+                EmailConfirmed = true
             };
 
             var createResult = await userManager.CreateAsync(newUser);
@@ -129,16 +121,19 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
         var principal = await signInManager.CreateUserPrincipalAsync(user);
 
         return principal;
+    }
 
-        // var (jwtToken, expirationDateInUtc) = authTokenProcessor.GenerateJwtToken(user);
-        // var refreshTokenValue = authTokenProcessor.GenerateRefreshToken();
-        // var refreshTokenExpirationDateInUtc = DateTime.UtcNow.AddDays(7);
-        //
-        // user.RefreshToken = refreshTokenValue;
-        // user.RefreshTokenExpiresAtUtc = refreshTokenExpirationDateInUtc;
-        // await userManager.UpdateAsync(user);
-        //
-        // authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("ACCESS_TOKEN", jwtToken, expirationDateInUtc);
-        // authTokenProcessor.WriteAuthTokenAsHttpOnlyCookie("REFRESH_TOKEN", user.RefreshToken, refreshTokenExpirationDateInUtc);
+    private async Task<string> GenerateUniqueTagAsync(string displayName)
+    {
+        var rng = new Random();
+        string tag;
+        do
+        {
+            tag = rng.Next(0, 10000).ToString("D4");  // e.g. "0042", "8372"
+        }
+        while (await context.Users
+             .AnyAsync(u => u.DisplayName == displayName && u.Tag == tag));
+
+        return tag;
     }
 }
