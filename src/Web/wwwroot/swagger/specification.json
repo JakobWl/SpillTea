@@ -558,6 +558,36 @@
           }
         ]
       }
+    },
+    "/api/Users/setup": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "CompleteSetup",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -904,7 +934,8 @@
         "required": [
           "id",
           "name",
-          "email"
+          "email",
+          "setupComplete"
         ],
         "properties": {
           "id": {
@@ -914,6 +945,33 @@
             "type": "string"
           },
           "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": false
+          },
+          "tag": {
+            "type": "string",
+            "nullable": false
+          },
+          "setupComplete": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetupRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "displayName",
+          "returnUrl"
+        ],
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "returnUrl": {
             "type": "string"
           }
         }

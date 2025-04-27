@@ -10,117 +10,86 @@ using User = Domain.Entities.User;
 
 public class AccountService(UserManager<User> userManager, SignInManager<User> signInManager, IApplicationDbContext context) : IAccountService
 {
-    public async Task<ClaimsPrincipal> LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal)
+    public async Task<ClaimsPrincipal> LoginWithExternalAsync(
+        ClaimsPrincipal? claimsPrincipal,
+        string providerScheme)
     {
         if (claimsPrincipal == null)
-        {
-            throw new ExternalLoginProviderException("Google", "ClaimsPrincipal is null");
-        }
+            throw new ExternalLoginProviderException(providerScheme, "ClaimsPrincipal is null");
 
-        var email = claimsPrincipal.FindFirstValue(ClaimTypes.Email);
+        // 1) extract the key & email
+        var providerKey = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier)
+                          ?? throw new ExternalLoginProviderException(providerScheme, "NameIdentifier claim not found");
+        var email = claimsPrincipal.FindFirstValue(ClaimTypes.Email)
+                    ?? throw new ExternalLoginProviderException(providerScheme, "Email claim not found");
 
-        if (email == null)
-        {
-            throw new ExternalLoginProviderException("Google", "Email is null");
-        }
+        // 2) try to find an existing user by this external login
+        var user = await userManager.FindByLoginAsync(providerScheme, providerKey);
 
-        var user = await userManager.FindByEmailAsync(email);
+        if (user != null)
+            return await signInManager.CreateUserPrincipalAsync(user);
+
+        // 3) if not, try to find a user with that email
+        user = await userManager.FindByEmailAsync(email);
 
         if (user == null)
         {
-            var newUser = new User {
-                Email = email,
-                UserName = claimsPrincipal.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
-                EmailConfirmed = true
+            // 4) still nothing? create a new user
+            user = new User {
+                Email = email, UserName = "user_" + Guid.NewGuid().ToString("N"), EmailConfirmed = true
             };
 
-            var result = await userManager.CreateAsync(newUser);
-
-            if (!result.Succeeded)
-            {
-                throw new ExternalLoginProviderException("Google",
-                    $"Unable to create user: {string.Join(", ",
-                        result.Errors.Select(x => x.Description))}");
-            }
-
-            user = newUser;
+            var createResult = await userManager.CreateAsync(user);
+            if (!createResult.Succeeded)
+                throw new ExternalLoginProviderException(
+                    providerScheme,
+                    $"Unable to create user: {string.Join(", ", createResult.Errors.Select(e => e.Description))}"
+                );
         }
 
-        var info = new UserLoginInfo("Google",
-            claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty,
-            "Google");
+        // 5) link the external login
+        var info = new UserLoginInfo(providerScheme, providerKey, providerScheme);
+        var loginResult = await userManager.AddLoginAsync(user, info);
+        if (!loginResult.Succeeded)
+            throw new ExternalLoginProviderException(
+                providerScheme,
+                $"Unable to add login: {string.Join(", ", loginResult.Errors.Select(e => e.Description))}"
+            );
 
-        var existingLogins = await userManager.GetLoginsAsync(user);
-        if (!existingLogins.Any(l => l.LoginProvider == info.LoginProvider && l.ProviderKey == info.ProviderKey))
-        {
-            var loginResult = await userManager.AddLoginAsync(user, info);
-            if (!loginResult.Succeeded)
-            {
-                throw new ExternalLoginProviderException("Google",
-                    $"Unable to add login: {string.Join(", ",
-                        loginResult.Errors.Select(x => x.Description))}");
-            }
-        }
-
-        var principal = await signInManager.CreateUserPrincipalAsync(user);
-
-        return principal;
+        // 6) finally build the ClaimsPrincipal for ASP.NET Identity
+        return await signInManager.CreateUserPrincipalAsync(user);
     }
 
-    public async Task<ClaimsPrincipal> LoginWithFacebookAsync(ClaimsPrincipal? claimsPrincipal)
+    public async Task<bool> IsUserSetupComplete(string userId)
     {
-        if (claimsPrincipal == null)
-        {
-            throw new ExternalLoginProviderException("Facebook", "ClaimsPrincipal is null");
-        }
-
-        var email = claimsPrincipal.FindFirstValue(ClaimTypes.Email);
-        if (email == null)
-        {
-            throw new ExternalLoginProviderException("Facebook", "Email claim not found");
-        }
-
-        var providerUserName = $"Facebook:{email}";
-        var user = await userManager.FindByNameAsync(providerUserName);
+        var user = await userManager.FindByIdAsync(userId);
 
         if (user == null)
         {
-            var newUser = new User {
-                Email = email,
-                UserName = providerUserName,
-                EmailConfirmed = true
-            };
-
-            var createResult = await userManager.CreateAsync(newUser);
-            if (!createResult.Succeeded)
-            {
-                throw new ExternalLoginProviderException("Facebook",
-                    $"Unable to create user: {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
-            }
-            user = newUser;
+            throw new NotFoundException("User", userId);
         }
 
-        var providerKey = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (providerKey == null)
+        return !string.IsNullOrEmpty(user.DisplayName) && !string.IsNullOrEmpty(user.Tag);
+    }
+
+    public async Task<bool> CompleteUserSetupAsync(string userId, string displayName)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
         {
-            throw new ExternalLoginProviderException("Facebook", "NameIdentifier claim not found");
-        }
-        var info = new UserLoginInfo("Facebook", providerKey, "Facebook");
-
-        var existingLogins = await userManager.GetLoginsAsync(user);
-        if (!existingLogins.Any(l => l.LoginProvider == info.LoginProvider && l.ProviderKey == info.ProviderKey))
-        {
-            var addLoginResult = await userManager.AddLoginAsync(user, info);
-            if (!addLoginResult.Succeeded)
-            {
-                throw new ExternalLoginProviderException("Facebook",
-                    $"Unable to add login: {string.Join(", ", addLoginResult.Errors.Select(e => e.Description))}");
-            }
+            throw new NotFoundException("User", userId);
         }
 
-        var principal = await signInManager.CreateUserPrincipalAsync(user);
+        var tag = await GenerateUniqueTagAsync(displayName);
 
-        return principal;
+        user.DisplayName = displayName;
+        user.Tag = tag;
+
+        user.UserName = $"{displayName}#{tag}";
+
+        var result = await userManager.UpdateAsync(user);
+        return result.Succeeded;
     }
 
     private async Task<string> GenerateUniqueTagAsync(string displayName)
@@ -129,10 +98,9 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
         string tag;
         do
         {
-            tag = rng.Next(0, 10000).ToString("D4");  // e.g. "0042", "8372"
-        }
-        while (await context.Users
-             .AnyAsync(u => u.DisplayName == displayName && u.Tag == tag));
+            tag = rng.Next(0, 10000).ToString("D4"); // e.g. "0042", "8372"
+        } while (await context.Users
+                     .AnyAsync(u => u.DisplayName == displayName && u.Tag == tag));
 
         return tag;
     }

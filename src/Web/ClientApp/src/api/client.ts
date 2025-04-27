@@ -965,6 +965,56 @@ export class UsersClient extends ClientBase {
         }
         return Promise.resolve<CurrentUserDto>(null as any);
     }
+
+    completeSetup(request: SetupRequest, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/setup";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "POST",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cancelToken
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processCompleteSetup(_response);
+        });
+    }
+
+    protected processCompleteSetup(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
 }
 
 export class PaginatedListOfChatDto implements IPaginatedListOfChatDto {
@@ -1701,6 +1751,9 @@ export class CurrentUserDto implements ICurrentUserDto {
     id!: string;
     name!: string;
     email!: string;
+    displayName?: string;
+    tag?: string;
+    setupComplete!: boolean;
 
     constructor(data?: ICurrentUserDto) {
         if (data) {
@@ -1716,6 +1769,9 @@ export class CurrentUserDto implements ICurrentUserDto {
             this.id = _data["id"];
             this.name = _data["name"];
             this.email = _data["email"];
+            this.displayName = _data["displayName"];
+            this.tag = _data["tag"];
+            this.setupComplete = _data["setupComplete"];
         }
     }
 
@@ -1731,6 +1787,9 @@ export class CurrentUserDto implements ICurrentUserDto {
         data["id"] = this.id;
         data["name"] = this.name;
         data["email"] = this.email;
+        data["displayName"] = this.displayName;
+        data["tag"] = this.tag;
+        data["setupComplete"] = this.setupComplete;
         return data;
     }
 }
@@ -1739,6 +1798,49 @@ export interface ICurrentUserDto {
     id: string;
     name: string;
     email: string;
+    displayName?: string;
+    tag?: string;
+    setupComplete: boolean;
+}
+
+export class SetupRequest implements ISetupRequest {
+    displayName!: string;
+    returnUrl!: string;
+
+    constructor(data?: ISetupRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.displayName = _data["displayName"];
+            this.returnUrl = _data["returnUrl"];
+        }
+    }
+
+    static fromJS(data: any): SetupRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetupRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["displayName"] = this.displayName;
+        data["returnUrl"] = this.returnUrl;
+        return data;
+    }
+}
+
+export interface ISetupRequest {
+    displayName: string;
+    returnUrl: string;
 }
 
 export class ApiException extends Error {

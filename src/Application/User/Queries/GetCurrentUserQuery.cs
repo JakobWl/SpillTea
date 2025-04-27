@@ -1,5 +1,6 @@
 ﻿using FadeChat.Application.Common.Interfaces;
 using FadeChat.Application.Common.Security;
+using FadeChat.Application.User.Dtos;
 
 namespace FadeChat.Application.User.Queries;
 
@@ -8,12 +9,12 @@ public record GetCurrentUserQuery : IRequest<CurrentUserDto>;
 
 public class GetCurrentUserQueryHandler(IUser user) : IRequestHandler<GetCurrentUserQuery, CurrentUserDto>
 {
-    public Task<CurrentUserDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(new CurrentUserDto
-        {
-            Id = user.Id!, Name = user.Name!, Email = user.Email!
-
+    public Task<CurrentUserDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken) =>
+        Task.FromResult(new CurrentUserDto {
+            Id = user.Id!,
+            Name = user.Name!,
+            Email = user.Email!,
+            DisplayName = user.DisplayName,
+            Tag = user.Tag
         });
-    }
 }

@@ -1,14 +1,15 @@
 import React from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Ionicons } from "@expo/vector-icons";
-import { ActivityIndicator, View } from "react-native";
+import {createNativeStackNavigator} from "@react-navigation/native-stack";
+import {Ionicons} from "@expo/vector-icons";
+import {ActivityIndicator, View} from "react-native";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 import ChatsListScreen from "../screens/ChatsListScreen";
 import ChatScreen from "../screens/ChatScreen";
 import ProfileScreen from "../screens/ProfileScreen";
-import { useAuth } from "../contexts/AuthContext";
+import {useAuth} from "../contexts/AuthContext";
+import DisplayNameScreen from "../screens/DisplayNameScreen";
 
 // Define the types for our navigation stack
 export type AuthStackParamList = {
@@ -23,6 +24,7 @@ export type MainTabParamList = {
 		chatId: number;
 	};
 	Profile: undefined;
+	DisplayName: undefined;
 };
 
 export type RootStackParamList = {
@@ -41,7 +43,7 @@ const AuthNavigator = () => (
 		<AuthStack.Screen
 			name="Login"
 			component={LoginScreen}
-			options={{ headerShown: false }}
+			options={{headerShown: false}}
 		/>
 		<AuthStack.Screen
 			name="Register"
@@ -64,9 +66,11 @@ const AuthNavigator = () => (
 
 // Main Stack Navigator (when user is logged in)
 const MainNavigator = () => {
+	const {user} = useAuth();
+
 	return (
 		<MainStack.Navigator
-			initialRouteName="ChatsList"
+			initialRouteName={user?.setupComplete ? "ChatsList" : "DisplayName"}
 			screenOptions={{
 				headerBackTitle: "",
 				headerTitleAlign: "center",
@@ -75,24 +79,32 @@ const MainNavigator = () => {
 			<MainStack.Screen
 				name="ChatsList"
 				component={ChatsListScreen}
-				options={({ navigation }) => ({
+				options={({navigation}) => ({
 					title: "Chats",
 					headerRight: () => (
 						<Ionicons
 							name="person-circle-outline"
 							size={28}
 							color="#6200ee"
-							style={{ marginRight: 10 }}
+							style={{marginRight: 10}}
 							onPress={() => navigation.navigate("Profile")}
 						/>
 					),
 				})}
 			/>
-			<MainStack.Screen name="ChatConversation" component={ChatScreen} />
+			<MainStack.Screen name="ChatConversation" component={ChatScreen}/>
 			<MainStack.Screen
 				name="Profile"
 				component={ProfileScreen}
-				options={{ title: "Your Profile" }}
+				options={{title: "Your Profile"}}
+			/>
+			<MainStack.Screen
+				name="DisplayName"
+				component={DisplayNameScreen}
+				options={{
+					title: "Choose a Display Name",
+					headerBackTitle: "",
+				}}
 			/>
 		</MainStack.Navigator>
 	);
@@ -100,8 +112,8 @@ const MainNavigator = () => {
 
 // Loading component
 const LoadingScreen = () => (
-	<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-		<ActivityIndicator size="large" color="#6200ee" />
+	<View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+		<ActivityIndicator size="large" color="#6200ee"/>
 	</View>
 );
 
@@ -121,18 +133,18 @@ export const navigate = (name: string, params?: any) => {
 // Root Navigator that handles authentication state
 const AppNavigator = () => {
 	// Get auth state from context
-	const { isAuthenticated, isLoading } = useAuth();
+	const {isAuthenticated, isLoading} = useAuth();
 
 	if (isLoading) {
-		return <LoadingScreen />;
+		return <LoadingScreen/>;
 	}
 
 	return (
-		<RootStack.Navigator screenOptions={{ headerShown: false }}>
+		<RootStack.Navigator screenOptions={{headerShown: false}}>
 			{isAuthenticated ? (
-				<RootStack.Screen name="Main" component={MainNavigator} />
+				<RootStack.Screen name="Main" component={MainNavigator}/>
 			) : (
-				<RootStack.Screen name="Auth" component={AuthNavigator} />
+				<RootStack.Screen name="Auth" component={AuthNavigator}/>
 			)}
 		</RootStack.Navigator>
 	);

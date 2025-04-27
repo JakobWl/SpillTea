@@ -1,14 +1,16 @@
 import React, {
 	createContext,
+	useCallback,
 	useContext,
 	useEffect,
 	useState,
-	useCallback,
 } from "react";
 import authStorage from "../utils/authStorage";
 import { CurrentUserDto, LoginRequest } from "../api/client";
 import { usersClient } from "../api";
 import config from "../config";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { MainTabParamList, navigate } from "../navigation/AppNavigator";
 
 interface LoginCredentials {
 	email: string;
@@ -52,12 +54,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 		console.log("Attempting to fetch current user...");
 		try {
 			const currentUser = await usersClient.getCurrentUser();
-			console.log("User fetched successfully:", currentUser);
 			setUser(currentUser);
 			setIsAuthenticated(true);
 			await authStorage.setUser(currentUser);
 		} catch (error) {
-			console.warn("Fetch user failed (likely not logged in):", error);
 			setUser(null);
 			setIsAuthenticated(false);
 			await authStorage.clearUser();

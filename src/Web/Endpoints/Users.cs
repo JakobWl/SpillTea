@@ -1,4 +1,6 @@
-﻿using FadeChat.Application.User.Interfaces;
+﻿using System.Security.Claims;
+using FadeChat.Application.User.Dtos;
+using FadeChat.Application.User.Interfaces;
 using FadeChat.Application.User.Queries;
 using FadeChat.Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
@@ -26,10 +28,50 @@ public class Users : EndpointGroupBase
 
         app.MapGroup(this)
             .RequireAuthorization()
-            .MapGet(GetCurrentUser, "/me");
+            .MapGet(GetCurrentUser, "/me")
+            .MapPost(CompleteSetup, "/setup");
     }
 
-    private async Task<Ok<CurrentUserDto>> GetCurrentUser(ISender sender) => TypedResults.Ok(await sender.Send(new GetCurrentUserQuery()));
+    private async Task<Ok<CurrentUserDto>> GetCurrentUser(ISender sender) =>
+        TypedResults.Ok(await sender.Send(new GetCurrentUserQuery()));
+
+    private async Task<IResult> CompleteSetup(
+        [FromBody] SetupRequest request,
+        IAccountService accountService,
+        HttpContext context,
+        UserManager<User> userManager,
+        SignInManager<User> signInManager)
+    {
+        var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Results.Unauthorized();
+        }
+
+        if (string.IsNullOrWhiteSpace(request.DisplayName) || request.DisplayName.Length < 3)
+        {
+            return Results.BadRequest(new {
+                error = "Display name must be at least 3 characters"
+            });
+        }
+
+        var success = await accountService.CompleteUserSetupAsync(userId, request.DisplayName);
+
+        if (!success)
+            return Results.BadRequest(new {
+                error = "Failed to update user"
+            });
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null)
+            return Results.Problem("User disappeared?");
+
+        await signInManager.RefreshSignInAsync(user);
+
+        return Results.Ok(new {
+            message = "Setup complete", returnUrl = string.IsNullOrEmpty(request.ReturnUrl) ? "/" : request.ReturnUrl
+        });
+    }
 
     private IResult LoginWithGoogle(HttpContext context, LinkGenerator linkGenerator, SignInManager<User> signInManager, [FromQuery] string? returnUrl)
     {
@@ -42,18 +84,18 @@ public class Users : EndpointGroupBase
 
     private async Task<IResult> GoogleLoginCallback(IAccountService accountService, HttpContext context, [FromQuery] string returnUrl)
     {
-        var result = await context.AuthenticateAsync(DependencyInjection.ExternalCookie);
+        var result = await context.AuthenticateAsync(IdentityConstants.ExternalScheme);
 
         if (!result.Succeeded)
         {
             return Results.Unauthorized();
         }
 
-        var appPrincipal = await accountService.LoginWithGoogleAsync(result.Principal);
+        var appPrincipal = await accountService.LoginWithExternalAsync(result.Principal, GoogleDefaults.AuthenticationScheme);
 
-        await context.SignInAsync(DependencyInjection.ApplicationScheme, appPrincipal, result.Properties);
+        await context.SignInAsync(IdentityConstants.ApplicationScheme, appPrincipal, result.Properties);
 
-        await context.SignOutAsync(DependencyInjection.ExternalCookie);
+        await context.SignOutAsync(IdentityConstants.ExternalScheme);
 
         return Results.Redirect(returnUrl);
     }
@@ -69,18 +111,18 @@ public class Users : EndpointGroupBase
 
     private async Task<IResult> FacebookLoginCallback(IAccountService accountService, HttpContext context, [FromQuery] string returnUrl)
     {
-        var result = await context.AuthenticateAsync(DependencyInjection.ExternalCookie);
+        var result = await context.AuthenticateAsync(IdentityConstants.ExternalScheme);
 
         if (!result.Succeeded)
         {
             return Results.Unauthorized();
         }
 
-        var appPrincipal = await accountService.LoginWithFacebookAsync(result.Principal);
+        var appPrincipal = await accountService.LoginWithExternalAsync(result.Principal, FacebookDefaults.AuthenticationScheme);
 
-        await context.SignInAsync(DependencyInjection.ApplicationScheme, appPrincipal, result.Properties);
+        await context.SignInAsync(IdentityConstants.ApplicationScheme, appPrincipal, result.Properties);
 
-        await context.SignOutAsync(DependencyInjection.ExternalCookie);
+        await context.SignOutAsync(IdentityConstants.ExternalScheme);
 
         return Results.Redirect(returnUrl);
     }
@@ -90,7 +132,7 @@ public class Users : EndpointGroupBase
         try
         {
             await signInManager.SignOutAsync();
-            await context.SignOutAsync(DependencyInjection.ApplicationScheme);
+            await context.SignOutAsync(IdentityConstants.ApplicationScheme);
             return TypedResults.Ok();
         }
         catch (Exception)

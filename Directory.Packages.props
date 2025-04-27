@@ -21,33 +21,34 @@
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageVersion Include="Google.Apis.Auth.AspNetCore3" Version="1.69.0" />
     <PackageVersion Include="MediatR" Version="12.5.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
-    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.1" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Identity.Stores" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Identity.Stores" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Identity.Web" Version="3.8.4" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
-    <PackageVersion Include="Testcontainers.MsSql" Version="4.3.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.3">
+    <PackageVersion Include="Testcontainers.MsSql" Version="4.4.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="NSwag.AspNetCore" Version="14.3.0" />
@@ -56,20 +57,20 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
     <PackageVersion Include="nunit" Version="4.3.2" />
-    <PackageVersion Include="NUnit.Analyzers" Version="4.6.0">
+    <PackageVersion Include="NUnit.Analyzers" Version="4.7.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
     <PackageVersion Include="NUnit3TestAdapter" Version="5.0.0" />
     <PackageVersion Include="Respawn" Version="6.2.1" />
-    <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.3" />
+    <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.4" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.51.0" />
     <PackageVersion Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
     <PackageVersion Include="SpecFlow.NUnit" Version="3.9.74" />
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.0" />
   </ItemGroup>
 </Project>

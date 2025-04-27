@@ -100,6 +100,7 @@ try
 catch (Exception ex)
 {
     Log.Fatal(ex, "Exception caused the application to stop");
+    throw;
 }
 finally
 {

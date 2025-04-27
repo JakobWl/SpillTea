@@ -3,6 +3,7 @@ using FadeChat.Application.Common.Interfaces;
 using FadeChat.Infrastructure.Data;
 using FadeChat.Web.Nswag;
 using FadeChat.Web.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
@@ -11,9 +12,6 @@ namespace FadeChat.Web;
 
 public static class DependencyInjection
 {
-    public static readonly string ApplicationScheme = "Application";
-    public static readonly string ExternalCookie = "External";
-
     public static void AddWebServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -32,45 +30,22 @@ public static class DependencyInjection
         // Configure Authentication
         builder.Services.AddAuthentication(opt =>
             {
-                opt.DefaultScheme = ApplicationScheme;
-                opt.DefaultAuthenticateScheme = ApplicationScheme;
-                opt.DefaultChallengeScheme = ApplicationScheme;
-                opt.DefaultSignInScheme = ApplicationScheme;
-            })
-            .AddCookie(ApplicationScheme, options =>
-            {
-                options.Cookie.SameSite = SameSiteMode.None;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.LoginPath = "/api/Users/login";
-                options.LogoutPath = "/api/Users/logout";
-
-                options.Events.OnRedirectToLogin = ctx =>
-                {
-                    if (ctx.Request.Path.StartsWithSegments("/api"))
-                    {
-                        ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        return Task.CompletedTask;
-                    }
-                    ctx.Response.Redirect(ctx.RedirectUri);
-                    return Task.CompletedTask;
-                };
-            })
-            .AddCookie(ExternalCookie, options =>
-            {
-                options.Cookie.Name = "ExternalOAuth";
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                opt.DefaultScheme = IdentityConstants.ApplicationScheme;
+                opt.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                opt.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                opt.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
             })
             .AddGoogle(options =>
             {
                 options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
                 options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-                options.SignInScheme = ExternalCookie;
+                options.SignInScheme = IdentityConstants.ExternalScheme;
             })
             .AddFacebook(options =>
             {
                 options.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
                 options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
-                options.SignInScheme = ExternalCookie;
+                options.SignInScheme = IdentityConstants.ExternalScheme;
             });
 
         builder.Services.AddCors(options =>

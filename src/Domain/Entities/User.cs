@@ -20,7 +20,6 @@ public class User : IdentityUser
 
     public static User Create(string email, string userName) =>
         new() {
-            Email = email,
-            UserName = userName
+            Email = email, UserName = userName
         };
 }
