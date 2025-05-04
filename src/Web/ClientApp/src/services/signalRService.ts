@@ -5,9 +5,9 @@ import {
 } from "@microsoft/signalr";
 import authStorage from "../utils/authStorage";
 import config from "../config";
-import { ChatMessage } from "../types/chat";
+import { ChatMessageDto } from "../api/client";
 
-type MessageHandler = (message: ChatMessage) => void;
+type MessageHandler = (message: ChatMessageDto) => void;
 type UserConnectionHandler = (userId: string, username: string) => void;
 type UserDisconnectionHandler = (userId: string) => void;
 type ActiveUsersHandler = (users: string[]) => void;
@@ -33,21 +33,18 @@ class SignalRService {
 		this.connectionPromise = new Promise<HubConnection>(
 			async (resolve, reject) => {
 				try {
-					// Get the token from storage
-					const token = await authStorage.getToken();
-
-					console.log("Establishing SignalR connection...", token);
+					console.log("Establishing SignalR connection...");
 
 					this.connection = new HubConnectionBuilder()
 						.withUrl(config.signalRUrl, {
-							accessTokenFactory: () => token || "",
+							withCredentials: true
 						})
 						.configureLogging(LogLevel.Information)
 						.withAutomaticReconnect()
 						.build();
 
 					// Set up event handlers
-					this.connection.on("ReceiveMessage", (message: ChatMessage) => {
+					this.connection.on("ReceiveMessage", (message: ChatMessageDto) => {
 						this.messageHandlers.forEach((handler) => handler(message));
 					});
 
@@ -70,7 +67,7 @@ class SignalRService {
 
 					this.connection.on(
 						"ReceivePrivateMessage",
-						(message: ChatMessage) => {
+						(message: ChatMessageDto) => {
 							this.privateMessageHandlers.forEach((handler) =>
 								handler(message),
 							);
@@ -100,12 +97,12 @@ class SignalRService {
 		}
 	}
 
-	async sendMessage(chatId: number, message: string): Promise<void> {
-		if (!message || !message.trim()) return;
+	async sendMessage(chatMessage: ChatMessageDto): Promise<void> {
+		if (!chatMessage.body || !chatMessage.body.trim()) return;
 
 		try {
 			const connection = await this.startConnection();
-			await connection.invoke("SendMessage", chatId, message);
+			await connection.invoke("SendMessage", chatMessage);
 		} catch (error) {
 			console.error("Error sending message:", error);
 			throw error;

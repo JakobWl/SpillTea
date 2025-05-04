@@ -53,51 +53,32 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
         await base.OnDisconnectedAsync(exception);
     }
 
-    public async Task SendMessage(string recipientId, string message)
+    public async Task SendMessage(ChatMessageDto chatMessageDto)
     {
-        if (currentUser.Id == null || string.IsNullOrEmpty(message))
+        if (currentUser.Id == null)
         {
             return;
         }
 
-        ChatMessageDto chatMessageDto = new() {
-            SenderId = currentUser.Id, Body = message
-        };
+        await Clients.GroupExcept(chatMessageDto.ChatId.ToString(), Context.ConnectionId).SendAsync("ReceiveMessage", chatMessageDto);
 
         await mediator.Publish(new ChatMessageSentEvent(chatMessageDto));
-
-        // Send the message to the recipient and echo it back to the caller
-        await Clients.User(recipientId).SendAsync("ReceiveMessage", chatMessageDto);
-        await Clients.Caller.SendAsync("ReceiveMessage", chatMessageDto);
     }
 
-    public async Task JoinChat(string chatId)
+    public async Task JoinChat(int chatId)
     {
-        if (string.IsNullOrEmpty(chatId))
-        {
-            return;
-        }
+        await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
 
-        // Add the caller's connection to the SignalR group with the given chatId
-        await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
-
-        // Optionally, notify the group that a user has joined
         var username = currentUser.Id != null ? await identityService.GetUserNameAsync(currentUser.Id) : "Anonymous";
-        await Clients.Group(chatId).SendAsync("UserConnected", currentUser.Id, username);
+        await Clients.Group(chatId.ToString()).SendAsync("UserConnected", currentUser.Id, username);
     }
 
-    public async Task LeaveChat(string chatId)
+    public async Task LeaveChat(int chatId)
     {
-        if (string.IsNullOrEmpty(chatId))
-        {
-            return;
-        }
-
-        // Remove the caller's connection from the SignalR group
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId.ToString());
 
         // Optionally, notify the group that a user has left
-        await Clients.Group(chatId).SendAsync("UserDisconnected", currentUser.Id);
+        await Clients.Group(chatId.ToString()).SendAsync("UserDisconnected", currentUser.Id);
     }
 
     public async Task<int> FindRandomChat()

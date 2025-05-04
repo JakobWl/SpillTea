@@ -77,6 +77,59 @@ export class ChatsClient extends ClientBase {
         }
         return Promise.resolve<PaginatedListOfChatDto>(null as any);
     }
+
+    getChatMessages(chatId: number, cancelToken?: CancelToken): Promise<PaginatedListOfChatMessageDto> {
+        let url_ = this.baseUrl + "/api/Chats/{chatId}";
+        if (chatId === undefined || chatId === null)
+            throw new Error("The parameter 'chatId' must be defined.");
+        url_ = url_.replace("{chatId}", encodeURIComponent("" + chatId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.transformOptions(options_).then(transformedOptions_ => {
+            return this.instance.request(transformedOptions_);
+        }).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetChatMessages(_response);
+        });
+    }
+
+    protected processGetChatMessages(response: AxiosResponse): Promise<PaginatedListOfChatMessageDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = PaginatedListOfChatMessageDto.fromJS(resultData200);
+            return Promise.resolve<PaginatedListOfChatMessageDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<PaginatedListOfChatMessageDto>(null as any);
+    }
 }
 
 export class UsersClient extends ClientBase {
@@ -1137,6 +1190,143 @@ export interface IChatDto {
     unreadCount: number;
     lastModified: DateTime;
     lastMessage: string;
+}
+
+export class PaginatedListOfChatMessageDto implements IPaginatedListOfChatMessageDto {
+    items!: ChatMessageDto[];
+    pageNumber!: number;
+    totalPages!: number;
+    totalCount!: number;
+    hasPreviousPage!: boolean;
+    hasNextPage!: boolean;
+
+    constructor(data?: IPaginatedListOfChatMessageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+            if (data.items) {
+                this.items = [];
+                for (let i = 0; i < data.items.length; i++) {
+                    let item = data.items[i];
+                    this.items[i] = item && !(<any>item).toJSON ? new ChatMessageDto(item) : <ChatMessageDto>item;
+                }
+            }
+        }
+        if (!data) {
+            this.items = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ChatMessageDto.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfChatMessageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfChatMessageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfChatMessageDto {
+    items: IChatMessageDto[];
+    pageNumber: number;
+    totalPages: number;
+    totalCount: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+}
+
+export class ChatMessageDto implements IChatMessageDto {
+    id!: number;
+    chatId!: number;
+    senderId!: string;
+    body!: string;
+    state!: MessageState;
+    timeStamp!: DateTime;
+
+    constructor(data?: IChatMessageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.chatId = _data["chatId"];
+            this.senderId = _data["senderId"];
+            this.body = _data["body"];
+            this.state = _data["state"];
+            this.timeStamp = _data["timeStamp"] ? DateTime.fromISO(_data["timeStamp"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): ChatMessageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatMessageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["chatId"] = this.chatId;
+        data["senderId"] = this.senderId;
+        data["body"] = this.body;
+        data["state"] = this.state;
+        data["timeStamp"] = this.timeStamp ? this.timeStamp.toString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IChatMessageDto {
+    id: number;
+    chatId: number;
+    senderId: string;
+    body: string;
+    state: MessageState;
+    timeStamp: DateTime;
+}
+
+export enum MessageState {
+    Sent = 0,
+    Received = 1,
+    Read = 2,
+    Error = 3,
 }
 
 export class ProblemDetails implements IProblemDetails {

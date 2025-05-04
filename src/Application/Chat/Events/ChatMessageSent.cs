@@ -17,6 +17,10 @@ public class ChatMessageSentEventHandler(IApplicationDbContext context) : INotif
 
         if (chat != null)
         {
+            chat.Messages.Add(new ChatMessage {
+                Body = notification.Message.Body, SenderId = notification.Message.SenderId, State = notification.Message.State, ChatId = chat.Id
+            });
+
             // Update the unread count (for instance, increase count for all recipients except the sender)
             chat.UnreadCount = chat.Messages.Count(m => m.State != MessageState.Read && m.SenderId != notification.Message.SenderId);
 

@@ -16,6 +16,7 @@ import signalRService from "../services/signalRService";
 import { useQuery } from "@tanstack/react-query";
 import { ChatDto } from "../api/client";
 import { chatsClient } from "../api";
+import { formatTimestamp } from "../utils/dateTime";
 
 type ChatsListNavigationProp = NativeStackNavigationProp<
 	MainTabParamList,
@@ -43,30 +44,6 @@ const ChatsListScreen = () => {
 	};
 
 	useQuery({ queryKey: ["chats"], queryFn: getChats });
-
-	const formatTimestamp = (isoString: string) => {
-		const date = new Date(isoString);
-		const now = new Date();
-		const diffMs = now.getTime() - date.getTime();
-		const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-		if (diffDays === 0) {
-			// Today - show time
-			return date.toLocaleTimeString([], {
-				hour: "2-digit",
-				minute: "2-digit",
-			});
-		} else if (diffDays === 1) {
-			// Yesterday
-			return "Yesterday";
-		} else if (diffDays < 7) {
-			// Within a week - show day name
-			return date.toLocaleDateString([], { weekday: "short" });
-		} else {
-			// Older - show date
-			return date.toLocaleDateString([], { month: "short", day: "numeric" });
-		}
-	};
 
 	const handleChatPress = (chatId: number) => {
 		navigation.navigate("ChatConversation", {
@@ -125,7 +102,7 @@ const ChatsListScreen = () => {
 							<View style={styles.chatHeader}>
 								<Text style={styles.chatName}>Test</Text>
 								<Text style={styles.timestamp}>
-									{formatTimestamp(item.lastModified.toString())}
+									{formatTimestamp(item.lastModified)}
 								</Text>
 							</View>
 							<View style={styles.chatFooter}>
