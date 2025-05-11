@@ -45,7 +45,7 @@ try
 
     app.UseSerilogRequestLogging(x =>
     {
-        x.MessageTemplate = "({RadarRequestId}) HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+        x.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
     });
 
     // Configure the HTTP request pipeline.
@@ -167,6 +167,5 @@ static void PrintBanner(WebApplicationBuilder appBuilder, string env)
 
 namespace FadeChat.Web
 {
-    public class Program
-    { }
+    public class Program;
 }

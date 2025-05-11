@@ -18,8 +18,7 @@
     </PackageVersion>
     <PackageVersion Include="FluentAssertions" Version="8.2.0" />
     <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
-    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
-    <PackageVersion Include="Google.Apis.Auth.AspNetCore3" Version="1.69.0" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
     <PackageVersion Include="MediatR" Version="12.5.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
@@ -28,7 +27,6 @@
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="9.0.3" />
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
@@ -51,8 +49,8 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
-    <PackageVersion Include="NSwag.AspNetCore" Version="14.3.0" />
-    <PackageVersion Include="NSwag.MSBuild" Version="14.3.0">
+    <PackageVersion Include="NSwag.AspNetCore" Version="14.4.0" />
+    <PackageVersion Include="NSwag.MSBuild" Version="14.4.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
@@ -64,7 +62,7 @@
     <PackageVersion Include="NUnit3TestAdapter" Version="5.0.0" />
     <PackageVersion Include="Respawn" Version="6.2.1" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Playwright" Version="1.51.0" />
+    <PackageVersion Include="Microsoft.Playwright" Version="1.52.0" />
     <PackageVersion Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
     <PackageVersion Include="SpecFlow.NUnit" Version="3.9.74" />
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.0" />
