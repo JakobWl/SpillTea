@@ -78,11 +78,19 @@ export class ChatsClient extends ClientBase {
         return Promise.resolve<PaginatedListOfChatDto>(null as any);
     }
 
-    getChatMessages(chatId: number, cancelToken?: CancelToken): Promise<PaginatedListOfChatMessageDto> {
-        let url_ = this.baseUrl + "/api/Chats/{chatId}";
+    getChatMessages(chatId: number, pageSize: number, pageNumber: number, cancelToken?: CancelToken): Promise<PaginatedListOfChatMessageDto> {
+        let url_ = this.baseUrl + "/api/Chats/{chatId}?";
         if (chatId === undefined || chatId === null)
             throw new Error("The parameter 'chatId' must be defined.");
         url_ = url_.replace("{chatId}", encodeURIComponent("" + chatId));
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {

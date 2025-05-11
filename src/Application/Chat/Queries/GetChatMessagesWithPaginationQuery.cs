@@ -4,19 +4,14 @@ using FadeChat.Application.Common.Models;
 
 namespace FadeChat.Application.Chat.Queries;
 
-public sealed record GetChatMessagesWithPaginationQuery(int ChatId = 1) : IRequest<PaginatedList<ChatMessageDto>>
-{
-    public int ChatId { get; init; } = ChatId;
-    public int PageNumber { get; init; } = 1;
-    public int PageSize { get; init; } = 10;
-}
+public sealed record GetChatMessagesWithPaginationQuery(int ChatId = 1, int PageNumber = 1, int PageSize = 10) : IRequest<PaginatedList<ChatMessageDto>>;
 
 public class GetChatMessagesWithPaginationQueryHandler(IApplicationDbContext context) : IRequestHandler<GetChatMessagesWithPaginationQuery, PaginatedList<ChatMessageDto>>
 {
     public async Task<PaginatedList<ChatMessageDto>> Handle(GetChatMessagesWithPaginationQuery request, CancellationToken cancellationToken)
     {
         // Build the query and order by LastModified
-        var query = context.ChatMessages.OrderBy(x => x.LastModified);
+        var query = context.ChatMessages.OrderByDescending(x => x.LastModified);
 
         // Retrieve the total count for pagination
         var totalCount = await query.CountAsync(cancellationToken);
@@ -36,7 +31,7 @@ public class GetChatMessagesWithPaginationQueryHandler(IApplicationDbContext con
             Body = chatMessage.Body,
             State = chatMessage.State,
             TimeStamp = chatMessage.Created
-        }).ToList();
+        }).OrderBy(x => x.TimeStamp).ToList();
 
         // Create and return the paginated list
         return new PaginatedList<ChatMessageDto>(chatMessageDtos, totalCount, request.PageNumber, request.PageSize);

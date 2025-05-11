@@ -14,6 +14,7 @@ import signalRService from "../services/signalRService";
 import ChatBubble from "../components/ChatBubble";
 import { useAuth } from "../contexts/AuthContext";
 import { ChatMessageDto, MessageState } from "../api/client";
+import { chatsClient } from "../api";
 import { DateTime } from "luxon";
 
 type ChatConversationScreenProps = NativeStackScreenProps<
@@ -27,8 +28,13 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 	const [messages, setMessages] = useState<ChatMessageDto[]>([]);
 	const [newMessage, setNewMessage] = useState("");
 	const [isConnecting, setIsConnecting] = useState(true);
+	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+	const [chatHistoryPageNumber, setChatHistoryPageNumber] = useState(1);
+	const [hasMoreHistory, setHasMoreHistory] = useState(true);
+	const chatHistoryPageSize = 20;
 	const [error, setError] = useState<string | null>(null);
 	const flatListRef = useRef<FlatList>(null);
+	const messageInputRef = useRef<any>(null);
 
 	// Set the header title
 	useLayoutEffect(() => {
@@ -40,25 +46,55 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 	useEffect(() => {
 		let unsubscribeMessageHandler: (() => void) | null = null;
 
+		const loadChatHistory = async (isInitialLoad = false) => {
+			if (!hasMoreHistory || isLoadingHistory) return;
+
+			setIsLoadingHistory(true);
+			setError(null);
+			try {
+				const response = await chatsClient.getChatMessages(
+					chatId,
+					chatHistoryPageNumber,
+					chatHistoryPageSize,
+				);
+
+				if (response.items) {
+					console.log("Loading chat history:", response.items);
+					setMessages((prevMessages) => [...response.items!, ...prevMessages]);
+					setHasMoreHistory(response.hasNextPage ?? false);
+					setChatHistoryPageNumber((prevPageNumber) => prevPageNumber + 1);
+				} else {
+					setHasMoreHistory(false);
+				}
+
+				if (isInitialLoad) {
+					setTimeout(() => {
+						flatListRef.current?.scrollToEnd({ animated: false });
+					}, 100);
+				}
+			} catch (err) {
+				console.error("Error loading chat history:", err);
+				setError("Failed to load chat history.");
+			} finally {
+				setIsLoadingHistory(false);
+			}
+		};
+
 		const connectToChat = async () => {
 			setIsConnecting(true);
 			setError(null);
 
 			try {
 				await signalRService.startConnection();
-
-				// Join the specific chat room
 				await signalRService.joinChat(chatId);
 
-				// Register event handler for this specific chat
+				await loadChatHistory(true);
+
 				unsubscribeMessageHandler = signalRService.onMessageReceived(
 					(message) => {
-						// Only add messages for this chat
 						if (message.chatId === chatId) {
 							console.log("Received message:", message);
 							setMessages((prevMessages) => [...prevMessages, message]);
-
-							// Scroll to bottom when new message arrives
 							setTimeout(() => {
 								flatListRef.current?.scrollToEnd({ animated: true });
 							}, 100);
@@ -67,24 +103,23 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 				);
 
 				setIsConnecting(false);
-
-				// Simulate fetching chat history from API
-				setTimeout(() => {}, 500);
 			} catch (err) {
 				setError("Failed to connect to chat. Please try again later.");
 				setIsConnecting(false);
-				console.error("Error connecting to SignalR hub:", err);
+				console.error(
+					"Error connecting to SignalR hub or loading history:",
+					err,
+				);
 			}
 		};
 
-		connectToChat().then();
+		connectToChat();
 
 		// Cleanup on unmount
 		return () => {
 			if (unsubscribeMessageHandler) {
 				unsubscribeMessageHandler();
 			}
-			// Leave the chat room when component unmounts
 			signalRService.leaveChat(chatId).catch((err) => {
 				console.error(`Error leaving chat ${chatId}:`, err);
 			});
@@ -108,6 +143,8 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 
 			setMessages((prev) => [...prev, newMsg as ChatMessageDto]);
 			setNewMessage("");
+
+			messageInputRef.current?.focus();
 
 			setTimeout(() => {
 				flatListRef.current?.scrollToEnd({ animated: true });
@@ -135,6 +172,12 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 				</View>
 			)}
 
+			{isLoadingHistory && messages.length > 0 && (
+				<View style={styles.historyLoadingContainer}>
+					<ActivityIndicator size="small" color="#6200ee" />
+				</View>
+			)}
+
 			<FlatList
 				ref={flatListRef}
 				data={messages}
@@ -148,9 +191,6 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 					/>
 				)}
 				contentContainerStyle={styles.messagesContainer}
-				onContentSizeChange={() =>
-					flatListRef.current?.scrollToEnd({ animated: false })
-				}
 			/>
 
 			<KeyboardAvoidingView
@@ -159,6 +199,7 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 			>
 				<View style={styles.inputContainer}>
 					<TextInput
+						ref={messageInputRef}
 						style={styles.input}
 						placeholder="Type a message..."
 						value={newMessage}
@@ -204,6 +245,10 @@ const styles = StyleSheet.create({
 	errorText: {
 		color: "#d32f2f",
 		fontSize: 14,
+	},
+	historyLoadingContainer: {
+		padding: 10,
+		alignItems: "center",
 	},
 	messagesContainer: {
 		padding: 10,

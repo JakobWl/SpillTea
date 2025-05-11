@@ -15,5 +15,5 @@ public class Chats : EndpointGroupBase
 
     private async Task<Ok<PaginatedList<ChatDto>>> GetChats(ISender sender) => TypedResults.Ok(await sender.Send(new GetChatsWithPaginationQuery()));
 
-    private async Task<Ok<PaginatedList<ChatMessageDto>>> GetChatMessages(ISender sender, int chatId) => TypedResults.Ok(await sender.Send(new GetChatMessagesWithPaginationQuery(chatId)));
+    private async Task<Ok<PaginatedList<ChatMessageDto>>> GetChatMessages(ISender sender, int chatId, int pageSize, int pageNumber) => TypedResults.Ok(await sender.Send(new GetChatMessagesWithPaginationQuery(chatId, pageSize, pageNumber)));
 }
