@@ -18,7 +18,10 @@ public class ChatMessageSentEventHandler(IApplicationDbContext context) : INotif
         if (chat != null)
         {
             chat.Messages.Add(new ChatMessage {
-                Body = notification.Message.Body, SenderId = notification.Message.SenderId, State = notification.Message.State, ChatId = chat.Id
+                Body = notification.Message.Body,
+                SenderId = notification.Message.SenderId,
+                State = notification.Message.State,
+                ChatId = chat.Id
             });
 
             // Update the unread count (for instance, increase count for all recipients except the sender)
@@ -26,6 +29,7 @@ public class ChatMessageSentEventHandler(IApplicationDbContext context) : INotif
 
             // Update the last message field
             chat.LastMessage = notification.Message.Body;
+            chat.LastMessageSenderId = notification.Message.SenderId;
 
             // Save the updated chat summary data
             await context.SaveChangesAsync(cancellationToken);

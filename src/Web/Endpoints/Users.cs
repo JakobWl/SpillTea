@@ -29,11 +29,15 @@ public class Users : EndpointGroupBase
         app.MapGroup(this)
             .RequireAuthorization()
             .MapGet(GetCurrentUser, "/me")
-            .MapPost(CompleteSetup, "/setup");
+            .MapPost(CompleteSetup, "/setup")
+            .MapGet(GetUserImage, "/{userId}/image");
     }
 
     private async Task<Ok<CurrentUserDto>> GetCurrentUser(ISender sender) =>
         TypedResults.Ok(await sender.Send(new GetCurrentUserQuery()));
+
+    private async Task<Ok<string>> GetUserImage(ISender sender, string userId) =>
+        TypedResults.Ok(await sender.Send(new GetUserImageQuery(userId)));
 
     private async Task<IResult> CompleteSetup(
         [FromBody] SetupRequest request,

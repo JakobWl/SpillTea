@@ -6,6 +6,7 @@ public class ChatDto
     public int UnreadCount { get; set; }
     public DateTimeOffset LastModified { get; set; }
     public string LastMessage { get; set; } = null!;
+    public string LastMessageSenderId { get; set; } = null!;
 
     private class Mapping : Profile
     {

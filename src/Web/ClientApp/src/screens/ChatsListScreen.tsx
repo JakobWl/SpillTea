@@ -15,7 +15,7 @@ import { MainTabParamList } from "../navigation/AppNavigator";
 import signalRService from "../services/signalRService";
 import { useQuery } from "@tanstack/react-query";
 import { ChatDto, ChatMessageDto } from "../api/client";
-import { chatsClient } from "../api";
+import { chatsClient, usersClient } from "../api";
 import { formatTimestamp } from "../utils/dateTime";
 import { DateTime } from "luxon";
 
@@ -23,6 +23,49 @@ type ChatsListNavigationProp = NativeStackNavigationProp<
 	MainTabParamList,
 	"ChatsList"
 >;
+
+// Define UserAvatar component
+const UserAvatar: React.FC<{
+	userId: string | null | undefined;
+	size: number;
+	style?: any;
+}> = ({ userId, size, style }) => {
+	const [avatarUrl, setAvatarUrl] = useState<string | null>(null); // Initialize with null
+
+	useEffect(() => {
+		if (userId) {
+			let isMounted = true;
+			usersClient
+				.getUserImage(userId)
+				.then((url) => {
+					if (isMounted && url) {
+						setAvatarUrl(url as string);
+					} else if (isMounted) {
+						setAvatarUrl(null); // Fallback to null if API returns no valid URL
+					}
+				})
+				.catch((error) => {
+					console.error(`Failed to fetch avatar for user ${userId}:`, error);
+					if (isMounted) {
+						setAvatarUrl(null); // Fallback to null on error
+					}
+				});
+			return () => {
+				isMounted = false;
+			};
+		} else {
+			setAvatarUrl(null); // No userId, set to null
+		}
+	}, [userId]);
+
+	return (
+		<Avatar.Image
+			source={{ uri: avatarUrl as string | undefined }}
+			size={size}
+			style={style}
+		/>
+	);
+};
 
 const convertToDateTime = (dateField: Date | string | undefined): DateTime => {
 	if (!dateField) return DateTime.fromMillis(0);
@@ -43,8 +86,11 @@ const ChatsListScreen = () => {
 			setIsLoading(true);
 			const response = await chatsClient.getChats();
 			const sortedChats = (response.items ?? []).sort((a, b) => {
-				const dateA = convertToDateTime(a.lastModified.toJSDate());
-				const dateB = convertToDateTime(b.lastModified.toJSDate());
+				const dateA = convertToDateTime(a.lastModified as any);
+				const dateB = convertToDateTime(b.lastModified as any);
+				if (!dateA.isValid && !dateB.isValid) return 0;
+				if (!dateA.isValid) return 1;
+				if (!dateB.isValid) return -1;
 				return dateB.toMillis() - dateA.toMillis();
 			});
 			setChats(sortedChats);
@@ -81,10 +127,15 @@ const ChatsListScreen = () => {
 				const updatedChats = prevChats.map((chat) => {
 					if (chat.id === message.chatId) {
 						chatExists = true;
+						const newLastModified =
+							message.timeStamp && message.timeStamp.isValid
+								? message.timeStamp
+								: DateTime.now();
+
 						return {
 							...chat,
 							lastMessage: message.body,
-							lastModified: message.timeStamp ? message.timeStamp : new Date(),
+							lastModified: newLastModified,
 							unreadCount: (chat.unreadCount ?? 0) + 1,
 						} as ChatDto;
 					}
@@ -101,8 +152,11 @@ const ChatsListScreen = () => {
 				}
 
 				return updatedChats.sort((a, b) => {
-					const dateA = convertToDateTime(a.lastModified.toJSDate());
-					const dateB = convertToDateTime(b.lastModified.toJSDate());
+					const dateA = convertToDateTime(a.lastModified as any);
+					const dateB = convertToDateTime(b.lastModified as any);
+					if (!dateA.isValid && !dateB.isValid) return 0;
+					if (!dateA.isValid) return 1;
+					if (!dateB.isValid) return -1;
 					return dateB.toMillis() - dateA.toMillis();
 				});
 			});
@@ -167,14 +221,16 @@ const ChatsListScreen = () => {
 						style={styles.chatItem}
 						onPress={() => handleChatPress(item.id)}
 					>
-						<Avatar.Image
-							source={{ uri: "https://via.placeholder.com/50" }}
+						<UserAvatar
+							userId={item.lastMessageSenderId}
 							size={50}
 							style={styles.avatar}
 						/>
 						<View style={styles.chatInfo}>
 							<View style={styles.chatHeader}>
-								<Text style={styles.chatName}>Test</Text>
+								<Text style={styles.chatName}>
+									{(item as any).displayName || "Chat"}
+								</Text>
 								<Text style={styles.timestamp}>
 									{formatTimestamp(item.lastModified)}
 								</Text>

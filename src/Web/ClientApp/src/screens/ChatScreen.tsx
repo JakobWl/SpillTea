@@ -94,7 +94,11 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 					(message) => {
 						if (message.chatId === chatId) {
 							console.log("Received message:", message);
-							setMessages((prevMessages) => [...prevMessages, message]);
+							const processedMessage = ChatMessageDto.fromJS(message);
+							setMessages((prevMessages) => [
+								...prevMessages,
+								processedMessage,
+							]);
 							setTimeout(() => {
 								flatListRef.current?.scrollToEnd({ animated: true });
 							}, 100);

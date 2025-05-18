@@ -15,7 +15,7 @@ public class GetChatsWithPaginationQueryHandler(IApplicationDbContext context) :
     public async Task<PaginatedList<ChatDto>> Handle(GetChatsWithPaginationQuery request, CancellationToken cancellationToken)
     {
         // Build the query and order by LastModified
-        var query = context.Chats.OrderBy(x => x.LastModified);
+        var query = context.Chats.OrderByDescending(x => x.LastModified);
 
         // Retrieve the total count for pagination
         var totalCount = await query.CountAsync(cancellationToken);

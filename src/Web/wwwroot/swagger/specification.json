@@ -645,6 +645,42 @@
           }
         ]
       }
+    },
+    "/api/Users/{userId}/image": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetUserImage",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -694,7 +730,8 @@
           "id",
           "unreadCount",
           "lastModified",
-          "lastMessage"
+          "lastMessage",
+          "lastMessageSenderId"
         ],
         "properties": {
           "id": {
@@ -710,6 +747,9 @@
             "format": "date-time"
           },
           "lastMessage": {
+            "type": "string"
+          },
+          "lastMessageSenderId": {
             "type": "string"
           }
         }
