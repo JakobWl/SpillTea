@@ -15,11 +15,18 @@ public class User : IdentityUser
     [MaxLength(4)]
     public string? Tag { get; set; }
 
+    public int? Age { get; set; }
+
+    [MaxLength(20)]
+    public string? Gender { get; set; }
+
     [InverseProperty(nameof(Chat.Users))]
     public ICollection<Chat> Chats { get; set; } = null!;
 
     public static User Create(string email, string userName) =>
-        new() {
-            Email = email, UserName = userName
+        new()
+        {
+            Email = email,
+            UserName = userName
         };
 }

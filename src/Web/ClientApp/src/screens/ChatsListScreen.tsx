@@ -187,7 +187,8 @@ const ChatsListScreen = () => {
 			// Connect to SignalR if not already connected
 			await signalRService.startConnection();
 
-			// Find a random chat partner
+			// TODO: In the future, we can pass search filters to the backend
+			// For now, we'll use the existing random chat functionality
 			const chatId = await signalRService.findRandomChat();
 
 			// Navigate to the chat conversation
@@ -256,14 +257,23 @@ const ChatsListScreen = () => {
 				contentContainerStyle={styles.listContent}
 			/>
 
-			<FAB
-				style={styles.fab}
-				icon="account-search"
-				label="Find Random Chat"
-				onPress={handleFindRandomChat}
-				loading={isFindingChat}
-				disabled={isFindingChat}
-			/>
+			<View style={styles.fabContainer}>
+				<FAB
+					style={styles.fabSecondary}
+					icon="filter"
+					onPress={() => navigation.navigate("SearchFilters" as any)}
+					disabled={isFindingChat}
+					size="small"
+				/>
+				<FAB
+					style={styles.fab}
+					icon="account-search"
+					label="Find Random Chat"
+					onPress={handleFindRandomChat}
+					loading={isFindingChat}
+					disabled={isFindingChat}
+				/>
+			</View>
 
 			<Snackbar
 				visible={!!error}
@@ -348,12 +358,20 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		fontWeight: "bold",
 	},
-	fab: {
+	fabContainer: {
 		position: "absolute",
-		margin: 16,
-		right: 0,
-		bottom: 0,
+		right: 16,
+		bottom: 16,
+		flexDirection: "column",
+		alignItems: "flex-end",
+	},
+	fab: {
 		backgroundColor: "#6200ee",
+		marginBottom: 8,
+	},
+	fabSecondary: {
+		backgroundColor: "#03dac6",
+		marginBottom: 8,
 	},
 });
 

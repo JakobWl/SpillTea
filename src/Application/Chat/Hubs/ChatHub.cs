@@ -4,6 +4,7 @@ using FadeChat.Application.Chat.Events;
 using FadeChat.Application.Common.Interfaces;
 using FadeChat.Application.Common.Security;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace FadeChat.Application.Chat.Hubs;
 
@@ -83,35 +84,107 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
 
     public async Task<int> FindRandomChat()
     {
-        // Assume ActiveUsers is a thread-safe collection (e.g., ConcurrentDictionary or a lock‑protected List)
-        // that holds info about connected clients, e.g., their ConnectionIds.
-        var activeUsers = ActiveUsers
+        return await FindRandomChatWithFilters(null);
+    }
+
+    public async Task<int> FindRandomChatWithFilters(SearchFiltersDto? filters)
+    {
+        if (currentUser.Id == null)
+        {
+            throw new InvalidOperationException("User not authenticated.");
+        }
+
+        // Get current user's demographics
+        var currentUserEntity = await context.Users
+            .FirstOrDefaultAsync(u => u.Id == currentUser.Id);
+
+        if (currentUserEntity == null)
+        {
+            throw new InvalidOperationException("Current user not found.");
+        }
+
+        // Get all active users except current user
+        var activeUserIds = ActiveUsers
             .Where(u => u.Key != Context.ConnectionId)
+            .Select(u => u.Value)
             .ToList();
 
-        if (activeUsers.Count == 0)
+        if (activeUserIds.Count == 0)
         {
-            // Handle the scenario when no partner is available
             throw new InvalidOperationException("No active users available at the moment.");
         }
 
-        // Randomly select a partner from the active users
-        var random = new Random();
-        var partner = activeUsers[random.Next(activeUsers.Count)];
+        // Get user entities with demographics for filtering
+        var candidateUsers = await context.Users
+            .Where(u => activeUserIds.Contains(u.Id))
+            .ToListAsync();
 
-        // Create a new chat record in the DB.
-        // Assume Chat is a model with ChatId as an integer primary key (auto-incremented)
+        // Apply filters if provided
+        if (filters != null)
+        {
+            candidateUsers = ApplySearchFilters(candidateUsers, currentUserEntity, filters);
+        }
+
+        if (candidateUsers.Count == 0)
+        {
+            throw new InvalidOperationException("No users match your search criteria at the moment.");
+        }
+
+        // Randomly select a partner from filtered candidates
+        var random = new Random();
+        var selectedUser = candidateUsers[random.Next(candidateUsers.Count)];
+
+        // Find the connection ID for the selected user
+        var partnerConnectionId = ActiveUsers
+            .FirstOrDefault(u => u.Value == selectedUser.Id).Key;
+
+        if (string.IsNullOrEmpty(partnerConnectionId))
+        {
+            throw new InvalidOperationException("Selected user is no longer available.");
+        }
+
+        // Create a new chat record in the DB
         var chat = new Domain.Entities.Chat();
         context.Chats.Add(chat);
-        await context.SaveChangesAsync(); // chat.ChatId is now set
-
-        // Convert chat.ChatId to string for group naming if needed.
-        var groupName = chat.Id.ToString();
+        await context.SaveChangesAsync();
 
         // Add both clients to the SignalR group associated with the chat
+        var groupName = chat.Id.ToString();
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        await Groups.AddToGroupAsync(partner.Key, groupName);
+        await Groups.AddToGroupAsync(partnerConnectionId, groupName);
 
         return chat.Id;
+    }
+
+    private List<Domain.Entities.User> ApplySearchFilters(
+        List<Domain.Entities.User> candidates,
+        Domain.Entities.User currentUser,
+        SearchFiltersDto filters)
+    {
+        var filtered = candidates.AsEnumerable();
+
+        // Apply age range filter
+        if (filters.AgeRangeEnabled && currentUser.Age.HasValue)
+        {
+            filtered = filtered.Where(u => u.Age.HasValue &&
+                                         u.Age >= filters.MinAge &&
+                                         u.Age <= filters.MaxAge);
+        }
+
+        // Apply gender preference filter
+        if (filters.GenderPreferences.Any())
+        {
+            filtered = filtered.Where(u => !string.IsNullOrEmpty(u.Gender) &&
+                                         filters.GenderPreferences.Contains(u.Gender));
+        }
+
+        // Apply same age group filter (within 5 years)
+        if (filters.SameAgeGroupOnly && currentUser.Age.HasValue)
+        {
+            filtered = filtered.Where(u => u.Age.HasValue &&
+                                         Math.Abs(u.Age.Value - currentUser.Age.Value) <= 5);
+        }
+
+        return filtered.ToList();
     }
 }

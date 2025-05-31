@@ -2062,6 +2062,8 @@ export interface ICurrentUserDto {
 export class SetupRequest implements ISetupRequest {
     displayName!: string;
     returnUrl!: string;
+    age?: number;
+    gender?: string;
 
     constructor(data?: ISetupRequest) {
         if (data) {
@@ -2076,6 +2078,8 @@ export class SetupRequest implements ISetupRequest {
         if (_data) {
             this.displayName = _data["displayName"];
             this.returnUrl = _data["returnUrl"];
+            this.age = _data["age"];
+            this.gender = _data["gender"];
         }
     }
 
@@ -2090,6 +2094,8 @@ export class SetupRequest implements ISetupRequest {
         data = typeof data === 'object' ? data : {};
         data["displayName"] = this.displayName;
         data["returnUrl"] = this.returnUrl;
+        data["age"] = this.age;
+        data["gender"] = this.gender;
         return data;
     }
 }
@@ -2097,6 +2103,8 @@ export class SetupRequest implements ISetupRequest {
 export interface ISetupRequest {
     displayName: string;
     returnUrl: string;
+    age?: number;
+    gender?: string;
 }
 
 export class ApiException extends Error {

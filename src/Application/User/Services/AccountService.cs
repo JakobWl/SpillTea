@@ -66,10 +66,11 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
             throw new NotFoundException("User", userId);
         }
 
-        return !string.IsNullOrEmpty(user.DisplayName) && !string.IsNullOrEmpty(user.Tag);
+        return !string.IsNullOrEmpty(user.DisplayName) && !string.IsNullOrEmpty(user.Tag)
+                                                       && user is { Age: >= 18, Gender: not null };
     }
 
-    public async Task<bool> CompleteUserSetupAsync(string userId, string displayName)
+    public async Task<bool> CompleteUserSetupAsync(string userId, string displayName, int? age, string? gender)
     {
         var user = await userManager.FindByIdAsync(userId);
 
@@ -78,12 +79,66 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
             throw new NotFoundException("User", userId);
         }
 
+        // Validate age if provided
+        if (age.HasValue && (age < 18 || age > 100))
+        {
+            throw new ArgumentException("Age must be between 18 and 100");
+        }
+
+        // Validate gender if provided
+        if (!string.IsNullOrEmpty(gender))
+        {
+            var validGenders = new[] {
+                "male", "female", "other", "prefer_not_to_say"
+            };
+            if (!validGenders.Contains(gender.ToLower()))
+            {
+                throw new ArgumentException("Invalid gender value");
+            }
+        }
+
         var tag = await GenerateUniqueTagAsync(displayName);
 
         user.DisplayName = displayName;
         user.Tag = tag;
+        user.Age = age;
+        user.Gender = gender;
 
         user.UserName = $"{displayName}#{tag}";
+
+        var result = await userManager.UpdateAsync(user);
+        return result.Succeeded;
+    }
+
+    public async Task<bool> UpdateUserDemographicsAsync(string userId, int? age, string? gender)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            throw new NotFoundException("User", userId);
+        }
+
+        // Validate age
+        if (age.HasValue && (age < 18 || age > 100))
+        {
+            throw new ArgumentException("Age must be between 18 and 100");
+        }
+
+        // Validate gender
+        if (!string.IsNullOrEmpty(gender))
+        {
+            var validGenders = new[] {
+                "male", "female", "other", "prefer_not_to_say"
+            };
+            if (!validGenders.Contains(gender.ToLower()))
+            {
+                throw new ArgumentException("Invalid gender value");
+            }
+        }
+
+        user.Age = age;
+        user.Gender = gender;
 
         var result = await userManager.UpdateAsync(user);
         return result.Succeeded;

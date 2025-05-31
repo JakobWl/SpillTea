@@ -1159,6 +1159,15 @@
           },
           "returnUrl": {
             "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": false
+          },
+          "gender": {
+            "type": "string",
+            "nullable": false
           }
         }
       }

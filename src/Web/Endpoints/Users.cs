@@ -59,22 +59,23 @@ public class Users : EndpointGroupBase
             });
         }
 
-        var success = await accountService.CompleteUserSetupAsync(userId, request.DisplayName);
+        var success = await accountService.CompleteUserSetupAsync(userId, request.DisplayName, request.Age, request.Gender);
 
-        if (!success)
-            return Results.BadRequest(new {
-                error = "Failed to update user"
+            if (!success)
+                return Results.BadRequest(new {
+                    error = "Failed to update user"
+                });
+
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Results.Problem("User disappeared?");
+
+            await signInManager.RefreshSignInAsync(user);
+
+            return Results.Ok(new {
+                message = "Setup complete",
+                returnUrl = string.IsNullOrEmpty(request.ReturnUrl) ? "/" : request.ReturnUrl
             });
-
-        var user = await userManager.FindByIdAsync(userId);
-        if (user == null)
-            return Results.Problem("User disappeared?");
-
-        await signInManager.RefreshSignInAsync(user);
-
-        return Results.Ok(new {
-            message = "Setup complete", returnUrl = string.IsNullOrEmpty(request.ReturnUrl) ? "/" : request.ReturnUrl
-        });
     }
 
     private IResult LoginWithGoogle(HttpContext context, LinkGenerator linkGenerator, SignInManager<User> signInManager, [FromQuery] string? returnUrl)

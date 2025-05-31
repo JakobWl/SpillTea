@@ -7,6 +7,14 @@ import authStorage from "../utils/authStorage";
 import config from "../config";
 import { ChatMessageDto } from "../api/client";
 
+export interface SearchFilters {
+	ageRangeEnabled: boolean;
+	minAge: number;
+	maxAge: number;
+	genderPreferences: string[];
+	sameAgeGroupOnly: boolean;
+}
+
 type MessageHandler = (message: ChatMessageDto) => void;
 type UserConnectionHandler = (userId: string, username: string) => void;
 type UserDisconnectionHandler = (userId: string) => void;
@@ -143,6 +151,18 @@ class SignalRService {
 			return chatId;
 		} catch (error) {
 			console.error("Error finding random chat:", error);
+			throw error;
+		}
+	}
+
+	async findRandomChatWithFilters(filters: SearchFilters): Promise<number> {
+		try {
+			const connection = await this.startConnection();
+			const chatId = await connection.invoke<number>("FindRandomChatWithFilters", filters);
+			console.log(`Found filtered random chat: ${chatId}`);
+			return chatId;
+		} catch (error) {
+			console.error("Error finding filtered random chat:", error);
 			throw error;
 		}
 	}
