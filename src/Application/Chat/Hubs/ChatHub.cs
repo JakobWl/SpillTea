@@ -66,6 +66,44 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
         await mediator.Publish(new ChatMessageSentEvent(chatMessageDto));
     }
 
+    public async Task MarkMessageReceived(int messageId)
+    {
+        if (currentUser.Id == null)
+        {
+            return;
+        }
+
+        var message = await context.ChatMessages.FirstOrDefaultAsync(m => m.Id == messageId);
+        if (message == null)
+        {
+            return;
+        }
+
+        await mediator.Publish(new ChatMessageReceivedEvent(messageId, currentUser.Id));
+
+        await Clients.GroupExcept(message.ChatId.ToString(), Context.ConnectionId)
+            .SendAsync("MessageReceived", messageId, currentUser.Id);
+    }
+
+    public async Task MarkMessageRead(int messageId)
+    {
+        if (currentUser.Id == null)
+        {
+            return;
+        }
+
+        var message = await context.ChatMessages.FirstOrDefaultAsync(m => m.Id == messageId);
+        if (message == null)
+        {
+            return;
+        }
+
+        await mediator.Publish(new ChatMessageReadEvent(messageId, currentUser.Id));
+
+        await Clients.GroupExcept(message.ChatId.ToString(), Context.ConnectionId)
+            .SendAsync("MessageRead", messageId, currentUser.Id);
+    }
+
     public async Task JoinChat(int chatId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());

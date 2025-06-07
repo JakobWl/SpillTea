@@ -43,8 +43,10 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 		});
 	}, [navigation, chatId]);
 
-	useEffect(() => {
-		let unsubscribeMessageHandler: (() => void) | null = null;
+        useEffect(() => {
+                let unsubscribeMessageHandler: (() => void) | null = null;
+                let unsubscribeReceived: (() => void) | null = null;
+                let unsubscribeRead: (() => void) | null = null;
 
 		const loadChatHistory = async (isInitialLoad = false) => {
 			if (!hasMoreHistory || isLoadingHistory) return;
@@ -58,14 +60,20 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 					chatHistoryPageSize,
 				);
 
-				if (response.items) {
-					console.log("Loading chat history:", response.items);
-					setMessages((prevMessages) => [...response.items!, ...prevMessages]);
-					setHasMoreHistory(response.hasNextPage ?? false);
-					setChatHistoryPageNumber((prevPageNumber) => prevPageNumber + 1);
-				} else {
-					setHasMoreHistory(false);
-				}
+                                if (response.items) {
+                                        console.log("Loading chat history:", response.items);
+                                        setMessages((prevMessages) => [...response.items!, ...prevMessages]);
+                                        response.items!
+                                                .filter((m) => m.senderId !== user?.id)
+                                                .forEach((m) => {
+                                                        signalRService.markMessageReceived(m.id);
+                                                        signalRService.markMessageRead(m.id);
+                                                });
+                                        setHasMoreHistory(response.hasNextPage ?? false);
+                                        setChatHistoryPageNumber((prevPageNumber) => prevPageNumber + 1);
+                                } else {
+                                        setHasMoreHistory(false);
+                                }
 
 				if (isInitialLoad) {
 					setTimeout(() => {
@@ -88,23 +96,43 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 				await signalRService.startConnection();
 				await signalRService.joinChat(chatId);
 
-				await loadChatHistory(true);
+                               await loadChatHistory(true);
 
-				unsubscribeMessageHandler = signalRService.onMessageReceived(
-					(message) => {
-						if (message.chatId === chatId) {
-							console.log("Received message:", message);
-							const processedMessage = ChatMessageDto.fromJS(message);
-							setMessages((prevMessages) => [
-								...prevMessages,
-								processedMessage,
-							]);
-							setTimeout(() => {
-								flatListRef.current?.scrollToEnd({ animated: true });
-							}, 100);
-						}
-					},
-				);
+                               unsubscribeMessageHandler = signalRService.onMessageReceived(
+                                        (message) => {
+                                                if (message.chatId === chatId) {
+                                                        console.log("Received message:", message);
+                                                        const processedMessage = ChatMessageDto.fromJS(message);
+                                                        setMessages((prevMessages) => [
+                                                                ...prevMessages,
+                                                                processedMessage,
+                                                        ]);
+                                                        if (processedMessage.senderId !== user?.id) {
+                                                                signalRService.markMessageReceived(processedMessage.id);
+                                                                signalRService.markMessageRead(processedMessage.id);
+                                                        }
+                                                        setTimeout(() => {
+                                                                flatListRef.current?.scrollToEnd({ animated: true });
+                                                        }, 100);
+                                                }
+                                        },
+                                );
+
+                                unsubscribeReceived = signalRService.onMessageReceivedStatus((id, userId) => {
+                                        setMessages((prev) =>
+                                                prev.map((m) =>
+                                                        m.id === id ? { ...m, state: MessageState.Received } : m,
+                                                ),
+                                        );
+                                });
+
+                                unsubscribeRead = signalRService.onMessageReadStatus((id, userId) => {
+                                        setMessages((prev) =>
+                                                prev.map((m) =>
+                                                        m.id === id ? { ...m, state: MessageState.Read } : m,
+                                                ),
+                                        );
+                                });
 
 				setIsConnecting(false);
 			} catch (err) {
@@ -119,16 +147,22 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 
 		connectToChat();
 
-		// Cleanup on unmount
-		return () => {
-			if (unsubscribeMessageHandler) {
-				unsubscribeMessageHandler();
-			}
-			signalRService.leaveChat(chatId).catch((err) => {
-				console.error(`Error leaving chat ${chatId}:`, err);
-			});
-		};
-	}, [chatId, user]);
+                // Cleanup on unmount
+                return () => {
+                        if (unsubscribeMessageHandler) {
+                                unsubscribeMessageHandler();
+                        }
+                        if (unsubscribeReceived) {
+                                unsubscribeReceived();
+                        }
+                        if (unsubscribeRead) {
+                                unsubscribeRead();
+                        }
+                        signalRService.leaveChat(chatId).catch((err) => {
+                                console.error(`Error leaving chat ${chatId}:`, err);
+                        });
+                };
+        }, [chatId, user]);
 
 	const sendMessage = async () => {
 		if (!newMessage.trim() || !user) return;
