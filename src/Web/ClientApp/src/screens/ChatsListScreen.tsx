@@ -120,10 +120,13 @@ const ChatsListScreen = () => {
 
 		connectAndSubscribe();
 
-		const handleNewMessage = (message: ChatMessageDto) => {
-			console.log("New message received in ChatsListScreen:", message);
-			setChats((prevChats) => {
-				let chatExists = false;
+                const handleNewMessage = (message: ChatMessageDto) => {
+                        console.log("New message received in ChatsListScreen:", message);
+                        if (message.senderId !== user?.id) {
+                                signalRService.markMessageReceived(message.id);
+                        }
+                        setChats((prevChats) => {
+                                let chatExists = false;
 				const updatedChats = prevChats.map((chat) => {
 					if (chat.id === message.chatId) {
 						chatExists = true;

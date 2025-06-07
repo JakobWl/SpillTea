@@ -1,7 +1,8 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
-import { ChatMessageDto } from "../api/client";
+import { ChatMessageDto, MessageState } from "../api/client";
+import { MaterialCommunityIcons } from "../utils/materialIcons";
 import { formatTimestamp } from "../utils/dateTime";
 
 interface ChatBubbleProps {
@@ -39,9 +40,24 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isOwnMessage }) => {
 				</Text>
 			</View>
 
-			<Text style={styles.timeText}>{formatTimestamp(message.timeStamp)}</Text>
-		</View>
-	);
+                        <View style={styles.footer}>
+                                <Text style={styles.timeText}>{formatTimestamp(message.timeStamp)}</Text>
+                                {isOwnMessage && (
+                                        <MaterialCommunityIcons
+                                                name={
+                                                        message.state === MessageState.Read
+                                                                ? "check-all"
+                                                                : message.state === MessageState.Received
+                                                                ? "check"
+                                                                : "clock"
+                                                }
+                                                size={14}
+                                                color="#888"
+                                        />
+                                )}
+                        </View>
+                </View>
+        );
 };
 
 const styles = StyleSheet.create({
@@ -83,13 +99,19 @@ const styles = StyleSheet.create({
 	otherMessageText: {
 		color: "#000",
 	},
-	timeText: {
-		fontSize: 10,
-		color: "#888",
-		marginTop: 2,
-		alignSelf: "flex-end",
-		marginRight: 4,
-	},
+        timeText: {
+                fontSize: 10,
+                color: "#888",
+                marginTop: 2,
+                alignSelf: "flex-end",
+                marginRight: 4,
+        },
+        footer: {
+                flexDirection: "row",
+                alignItems: "center",
+                alignSelf: "flex-end",
+                gap: 4,
+        },
 });
 
 export default ChatBubble;
