@@ -88,6 +88,8 @@ const DisplayNameScreen = () => {
 			if (!user?.setupComplete) {
 				await usersClient.completeSetup({
 					displayName: displayName.trim(),
+					age: parseInt(age),
+					gender: gender,
 				} as SetupRequest);
 			}
 

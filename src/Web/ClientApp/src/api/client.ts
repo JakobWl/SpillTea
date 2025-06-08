@@ -2009,6 +2009,8 @@ export class CurrentUserDto implements ICurrentUserDto {
     email!: string;
     displayName?: string;
     tag?: string;
+    age?: number;
+    gender?: string;
     setupComplete!: boolean;
 
     constructor(data?: ICurrentUserDto) {
@@ -2027,6 +2029,8 @@ export class CurrentUserDto implements ICurrentUserDto {
             this.email = _data["email"];
             this.displayName = _data["displayName"];
             this.tag = _data["tag"];
+            this.age = _data["age"];
+            this.gender = _data["gender"];
             this.setupComplete = _data["setupComplete"];
         }
     }
@@ -2045,6 +2049,8 @@ export class CurrentUserDto implements ICurrentUserDto {
         data["email"] = this.email;
         data["displayName"] = this.displayName;
         data["tag"] = this.tag;
+        data["age"] = this.age;
+        data["gender"] = this.gender;
         data["setupComplete"] = this.setupComplete;
         return data;
     }
@@ -2056,12 +2062,13 @@ export interface ICurrentUserDto {
     email: string;
     displayName?: string;
     tag?: string;
+    age?: number;
+    gender?: string;
     setupComplete: boolean;
 }
 
 export class SetupRequest implements ISetupRequest {
     displayName!: string;
-    returnUrl!: string;
     age?: number;
     gender?: string;
 
@@ -2077,7 +2084,6 @@ export class SetupRequest implements ISetupRequest {
     init(_data?: any) {
         if (_data) {
             this.displayName = _data["displayName"];
-            this.returnUrl = _data["returnUrl"];
             this.age = _data["age"];
             this.gender = _data["gender"];
         }
@@ -2093,7 +2099,6 @@ export class SetupRequest implements ISetupRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["displayName"] = this.displayName;
-        data["returnUrl"] = this.returnUrl;
         data["age"] = this.age;
         data["gender"] = this.gender;
         return data;
@@ -2102,7 +2107,6 @@ export class SetupRequest implements ISetupRequest {
 
 export interface ISetupRequest {
     displayName: string;
-    returnUrl: string;
     age?: number;
     gender?: string;
 }

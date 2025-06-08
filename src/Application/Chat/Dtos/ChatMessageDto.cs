@@ -5,6 +5,7 @@ namespace FadeChat.Application.Chat.Dtos;
 public class ChatMessageDto
 {
     public int Id { get; set; }
+    public string MessageGuid { get; set; } = null!;
     public int ChatId { get; set; }
     public string SenderId { get; set; } = null!;
     public string Body { get; set; } = null!;

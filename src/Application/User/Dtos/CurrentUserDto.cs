@@ -7,5 +7,7 @@ public class CurrentUserDto
     public string Email { get; set; } = null!;
     public string? DisplayName { get; init; }
     public string? Tag { get; init; }
-    public bool SetupComplete => !string.IsNullOrWhiteSpace(Tag);
+    public int? Age { get; init; }
+    public string? Gender { get; init; }
+    public bool SetupComplete => !string.IsNullOrWhiteSpace(Tag) && Age.HasValue && Gender != null;
 }

@@ -3,13 +3,16 @@ using FadeChat.Application.Chat.Dtos;
 using FadeChat.Application.Chat.Events;
 using FadeChat.Application.Common.Interfaces;
 using FadeChat.Application.Common.Security;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace FadeChat.Application.Chat.Hubs;
 
+using User = FadeChat.Domain.Entities.User;
+
 [Authorize]
-public class ChatHub(IUser currentUser, IIdentityService identityService, IApplicationDbContext context, IMediator mediator) : Hub
+public class ChatHub(IUser currentUser, IIdentityService identityService, IApplicationDbContext context, UserManager<User> userManager, IMediator mediator) : Hub
 {
     private static readonly ConcurrentDictionary<string, string> ActiveUsers = new();
 
@@ -133,8 +136,7 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
         }
 
         // Get current user's demographics
-        var currentUserEntity = await context.Users
-            .FirstOrDefaultAsync(u => u.Id == currentUser.Id);
+        var currentUserEntity = await userManager.FindByIdAsync(currentUser.Id);
 
         if (currentUserEntity == null)
         {
@@ -152,10 +154,16 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
             throw new InvalidOperationException("No active users available at the moment.");
         }
 
-        // Get user entities with demographics for filtering
-        var candidateUsers = await context.Users
-            .Where(u => activeUserIds.Contains(u.Id))
-            .ToListAsync();
+        // Get user entities with demographics for filtering using UserManager
+        var candidateUsers = new List<User>();
+        foreach (var userId in activeUserIds)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                candidateUsers.Add(user);
+            }
+        }
 
         // Apply filters if provided
         if (filters != null)
@@ -194,9 +202,9 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
         return chat.Id;
     }
 
-    private List<Domain.Entities.User> ApplySearchFilters(
-        List<Domain.Entities.User> candidates,
-        Domain.Entities.User currentUser,
+    private List<User> ApplySearchFilters(
+        List<User> candidates,
+        User currentUser,
         SearchFiltersDto filters)
     {
         var filtered = candidates.AsEnumerable();

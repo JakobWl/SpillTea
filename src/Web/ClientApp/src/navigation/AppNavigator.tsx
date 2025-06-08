@@ -84,18 +84,7 @@ const MainNavigator = () => {
 				return;
 			}
 
-			try {
-				const preferences = await userPreferences.getPreferences();
-				const hasAge =
-					preferences.age !== undefined && preferences.age !== null;
-				const hasGender =
-					preferences.gender !== undefined && preferences.gender !== null;
-
-				setIsProfileComplete(hasAge && hasGender);
-			} catch (error) {
-				console.error("Error checking profile completion:", error);
-				setIsProfileComplete(false);
-			}
+			setIsProfileComplete(true);
 		};
 
 		checkProfileCompletion();

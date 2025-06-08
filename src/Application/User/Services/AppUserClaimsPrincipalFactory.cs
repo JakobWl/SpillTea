@@ -14,8 +14,17 @@ public class AppUserClaimsPrincipalFactory(UserManager<User> userManager,
     {
         var id = await base.GenerateClaimsAsync(user);
 
+        if (!string.IsNullOrWhiteSpace(user.DisplayName))
+            id.AddClaim(new Claim(CustomClaims.DisplayName, user.DisplayName));
+
         if (!string.IsNullOrWhiteSpace(user.Tag))
             id.AddClaim(new Claim(CustomClaims.Tag, user.Tag));
+
+        if (user.Age.HasValue)
+            id.AddClaim(new Claim(CustomClaims.Age, user.Age.Value.ToString()));
+
+        if (!string.IsNullOrWhiteSpace(user.Gender))
+            id.AddClaim(new Claim(CustomClaims.Gender, user.Gender));
 
         return id;
     }
@@ -23,5 +32,8 @@ public class AppUserClaimsPrincipalFactory(UserManager<User> userManager,
 
 public static class CustomClaims
 {
+    public const string DisplayName = "DisplayName";
     public const string Tag = "Tag";
+    public const string Age = "Age";
+    public const string Gender = "Gender";
 }

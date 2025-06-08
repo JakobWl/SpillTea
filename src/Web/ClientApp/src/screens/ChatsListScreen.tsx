@@ -18,6 +18,7 @@ import { ChatDto, ChatMessageDto } from "../api/client";
 import { chatsClient, usersClient } from "../api";
 import { formatTimestamp } from "../utils/dateTime";
 import { DateTime } from "luxon";
+import { useAuth } from "../contexts/AuthContext";
 
 type ChatsListNavigationProp = NativeStackNavigationProp<
 	MainTabParamList,
@@ -76,6 +77,7 @@ const convertToDateTime = (dateField: Date | string | undefined): DateTime => {
 
 const ChatsListScreen = () => {
 	const navigation = useNavigation<ChatsListNavigationProp>();
+	const { user } = useAuth();
 	const [chats, setChats] = useState<ChatDto[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isFindingChat, setIsFindingChat] = useState(false);
@@ -120,13 +122,13 @@ const ChatsListScreen = () => {
 
 		connectAndSubscribe();
 
-                const handleNewMessage = (message: ChatMessageDto) => {
-                        console.log("New message received in ChatsListScreen:", message);
-                        if (message.senderId !== user?.id) {
-                                signalRService.markMessageReceived(message.id);
-                        }
-                        setChats((prevChats) => {
-                                let chatExists = false;
+		const handleNewMessage = (message: ChatMessageDto) => {
+			console.log("New message received in ChatsListScreen:", message);
+			if (user && message.senderId !== user.id && message.id !== 0) {
+				signalRService.markMessageReceived(message.id);
+			}
+			setChats((prevChats) => {
+				let chatExists = false;
 				const updatedChats = prevChats.map((chat) => {
 					if (chat.id === message.chatId) {
 						chatExists = true;
@@ -174,7 +176,7 @@ const ChatsListScreen = () => {
 			// If other parts of the app use the connection, stopping it here might be premature.
 			// Typically, stopConnection is called when the app closes or user logs out.
 		};
-	}, []); // Empty dependency array means this effect runs once on mount and cleanup on unmount
+	}, [user]); // Include user in dependency array
 
 	const handleChatPress = (chatId: number) => {
 		navigation.navigate("ChatConversation", {

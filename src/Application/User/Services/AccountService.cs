@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using FadeChat.Application.Common.Exceptions;
-using FadeChat.Application.Common.Interfaces;
 using FadeChat.Application.User.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
@@ -8,7 +7,7 @@ namespace FadeChat.Application.User.Services;
 
 using User = Domain.Entities.User;
 
-public class AccountService(UserManager<User> userManager, SignInManager<User> signInManager, IApplicationDbContext context) : IAccountService
+public class AccountService(UserManager<User> userManager, SignInManager<User> signInManager) : IAccountService
 {
     public async Task<ClaimsPrincipal> LoginWithExternalAsync(
         ClaimsPrincipal? claimsPrincipal,
@@ -33,7 +32,9 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
         {
             // 4) still nothing? create a new user
             user = new User {
-                Email = email, UserName = "user_" + Guid.NewGuid().ToString("N"), EmailConfirmed = true
+                Email = email,
+                UserName = "user_" + Guid.NewGuid().ToString("N"),
+                EmailConfirmed = true
             };
 
             var createResult = await userManager.CreateAsync(user);
@@ -150,9 +151,14 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
         string tag;
         do
         {
-            tag = rng.Next(0, 10000).ToString("D4"); // e.g. "0042", "8372"
-        } while (await context.Users
-                     .AnyAsync(u => u.DisplayName == displayName && u.Tag == tag));
+            tag = rng.Next(0, 10000).ToString("D4");
+
+            // Check if a user with this display name and tag combination already exists
+            var existingUsers = userManager.Users.Where(u => u.DisplayName == displayName && u.Tag == tag);
+            var hasExisting = await Task.Run(() => existingUsers.Any());
+
+            if (!hasExisting) break;
+        } while (true);
 
         return tag;
     }

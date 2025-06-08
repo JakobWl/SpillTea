@@ -73,8 +73,7 @@ public class Users : EndpointGroupBase
             await signInManager.RefreshSignInAsync(user);
 
             return Results.Ok(new {
-                message = "Setup complete",
-                returnUrl = string.IsNullOrEmpty(request.ReturnUrl) ? "/" : request.ReturnUrl
+                message = "Setup complete"
             });
     }
 

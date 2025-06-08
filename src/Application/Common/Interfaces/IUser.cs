@@ -7,4 +7,6 @@ public interface IUser
     string? Name { get; }
     string? Email { get; }
     string? DisplayName { get; }
+    int? Age { get; }
+    string? Gender { get; }
 }

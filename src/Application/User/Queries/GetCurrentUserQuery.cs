@@ -15,6 +15,8 @@ public class GetCurrentUserQueryHandler(IUser user) : IRequestHandler<GetCurrent
             Name = user.Name!,
             Email = user.Email!,
             DisplayName = user.DisplayName,
-            Tag = user.Tag
+            Tag = user.Tag,
+            Age = user.Age,
+            Gender = user.Gender
         });
 }

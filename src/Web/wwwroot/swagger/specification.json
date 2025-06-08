@@ -1141,6 +1141,15 @@
             "type": "string",
             "nullable": false
           },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": false
+          },
+          "gender": {
+            "type": "string",
+            "nullable": false
+          },
           "setupComplete": {
             "type": "boolean"
           }
@@ -1150,14 +1159,10 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "displayName",
-          "returnUrl"
+          "displayName"
         ],
         "properties": {
           "displayName": {
-            "type": "string"
-          },
-          "returnUrl": {
             "type": "string"
           },
           "age": {
