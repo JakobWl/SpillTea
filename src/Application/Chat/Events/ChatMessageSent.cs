@@ -1,13 +1,26 @@
 ﻿using FadeChat.Application.Chat.Dtos;
 using FadeChat.Application.Common.Interfaces;
 using FadeChat.Domain.Entities;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 namespace FadeChat.Application.Chat.Events;
 
 public record ChatMessageSentEvent(ChatMessageDto Message) : INotification;
 
-public class ChatMessageSentEventHandler(IApplicationDbContext context) : INotificationHandler<ChatMessageSentEvent>
+public class ChatMessageSentEventHandler(IApplicationDbContext context, IDistributedCache cache) : INotificationHandler<ChatMessageSentEvent>
 {
+    private const string PENDING_MESSAGE_PREFIX = "pending_message:";
+
+    public static async Task AddPendingMessageAsync(IDistributedCache cache, string guid, ChatMessageDto message)
+    {
+        var key = PENDING_MESSAGE_PREFIX + guid;
+        var value = JsonSerializer.Serialize(message);
+        var options = new DistributedCacheEntryOptions {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        };
+        await cache.SetStringAsync(key, value, options);
+    }
 
     public async Task Handle(ChatMessageSentEvent notification, CancellationToken cancellationToken)
     {
@@ -34,6 +47,9 @@ public class ChatMessageSentEventHandler(IApplicationDbContext context) : INotif
 
             // Save the updated chat summary data
             await context.SaveChangesAsync(cancellationToken);
+
+            var key = PENDING_MESSAGE_PREFIX + notification.Message.Guid;
+            await cache.RemoveAsync(key, cancellationToken);
         }
     }
 }

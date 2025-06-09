@@ -4,16 +4,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FadeChat.Application.Chat.Events;
 
-public record ChatMessageReceivedEvent(int MessageId, string ReceiverId) : INotification;
+public record ChatMessageReceivedEvent(int? MessageId, string ReceiverId, string? MessageGuid = null) : INotification;
 
 public class ChatMessageReceivedEventHandler(IApplicationDbContext context) : INotificationHandler<ChatMessageReceivedEvent>
 {
     public async Task Handle(ChatMessageReceivedEvent notification, CancellationToken cancellationToken)
     {
-        var message = await context.ChatMessages
-            .FirstOrDefaultAsync(x => x.Id == notification.MessageId, cancellationToken);
+        ChatMessage? message = null;
 
-        if (message != null && message.State == MessageState.Sent)
+        if (notification.MessageId.HasValue && notification.MessageId > 0)
+        {
+            message = await context.ChatMessages
+                .FirstOrDefaultAsync(x => x.Id == notification.MessageId.Value, cancellationToken);
+        }
+        else if (!string.IsNullOrEmpty(notification.MessageGuid))
+        {
+            message = await context.ChatMessages
+                .FirstOrDefaultAsync(x => x.Guid == notification.MessageGuid, cancellationToken);
+        }
+
+        if (message is { State: MessageState.Sent })
         {
             message.State = MessageState.Received;
             await context.SaveChangesAsync(cancellationToken);

@@ -5,6 +5,7 @@ using FadeChat.Web.Nswag;
 using FadeChat.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
@@ -23,6 +24,20 @@ public static class DependencyInjection
             .AddDbContextCheck<ApplicationDbContext>();
 
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
+        // Add distributed caching (Redis or in-memory fallback)
+        var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+        if (!string.IsNullOrEmpty(redisConnectionString))
+        {
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnectionString;
+            });
+        }
+        else
+        {
+            builder.Services.AddDistributedMemoryCache();
+        }
 
         // Add SignalR
         builder.Services.AddSignalR();

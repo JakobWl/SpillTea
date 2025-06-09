@@ -5,13 +5,14 @@ using FadeChat.Application.Common.Interfaces;
 using FadeChat.Application.Common.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace FadeChat.Application.Chat.Hubs;
 
 using User = Domain.Entities.User;
 
 [Authorize]
-public class ChatHub(IUser currentUser, IIdentityService identityService, IApplicationDbContext context, UserManager<User> userManager, IMediator mediator) : Hub
+public class ChatHub(IUser currentUser, IIdentityService identityService, IApplicationDbContext context, UserManager<User> userManager, IMediator mediator, IDistributedCache cache) : Hub
 {
     private static readonly ConcurrentDictionary<string, string> ActiveUsers = new();
 
@@ -63,6 +64,8 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
             return;
         }
 
+        await ChatMessageSentEventHandler.AddPendingMessageAsync(cache, chatMessageDto.Guid, chatMessageDto);
+
         await Clients.GroupExcept(chatMessageDto.ChatId.ToString(), Context.ConnectionId).SendAsync("ReceiveMessage", chatMessageDto);
 
         await mediator.Publish(new ChatMessageSentEvent(chatMessageDto));
@@ -78,15 +81,7 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
         await Clients.GroupExcept(chatId.ToString(), Context.ConnectionId)
             .SendAsync("MessageReceived", messageGuid, currentUser.Id);
 
-        var message = await context.ChatMessages
-            .FirstOrDefaultAsync(m => m.Guid == messageGuid);
-
-        if (message == null)
-        {
-            return;
-        }
-
-        await mediator.Publish(new ChatMessageReceivedEvent(message.Id, currentUser.Id));
+        await mediator.Publish(new ChatMessageReceivedEvent(null, currentUser.Id, messageGuid));
     }
 
     public async Task MarkMessageRead(int chatId, string messageGuid)
@@ -99,15 +94,7 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
         await Clients.GroupExcept(chatId.ToString(), Context.ConnectionId)
             .SendAsync("MessageRead", messageGuid, currentUser.Id);
 
-        var message = await context.ChatMessages
-            .FirstOrDefaultAsync(m => m.Guid == messageGuid);
-
-        if (message == null)
-        {
-            return;
-        }
-
-        await mediator.Publish(new ChatMessageReadEvent(message.Id, currentUser.Id));
+        await mediator.Publish(new ChatMessageReadEvent(null, currentUser.Id, messageGuid));
     }
 
     public async Task JoinChat(int chatId)
