@@ -1,8 +1,10 @@
 using System.Collections.Concurrent;
+using System.Text.Json;
 using FadeChat.Application.Chat.Dtos;
 using FadeChat.Application.Chat.Events;
 using FadeChat.Application.Common.Interfaces;
 using FadeChat.Application.Common.Security;
+using FadeChat.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
@@ -78,8 +80,17 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
             return;
         }
 
-        await Clients.GroupExcept(chatId.ToString(), Context.ConnectionId)
-            .SendAsync("MessageReceived", messageGuid, currentUser.Id);
+        // Load the complete message from cache
+        var cachedMessage = await GetPendingMessageAsync(cache, messageGuid);
+        if (cachedMessage != null)
+        {
+            // Update the message state
+            cachedMessage.State = MessageState.Received;
+
+            // Send the complete updated message to other clients
+            await Clients.GroupExcept(chatId.ToString(), Context.ConnectionId)
+                .SendAsync("MessageReceived", cachedMessage);
+        }
 
         await mediator.Publish(new ChatMessageReceivedEvent(null, currentUser.Id, messageGuid));
     }
@@ -91,8 +102,17 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
             return;
         }
 
-        await Clients.GroupExcept(chatId.ToString(), Context.ConnectionId)
-            .SendAsync("MessageRead", messageGuid, currentUser.Id);
+        // Load the complete message from cache
+        var cachedMessage = await GetPendingMessageAsync(cache, messageGuid);
+        if (cachedMessage != null)
+        {
+            // Update the message state
+            cachedMessage.State = MessageState.Read;
+
+            // Send the complete updated message to other clients
+            await Clients.GroupExcept(chatId.ToString(), Context.ConnectionId)
+                .SendAsync("MessageRead", cachedMessage);
+        }
 
         await mediator.Publish(new ChatMessageReadEvent(null, currentUser.Id, messageGuid));
     }
@@ -219,5 +239,17 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
         }
 
         return filtered.ToList();
+    }
+
+    private static async Task<ChatMessageDto?> GetPendingMessageAsync(IDistributedCache cache, string guid)
+    {
+        const string PENDING_MESSAGE_PREFIX = "pending_message:";
+        var key = PENDING_MESSAGE_PREFIX + guid;
+        var value = await cache.GetStringAsync(key);
+
+        if (string.IsNullOrEmpty(value))
+            return null;
+
+        return JsonSerializer.Deserialize<ChatMessageDto>(value);
     }
 }

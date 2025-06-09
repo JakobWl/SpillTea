@@ -20,6 +20,7 @@ type UserConnectionHandler = (userId: string, username: string) => void;
 type UserDisconnectionHandler = (userId: string) => void;
 type ActiveUsersHandler = (users: string[]) => void;
 type MessageStatusHandler = (timestampId: string, userId: string) => void;
+type MessageUpdateHandler = (message: ChatMessageDto) => void;
 
 class SignalRService {
         private connection: HubConnection | null = null;
@@ -31,6 +32,8 @@ class SignalRService {
         private privateMessageHandlers: MessageHandler[] = [];
         private messageReceivedStatusHandlers: MessageStatusHandler[] = [];
         private messageReadStatusHandlers: MessageStatusHandler[] = [];
+        private messageReceivedUpdateHandlers: MessageUpdateHandler[] = [];
+        private messageReadUpdateHandlers: MessageUpdateHandler[] = [];
 
 	async startConnection(): Promise<HubConnection> {
 		if (this.connection && this.connection.state === "Connected") {
@@ -87,20 +90,28 @@ class SignalRService {
 
 					this.connection.on(
 						"MessageReceived",
-						(timestampId: string, userId: string) => {
-							console.log(`SignalR: Received MessageReceived event - timestampId: ${timestampId}, userId: ${userId}`);
+						(message: ChatMessageDto) => {
+							console.log(`SignalR: Received MessageReceived event - message:`, message);
+							// Call both old handlers (for backward compatibility) and new handlers
 							this.messageReceivedStatusHandlers.forEach((handler) =>
-								handler(timestampId, userId),
+								handler(message.guid, message.senderId),
+							);
+							this.messageReceivedUpdateHandlers.forEach((handler) =>
+								handler(message),
 							);
 						},
 					);
 
 					this.connection.on(
 						"MessageRead",
-						(timestampId: string, userId: string) => {
-							console.log(`SignalR: Received MessageRead event - timestampId: ${timestampId}, userId: ${userId}`);
+						(message: ChatMessageDto) => {
+							console.log(`SignalR: Received MessageRead event - message:`, message);
+							// Call both old handlers (for backward compatibility) and new handlers
 							this.messageReadStatusHandlers.forEach((handler) =>
-								handler(timestampId, userId),
+								handler(message.guid, message.senderId),
+							);
+							this.messageReadUpdateHandlers.forEach((handler) =>
+								handler(message),
 							);
 						},
 					);
@@ -265,6 +276,24 @@ class SignalRService {
 			this.messageReadStatusHandlers.push(handler);
 			return () => {
 					this.messageReadStatusHandlers = this.messageReadStatusHandlers.filter(
+							(h) => h !== handler,
+					);
+			};
+	}
+
+	onMessageReceivedUpdate(handler: MessageUpdateHandler): () => void {
+			this.messageReceivedUpdateHandlers.push(handler);
+			return () => {
+					this.messageReceivedUpdateHandlers = this.messageReceivedUpdateHandlers.filter(
+							(h) => h !== handler,
+					);
+			};
+	}
+
+	onMessageReadUpdate(handler: MessageUpdateHandler): () => void {
+			this.messageReadUpdateHandlers.push(handler);
+			return () => {
+					this.messageReadUpdateHandlers = this.messageReadUpdateHandlers.filter(
 							(h) => h !== handler,
 					);
 			};

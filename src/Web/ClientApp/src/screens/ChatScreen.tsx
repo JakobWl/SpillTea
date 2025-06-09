@@ -62,7 +62,17 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 				);
 
 				if (response.items) {
-					console.log("Loading chat history:", response.items);
+					console.log(
+						"Loading chat history:",
+						response.items.length,
+						"messages",
+					);
+					console.log(
+						"Chat history GUIDs:",
+						response.items.map(
+							(m) => `${m.id}:${m.guid}:${m.body?.substring(0, 20)}`,
+						),
+					);
 					setMessages((prevMessages) => [...response.items!, ...prevMessages]);
 					response
 						.items!.filter(
@@ -136,31 +146,20 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 					},
 				);
 
-				unsubscribeReceived = signalRService.onMessageReceivedStatus(
-					(messageGuid, userId) => {
+				unsubscribeReceived = signalRService.onMessageReceivedUpdate(
+					(updatedMessage) => {
 						console.log(
-							`Message with timestamp ${messageGuid} marked as received by user ${userId}`,
+							`Message ${updatedMessage.guid} marked as received by user ${updatedMessage.senderId}`,
 						);
 						setMessages((prev) => {
-							console.log(
-								"All message GUIDs in state:",
-								prev.map((m) => ({
-									id: m.id,
-									guid: m.guid,
-									senderId: m.senderId,
-									body: m.body,
-								})),
-							);
-							console.log("Looking for messageGuid:", messageGuid);
-
 							const updated = prev.map((m) => {
-								if (m.guid === messageGuid) {
+								if (m.guid === updatedMessage.guid) {
 									console.log(
-										`Found matching message to update: ${m.id}, current state: ${m.state}`,
+										`Found matching message to update: ${m.id}, current state: ${m.state} -> ${updatedMessage.state}`,
 									);
 									return {
 										...m,
-										state: MessageState.Received,
+										state: updatedMessage.state,
 									} as ChatMessageDto;
 								}
 								return m;
@@ -176,20 +175,20 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 					},
 				);
 
-				unsubscribeRead = signalRService.onMessageReadStatus(
-					(messageGuid, userId) => {
+				unsubscribeRead = signalRService.onMessageReadUpdate(
+					(updatedMessage) => {
 						console.log(
-							`Message with timestamp ${messageGuid} marked as read by user ${userId}`,
+							`Message ${updatedMessage.guid} marked as read by user ${updatedMessage.senderId}`,
 						);
 						setMessages((prev) => {
 							const updated = prev.map((m) => {
-								if (m.guid === messageGuid) {
+								if (m.guid === updatedMessage.guid) {
 									console.log(
-										`Found matching message to update: ${m.id}, current state: ${m.state}`,
+										`Found matching message to update: ${m.id}, current state: ${m.state} -> ${updatedMessage.state}`,
 									);
 									return {
 										...m,
-										state: MessageState.Read,
+										state: updatedMessage.state,
 									} as ChatMessageDto;
 								}
 								return m;

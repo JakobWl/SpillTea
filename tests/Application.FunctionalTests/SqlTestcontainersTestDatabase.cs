@@ -1,8 +1,12 @@
 ﻿using System.Data.Common;
 using FadeChat.Infrastructure.Data;
+using FadeChat.Infrastructure.Data.Encryption.Interfaces;
+using FadeChat.Infrastructure.Data.Encryption;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Respawn;
 using Testcontainers.MsSql;
 
@@ -28,8 +32,7 @@ public class SqlTestcontainersTestDatabase : ITestDatabase
         await _container.StartAsync();
         await _container.ExecScriptAsync($"CREATE DATABASE {DefaultDatabase}");
 
-        var builder = new SqlConnectionStringBuilder(_container.GetConnectionString())
-        {
+        var builder = new SqlConnectionStringBuilder(_container.GetConnectionString()) {
             InitialCatalog = DefaultDatabase
         };
 
@@ -37,17 +40,27 @@ public class SqlTestcontainersTestDatabase : ITestDatabase
 
         _connection = new SqlConnection(_connectionString);
 
+        var services = new ServiceCollection();
+        services.AddEntityFrameworkSqlServer();
+        services.Configure<CryptographyOptions>(options =>
+        {
+            options.PassPhrase = "TestPassPhrase123!";
+        });
+        services.AddSingleton<IStringEncryptionProvider, GenerateStringEncryptionProvider>();
+        services.AddSingleton<IBinaryEncryptionProvider, GenerateBinaryEncryptionProvider>();
+        var serviceProvider = services.BuildServiceProvider();
+
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseSqlServer(_connectionString)
+            .UseInternalServiceProvider(serviceProvider)
             .ConfigureWarnings(warnings => warnings.Log(RelationalEventId.PendingModelChangesWarning))
             .Options;
 
         var context = new ApplicationDbContext(options);
 
-        await context.Database.MigrateAsync();
+        await context.Database.EnsureCreatedAsync();
 
-        _respawner = await Respawner.CreateAsync(_connectionString, new RespawnerOptions
-        {
+        _respawner = await Respawner.CreateAsync(_connectionString, new RespawnerOptions {
             TablesToIgnore = ["__EFMigrationsHistory"]
         });
     }

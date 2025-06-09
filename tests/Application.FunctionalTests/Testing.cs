@@ -3,9 +3,10 @@ using FadeChat.Infrastructure.Data;
 using FadeChat.Infrastructure.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.SignalR.Client;
 using System.Diagnostics;
 
 namespace FadeChat.Application.FunctionalTests;
@@ -62,7 +63,8 @@ public class Testing
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
         var user = new User {
-            UserName = userName, Email = userName
+            UserName = userName,
+            Email = userName
         };
 
         var result = await userManager.CreateAsync(user, password);
