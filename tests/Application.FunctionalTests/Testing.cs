@@ -1,10 +1,12 @@
-﻿using FadeChat.Domain.Constants;
+using FadeChat.Domain.Constants;
 using FadeChat.Infrastructure.Data;
 using FadeChat.Infrastructure.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.SignalR.Client;
+using System.Diagnostics;
 
 namespace FadeChat.Application.FunctionalTests;
 using User = FadeChat.Domain.Entities.User;
@@ -130,6 +132,37 @@ public class Testing
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return await context.Set<TEntity>().CountAsync();
+    }
+
+    public static HubConnection CreateHubConnection(string userId)
+    {
+        _userId = userId;
+
+        return new HubConnectionBuilder()
+            .WithUrl($"{_factory.Server.BaseAddress}hubs/chat", options =>
+            {
+                options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
+                options.Transports = HttpTransportType.LongPolling;
+            })
+            .Build();
+    }
+
+    public static async Task<T> ExecuteDbContextAsync<T>(Func<ApplicationDbContext, Task<T>> action)
+    {
+        using var scope = _scopeFactory.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await action(context);
+    }
+
+    public static async Task ExecuteDbContextAsync(Func<ApplicationDbContext, Task> action)
+    {
+        using var scope = _scopeFactory.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        await action(context);
     }
 
     [OneTimeTearDown]
