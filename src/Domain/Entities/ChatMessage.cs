@@ -4,6 +4,7 @@ namespace FadeChat.Domain.Entities;
 
 public class ChatMessage : BaseAuditableEntity
 {
+    public string Guid { get; set; } = string.Empty;
     public string SenderId { get; set; } = string.Empty;
     [Encrypted]
     public string Body { get; set; } = string.Empty;

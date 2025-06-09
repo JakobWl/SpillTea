@@ -1334,6 +1334,7 @@ export interface IPaginatedListOfChatMessageDto {
 
 export class ChatMessageDto implements IChatMessageDto {
     id!: number;
+    guid!: string;
     chatId!: number;
     senderId!: string;
     body!: string;
@@ -1352,6 +1353,7 @@ export class ChatMessageDto implements IChatMessageDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.guid = _data["guid"];
             this.chatId = _data["chatId"];
             this.senderId = _data["senderId"];
             this.body = _data["body"];
@@ -1370,6 +1372,7 @@ export class ChatMessageDto implements IChatMessageDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["guid"] = this.guid;
         data["chatId"] = this.chatId;
         data["senderId"] = this.senderId;
         data["body"] = this.body;
@@ -1381,6 +1384,7 @@ export class ChatMessageDto implements IChatMessageDto {
 
 export interface IChatMessageDto {
     id: number;
+    guid: string;
     chatId: number;
     senderId: string;
     body: string;

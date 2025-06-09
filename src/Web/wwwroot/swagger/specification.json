@@ -797,6 +797,7 @@
         "additionalProperties": false,
         "required": [
           "id",
+          "guid",
           "chatId",
           "senderId",
           "body",
@@ -807,6 +808,9 @@
           "id": {
             "type": "integer",
             "format": "int32"
+          },
+          "guid": {
+            "type": "string"
           },
           "chatId": {
             "type": "integer",

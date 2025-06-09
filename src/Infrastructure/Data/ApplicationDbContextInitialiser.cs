@@ -26,12 +26,40 @@ public class ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitial
     {
         try
         {
+            // First, populate any missing Guid values before running migrations
+            await PopulateEmptyGuidsAsync();
+
             await context.Database.MigrateAsync();
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "An error occurred while initialising the database.");
             throw;
+        }
+    }
+
+    private async Task PopulateEmptyGuidsAsync()
+    {
+        try
+        {
+            // Check if ChatMessages table exists first
+            var tableExists = await context.Database.ExecuteSqlRawAsync(
+                "IF OBJECT_ID('ChatMessages', 'U') IS NOT NULL SELECT 1 ELSE SELECT 0") == 1;
+
+            if (!tableExists) return;
+
+            // Update any empty or null Guid values
+            var updatedCount = await context.Database.ExecuteSqlRawAsync(
+                "UPDATE ChatMessages SET Guid = NEWID() WHERE Guid = '' OR Guid IS NULL");
+
+            if (updatedCount > 0)
+            {
+                logger.LogInformation("Updated {UpdatedCount} ChatMessage records with new Guid values.", updatedCount);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to populate empty Guid values. This may be expected on first run.");
         }
     }
 

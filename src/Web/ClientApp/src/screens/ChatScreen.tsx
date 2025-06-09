@@ -16,6 +16,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { ChatMessageDto, MessageState } from "../api/client";
 import { chatsClient } from "../api";
 import { DateTime } from "luxon";
+import { v4 } from "uuid";
 
 type ChatConversationScreenProps = NativeStackScreenProps<
 	MainTabParamList,
@@ -64,10 +65,14 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 					console.log("Loading chat history:", response.items);
 					setMessages((prevMessages) => [...response.items!, ...prevMessages]);
 					response
-						.items!.filter((m) => m.senderId !== user?.id && m.id !== 0)
+						.items!.filter(
+							(m) => m.state === MessageState.Sent && m.senderId !== user?.id,
+						)
 						.forEach((m) => {
-							signalRService.markMessageReceived(m.id);
-							signalRService.markMessageRead(m.id);
+							if (m.guid) {
+								signalRService.markMessageReceived(m.chatId, m.guid);
+								signalRService.markMessageRead(m.chatId, m.guid);
+							}
 						});
 					setHasMoreHistory(response.hasNextPage ?? false);
 					setChatHistoryPageNumber((prevPageNumber) => prevPageNumber + 1);
@@ -94,27 +99,35 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 
 			try {
 				await signalRService.startConnection();
-				await signalRService.joinChat(chatId);
 
-				await loadChatHistory(true);
-
+				// Set up event handlers BEFORE joining the chat to avoid race conditions
 				unsubscribeMessageHandler = signalRService.onMessageReceived(
 					(message) => {
 						if (message.chatId === chatId) {
-							console.log("Received message:", message);
+							console.log("Received message from SignalR:", message);
+							console.log("Message GUID from SignalR:", message.guid);
 							const processedMessage = ChatMessageDto.fromJS(message);
+							console.log("Processed message GUID:", processedMessage.guid);
 							setMessages((prevMessages) => [
 								...prevMessages,
 								processedMessage,
 							]);
-							console.log("processedMessage", processedMessage);
 							if (
 								user &&
 								processedMessage.senderId !== user.id &&
-								processedMessage.id !== 0
+								processedMessage.guid
 							) {
-								signalRService.markMessageReceived(processedMessage.id);
-								signalRService.markMessageRead(processedMessage.id);
+								console.log(
+									`Marking message ${processedMessage.id} (${processedMessage.guid}) as received and read`,
+								);
+								signalRService.markMessageReceived(
+									processedMessage.chatId,
+									processedMessage.guid,
+								);
+								signalRService.markMessageRead(
+									processedMessage.chatId,
+									processedMessage.guid,
+								);
 							}
 							setTimeout(() => {
 								flatListRef.current?.scrollToEnd({ animated: true });
@@ -124,29 +137,78 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 				);
 
 				unsubscribeReceived = signalRService.onMessageReceivedStatus(
-					(id, userId) => {
-						setMessages((prev) =>
-							prev.map((m) =>
-								m.id === id
-									? ChatMessageDto.fromJS({
-											...m,
-											state: MessageState.Received,
-										})
-									: m,
-							),
+					(messageGuid, userId) => {
+						console.log(
+							`Message with timestamp ${messageGuid} marked as received by user ${userId}`,
 						);
+						setMessages((prev) => {
+							console.log(
+								"All message GUIDs in state:",
+								prev.map((m) => ({
+									id: m.id,
+									guid: m.guid,
+									senderId: m.senderId,
+									body: m.body,
+								})),
+							);
+							console.log("Looking for messageGuid:", messageGuid);
+
+							const updated = prev.map((m) => {
+								if (m.guid === messageGuid) {
+									console.log(
+										`Found matching message to update: ${m.id}, current state: ${m.state}`,
+									);
+									return {
+										...m,
+										state: MessageState.Received,
+									} as ChatMessageDto;
+								}
+								return m;
+							});
+
+							const foundMatch = updated.some(
+								(m, i) => m.state !== prev[i].state,
+							);
+							console.log("Did any message state change?", foundMatch);
+
+							return updated;
+						});
 					},
 				);
 
-				unsubscribeRead = signalRService.onMessageReadStatus((id, userId) => {
-					setMessages((prev) =>
-						prev.map((m) =>
-							m.id === id
-								? ChatMessageDto.fromJS({ ...m, state: MessageState.Read })
-								: m,
-						),
-					);
-				});
+				unsubscribeRead = signalRService.onMessageReadStatus(
+					(messageGuid, userId) => {
+						console.log(
+							`Message with timestamp ${messageGuid} marked as read by user ${userId}`,
+						);
+						setMessages((prev) => {
+							const updated = prev.map((m) => {
+								if (m.guid === messageGuid) {
+									console.log(
+										`Found matching message to update: ${m.id}, current state: ${m.state}`,
+									);
+									return {
+										...m,
+										state: MessageState.Read,
+									} as ChatMessageDto;
+								}
+								return m;
+							});
+							console.log(
+								"Messages after read update:",
+								updated.map((m) => ({
+									id: m.id,
+									guid: m.guid,
+									state: m.state,
+								})),
+							);
+							return updated;
+						});
+					},
+				);
+
+				await signalRService.joinChat(chatId);
+				await loadChatHistory(true);
 
 				setIsConnecting(false);
 			} catch (err) {
@@ -184,29 +246,36 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 	const sendMessage = async () => {
 		if (!newMessage.trim() || !user) return;
 
+		const guid = v4();
+		const newMsg: Partial<ChatMessageDto> = {
+			id: Date.now(),
+			chatId: chatId,
+			senderId: user.id!,
+			body: newMessage,
+			state: MessageState.Sent,
+			timeStamp: DateTime.now(),
+			guid: guid,
+		};
+
+		console.log("Sending message with GUID:", guid);
+
+		// Add message immediately (optimistic update)
+		setMessages((prev) => [...prev, newMsg as ChatMessageDto]);
+		setNewMessage("");
+		messageInputRef.current?.focus();
+
+		setTimeout(() => {
+			flatListRef.current?.scrollToEnd({ animated: true });
+		}, 100);
+
+		// Send to backend asynchronously without waiting
 		try {
-			const newMsg: Partial<ChatMessageDto> = {
-				id: Date.now(),
-				chatId: chatId,
-				senderId: user.id!,
-				body: newMessage,
-				state: MessageState.Sent,
-				timeStamp: DateTime.now(),
-			};
-
 			await signalRService.sendMessage({ ...newMsg, id: 0 } as ChatMessageDto);
-
-			setMessages((prev) => [...prev, newMsg as ChatMessageDto]);
-			setNewMessage("");
-
-			messageInputRef.current?.focus();
-
-			setTimeout(() => {
-				flatListRef.current?.scrollToEnd({ animated: true });
-			}, 100);
 		} catch (err) {
 			console.error("Error sending message:", err);
 			setError("Failed to send message. Please try again.");
+			// Optionally remove the message from local state if send failed
+			setMessages((prev) => prev.filter((m) => m.guid !== guid));
 		}
 	};
 
@@ -236,8 +305,8 @@ const ChatScreen = ({ route, navigation }: ChatConversationScreenProps) => {
 			<FlatList
 				ref={flatListRef}
 				data={messages}
-				keyExtractor={(item) =>
-					item.id != 0 ? item.id : `msg-${item.chatId}-${item.timeStamp}`
+				keyExtractor={(item, index) =>
+					item.guid || `temp-${index}-${item.id || Date.now()}`
 				}
 				renderItem={({ item }) => (
 					<ChatBubble

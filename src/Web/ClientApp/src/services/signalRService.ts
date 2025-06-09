@@ -19,7 +19,7 @@ type MessageHandler = (message: ChatMessageDto) => void;
 type UserConnectionHandler = (userId: string, username: string) => void;
 type UserDisconnectionHandler = (userId: string) => void;
 type ActiveUsersHandler = (users: string[]) => void;
-type MessageStatusHandler = (messageId: number, userId: string) => void;
+type MessageStatusHandler = (timestampId: string, userId: string) => void;
 
 class SignalRService {
         private connection: HubConnection | null = null;
@@ -76,32 +76,34 @@ class SignalRService {
 						this.activeUsersHandlers.forEach((handler) => handler(users));
 					});
 
-                                        this.connection.on(
-                                                "ReceivePrivateMessage",
-                                                (message: ChatMessageDto) => {
-                                                        this.privateMessageHandlers.forEach((handler) =>
-                                                                handler(message),
-                                                        );
-                                                },
-                                        );
+					this.connection.on(
+						"ReceivePrivateMessage",
+						(message: ChatMessageDto) => {
+							this.privateMessageHandlers.forEach((handler) =>
+								handler(message),
+							);
+						},
+					);
 
-                                        this.connection.on(
-                                                "MessageReceived",
-                                                (messageId: number, userId: string) => {
-                                                        this.messageReceivedStatusHandlers.forEach((handler) =>
-                                                                handler(messageId, userId),
-                                                        );
-                                                },
-                                        );
+					this.connection.on(
+						"MessageReceived",
+						(timestampId: string, userId: string) => {
+							console.log(`SignalR: Received MessageReceived event - timestampId: ${timestampId}, userId: ${userId}`);
+							this.messageReceivedStatusHandlers.forEach((handler) =>
+								handler(timestampId, userId),
+							);
+						},
+					);
 
-                                        this.connection.on(
-                                                "MessageRead",
-                                                (messageId: number, userId: string) => {
-                                                        this.messageReadStatusHandlers.forEach((handler) =>
-                                                                handler(messageId, userId),
-                                                        );
-                                                },
-                                        );
+					this.connection.on(
+						"MessageRead",
+						(timestampId: string, userId: string) => {
+							console.log(`SignalR: Received MessageRead event - timestampId: ${timestampId}, userId: ${userId}`);
+							this.messageReadStatusHandlers.forEach((handler) =>
+								handler(timestampId, userId),
+							);
+						},
+					);
 
 					await this.connection.start();
 					console.log("SignalR connection established");
@@ -138,19 +140,19 @@ class SignalRService {
                 }
         }
 
-        async markMessageReceived(messageId: number): Promise<void> {
+        async markMessageReceived(chatId: number, timeStampId: string): Promise<void> {
                 try {
                         const connection = await this.startConnection();
-                        await connection.invoke("MarkMessageReceived", messageId);
+                        await connection.invoke("MarkMessageReceived", chatId, timeStampId);
                 } catch (error) {
                         console.error("Error marking message received:", error);
                 }
         }
 
-        async markMessageRead(messageId: number): Promise<void> {
+        async markMessageRead(chatId: number, timeStampId: string): Promise<void> {
                 try {
                         const connection = await this.startConnection();
-                        await connection.invoke("MarkMessageRead", messageId);
+                        await connection.invoke("MarkMessageRead", chatId, timeStampId);
                 } catch (error) {
                         console.error("Error marking message read:", error);
                 }
@@ -241,32 +243,32 @@ class SignalRService {
 		};
 	}
 
-        onPrivateMessageReceived(handler: MessageHandler): () => void {
-                this.privateMessageHandlers.push(handler);
-                return () => {
-                        this.privateMessageHandlers = this.privateMessageHandlers.filter(
-                                (h) => h !== handler,
-                        );
-                };
-        }
+	onPrivateMessageReceived(handler: MessageHandler): () => void {
+			this.privateMessageHandlers.push(handler);
+			return () => {
+				this.privateMessageHandlers = this.privateMessageHandlers.filter(
+						(h) => h !== handler,
+				);
+		};
+	}
 
-        onMessageReceivedStatus(handler: MessageStatusHandler): () => void {
-                this.messageReceivedStatusHandlers.push(handler);
-                return () => {
-                        this.messageReceivedStatusHandlers = this.messageReceivedStatusHandlers.filter(
-                                (h) => h !== handler,
-                        );
-                };
-        }
+	onMessageReceivedStatus(handler: MessageStatusHandler): () => void {
+			this.messageReceivedStatusHandlers.push(handler);
+			return () => {
+					this.messageReceivedStatusHandlers = this.messageReceivedStatusHandlers.filter(
+							(h) => h !== handler,
+					);
+			};
+	}
 
-        onMessageReadStatus(handler: MessageStatusHandler): () => void {
-                this.messageReadStatusHandlers.push(handler);
-                return () => {
-                        this.messageReadStatusHandlers = this.messageReadStatusHandlers.filter(
-                                (h) => h !== handler,
-                        );
-                };
-        }
+	onMessageReadStatus(handler: MessageStatusHandler): () => void {
+			this.messageReadStatusHandlers.push(handler);
+			return () => {
+					this.messageReadStatusHandlers = this.messageReadStatusHandlers.filter(
+							(h) => h !== handler,
+					);
+			};
+	}
 }
 
 export default new SignalRService();

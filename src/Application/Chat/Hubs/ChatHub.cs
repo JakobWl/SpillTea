@@ -5,11 +5,10 @@ using FadeChat.Application.Common.Interfaces;
 using FadeChat.Application.Common.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 
 namespace FadeChat.Application.Chat.Hubs;
 
-using User = FadeChat.Domain.Entities.User;
+using User = Domain.Entities.User;
 
 [Authorize]
 public class ChatHub(IUser currentUser, IIdentityService identityService, IApplicationDbContext context, UserManager<User> userManager, IMediator mediator) : Hub
@@ -69,42 +68,46 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
         await mediator.Publish(new ChatMessageSentEvent(chatMessageDto));
     }
 
-    public async Task MarkMessageReceived(int messageId)
+    public async Task MarkMessageReceived(int chatId, string messageGuid)
     {
         if (currentUser.Id == null)
         {
             return;
         }
 
-        var message = await context.ChatMessages.FirstOrDefaultAsync(m => m.Id == messageId);
+        await Clients.GroupExcept(chatId.ToString(), Context.ConnectionId)
+            .SendAsync("MessageReceived", messageGuid, currentUser.Id);
+
+        var message = await context.ChatMessages
+            .FirstOrDefaultAsync(m => m.Guid == messageGuid);
+
         if (message == null)
         {
             return;
         }
 
-        await mediator.Publish(new ChatMessageReceivedEvent(messageId, currentUser.Id));
-
-        await Clients.GroupExcept(message.ChatId.ToString(), Context.ConnectionId)
-            .SendAsync("MessageReceived", messageId, currentUser.Id);
+        await mediator.Publish(new ChatMessageReceivedEvent(message.Id, currentUser.Id));
     }
 
-    public async Task MarkMessageRead(int messageId)
+    public async Task MarkMessageRead(int chatId, string messageGuid)
     {
         if (currentUser.Id == null)
         {
             return;
         }
 
-        var message = await context.ChatMessages.FirstOrDefaultAsync(m => m.Id == messageId);
+        await Clients.GroupExcept(chatId.ToString(), Context.ConnectionId)
+            .SendAsync("MessageRead", messageGuid, currentUser.Id);
+
+        var message = await context.ChatMessages
+            .FirstOrDefaultAsync(m => m.Guid == messageGuid);
+
         if (message == null)
         {
             return;
         }
 
-        await mediator.Publish(new ChatMessageReadEvent(messageId, currentUser.Id));
-
-        await Clients.GroupExcept(message.ChatId.ToString(), Context.ConnectionId)
-            .SendAsync("MessageRead", messageId, currentUser.Id);
+        await mediator.Publish(new ChatMessageReadEvent(message.Id, currentUser.Id));
     }
 
     public async Task JoinChat(int chatId)
@@ -123,10 +126,7 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
         await Clients.Group(chatId.ToString()).SendAsync("UserDisconnected", currentUser.Id);
     }
 
-    public async Task<int> FindRandomChat()
-    {
-        return await FindRandomChatWithFilters(null);
-    }
+    public async Task<int> FindRandomChat() => await FindRandomChatWithFilters(null);
 
     public async Task<int> FindRandomChatWithFilters(SearchFiltersDto? filters)
     {
@@ -204,31 +204,31 @@ public class ChatHub(IUser currentUser, IIdentityService identityService, IAppli
 
     private List<User> ApplySearchFilters(
         List<User> candidates,
-        User currentUser,
+        User currentUserEntity,
         SearchFiltersDto filters)
     {
         var filtered = candidates.AsEnumerable();
 
         // Apply age range filter
-        if (filters.AgeRangeEnabled && currentUser.Age.HasValue)
+        if (filters.AgeRangeEnabled && currentUserEntity.Age.HasValue)
         {
             filtered = filtered.Where(u => u.Age.HasValue &&
-                                         u.Age >= filters.MinAge &&
-                                         u.Age <= filters.MaxAge);
+                                           u.Age >= filters.MinAge &&
+                                           u.Age <= filters.MaxAge);
         }
 
         // Apply gender preference filter
         if (filters.GenderPreferences.Any())
         {
             filtered = filtered.Where(u => !string.IsNullOrEmpty(u.Gender) &&
-                                         filters.GenderPreferences.Contains(u.Gender));
+                                           filters.GenderPreferences.Contains(u.Gender));
         }
 
         // Apply same age group filter (within 5 years)
-        if (filters.SameAgeGroupOnly && currentUser.Age.HasValue)
+        if (filters.SameAgeGroupOnly && currentUserEntity.Age.HasValue)
         {
             filtered = filtered.Where(u => u.Age.HasValue &&
-                                         Math.Abs(u.Age.Value - currentUser.Age.Value) <= 5);
+                                           Math.Abs(u.Age.Value - currentUserEntity.Age.Value) <= 5);
         }
 
         return filtered.ToList();

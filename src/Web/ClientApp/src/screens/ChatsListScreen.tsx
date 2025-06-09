@@ -124,8 +124,8 @@ const ChatsListScreen = () => {
 
 		const handleNewMessage = (message: ChatMessageDto) => {
 			console.log("New message received in ChatsListScreen:", message);
-			if (user && message.senderId !== user.id && message.id !== 0) {
-				signalRService.markMessageReceived(message.id);
+			if (user && message.senderId !== user.id && message.guid) {
+				signalRService.markMessageReceived(message.chatId, message.guid);
 			}
 			setChats((prevChats) => {
 				let chatExists = false;

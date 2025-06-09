@@ -19,5 +19,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.UseEncryption(this.GetService<IStringEncryptionProvider>(),
             this.GetService<IBinaryEncryptionProvider>());
+
+        builder.Entity<ChatMessage>()
+            .HasIndex(cm => cm.Guid);
     }
 }
