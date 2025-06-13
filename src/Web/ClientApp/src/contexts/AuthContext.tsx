@@ -11,6 +11,19 @@ import { usersClient } from "../api";
 import config from "../config";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { MainTabParamList, navigate } from "../navigation/AppNavigator";
+import * as WebBrowser from "expo-web-browser";
+import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
+import { Platform } from "react-native";
+
+WebBrowser.maybeCompleteAuthSession();
+
+const discovery = {
+	authorizationEndpoint: `${config.apiUrl}/api/Users/google/login`,
+};
+
+const facebookDiscovery = {
+	authorizationEndpoint: `${config.apiUrl}/api/Users/facebook/login`,
+};
 
 interface LoginCredentials {
 	email: string;
@@ -50,6 +63,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
+	const redirectUri = makeRedirectUri({
+		scheme: "fadechat",
+		path: "login",
+	});
+
+	const [request, response, promptAsync] = useAuthRequest(
+		{
+			clientId: "doesnt-matter", // Not used in this flow
+			redirectUri,
+			scopes: [],
+			usePKCE: false,
+		},
+		discovery,
+	);
+
+	const [facebookRequest, facebookResponse, promptFacebookAsync] =
+		useAuthRequest(
+			{
+				clientId: "doesnt-matter",
+				redirectUri,
+				scopes: [],
+				usePKCE: false,
+			},
+			facebookDiscovery,
+		);
+
 	const fetchUser = useCallback(async () => {
 		console.log("Attempting to fetch current user...");
 		try {
@@ -63,6 +102,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 			await authStorage.clearUser();
 		}
 	}, []);
+
+	useEffect(() => {
+		const handleAuthResponse = async () => {
+			if (response || facebookResponse) {
+				const currentResponse = response || facebookResponse;
+				if (currentResponse?.type === "success") {
+					await fetchUser();
+				} else if (currentResponse?.type === "error") {
+					console.error("Authentication error:", currentResponse.error);
+				}
+				setIsLoading(false);
+			}
+		};
+
+		handleAuthResponse();
+	}, [response, facebookResponse, fetchUser]);
 
 	useEffect(() => {
 		const checkAuthState = async () => {
@@ -99,45 +154,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	};
 
 	const loginWithGoogle = async () => {
-		try {
-			const returnUrl = window.location.href;
-			window.location.href = `${config.apiUrl}/api/Users/google/login?returnUrl=${returnUrl}`;
+		if (Platform.OS !== "web") {
+			setIsLoading(true);
+			await promptAsync({
+				url: `${config.apiUrl}/api/Users/google/login?returnUrl=${redirectUri}`,
+			});
 			return true;
-		} catch (error) {
-			console.error("Google login initiation error:", error);
-			setIsLoading(false);
-			return false;
+		} else {
+			try {
+				const returnUrl = window.location.href;
+				window.location.href = `${config.apiUrl}/api/Users/google/login?returnUrl=${returnUrl}`;
+				return true;
+			} catch (error) {
+				console.error("Google login initiation error:", error);
+				return false;
+			}
 		}
 	};
 
 	const loginWithFacebook = async (): Promise<boolean> => {
-		try {
-			const returnUrl = window.location.href;
-			window.location.href = `${config.apiUrl}/api/Users/facebook/login?returnUrl=${returnUrl}`;
+		if (Platform.OS !== "web") {
+			setIsLoading(true);
+			await promptFacebookAsync({
+				url: `${config.apiUrl}/api/Users/facebook/login?returnUrl=${redirectUri}`,
+			});
 			return true;
-		} catch (error) {
-			console.error("Facebook login initiation error:", error);
-			return false;
+		} else {
+			try {
+				const returnUrl = window.location.href;
+				window.location.href = `${config.apiUrl}/api/Users/facebook/login?returnUrl=${returnUrl}`;
+				return true;
+			} catch (error) {
+				console.error("Facebook login initiation error:", error);
+				return false;
+			}
 		}
 	};
 
 	const logout = async (): Promise<void> => {
 		setIsLoading(true);
 		try {
-			// Call the server endpoint to clear HttpOnly cookies
-			// Assuming an endpoint like /api/Users/logout exists and uses POST
-			// TODO: Uncomment and ensure client is regenerated after creating the backend endpoint
 			await usersClient.logout();
-			// console.log("Logout requested (server call commented out for now).");
 		} catch (error) {
 			console.error("Server logout error:", error);
-			// Proceed to clear client state even if server call fails?
-			// Depending on requirements, maybe don't clear state if server fails.
 		} finally {
-			// Clear client-side state regardless of server success/failure for now
 			setUser(null);
 			setIsAuthenticated(false);
-			await authStorage.clearUser(); // Clear local user storage
+			await authStorage.clearUser();
 			setIsLoading(false);
 			console.log("Client state cleared.");
 		}
