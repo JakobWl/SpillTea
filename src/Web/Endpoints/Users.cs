@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using FadeChat.Application.User.Dtos;
-using FadeChat.Application.User.Interfaces;
-using FadeChat.Application.User.Queries;
-using FadeChat.Domain.Entities;
+using System.Security.Claims;
+using SpillTea.Application.User.Dtos;
+using SpillTea.Application.User.Interfaces;
+using SpillTea.Application.User.Queries;
+using SpillTea.Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FadeChat.Web.Endpoints;
+namespace SpillTea.Web.Endpoints;
 
 public class Users : EndpointGroupBase
 {
@@ -61,20 +61,20 @@ public class Users : EndpointGroupBase
 
         var success = await accountService.CompleteUserSetupAsync(userId, request.DisplayName, request.Age, request.Gender);
 
-            if (!success)
-                return Results.BadRequest(new {
-                    error = "Failed to update user"
-                });
-
-            var user = await userManager.FindByIdAsync(userId);
-            if (user == null)
-                return Results.Problem("User disappeared?");
-
-            await signInManager.RefreshSignInAsync(user);
-
-            return Results.Ok(new {
-                message = "Setup complete"
+        if (!success)
+            return Results.BadRequest(new {
+                error = "Failed to update user"
             });
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null)
+            return Results.Problem("User disappeared?");
+
+        await signInManager.RefreshSignInAsync(user);
+
+        return Results.Ok(new {
+            message = "Setup complete"
+        });
     }
 
     private IResult LoginWithGoogle(HttpContext context, LinkGenerator linkGenerator, SignInManager<User> signInManager, [FromQuery] string? returnUrl)

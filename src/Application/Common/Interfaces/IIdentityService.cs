@@ -1,6 +1,6 @@
-﻿using FadeChat.Application.Common.Models;
+using SpillTea.Application.Common.Models;
 
-namespace FadeChat.Application.Common.Interfaces;
+namespace SpillTea.Application.Common.Interfaces;
 
 public interface IIdentityService
 {

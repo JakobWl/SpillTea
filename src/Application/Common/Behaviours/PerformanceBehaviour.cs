@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
-using FadeChat.Application.Common.Interfaces;
+using System.Diagnostics;
+using SpillTea.Application.Common.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace FadeChat.Application.Common.Behaviours;
+namespace SpillTea.Application.Common.Behaviours;
 
 public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
@@ -44,7 +44,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
                 userName = await _identityService.GetUserNameAsync(userId);
             }
 
-            _logger.LogWarning("FadeChat Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",
+            _logger.LogWarning("SpillTea Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",
                 requestName, elapsedMilliseconds, userId, userName, request);
         }
 

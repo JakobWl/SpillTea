@@ -1,6 +1,6 @@
-﻿using FadeChat.Application.Common.Security;
+using SpillTea.Application.Common.Security;
 
-namespace FadeChat.Application.User.Queries;
+namespace SpillTea.Application.User.Queries;
 
 [Authorize]
 public record GetUserImageQuery(string UserId) : IRequest<string>;

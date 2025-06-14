@@ -1,7 +1,7 @@
-﻿using FadeChat.Application.Common.Interfaces;
-using FadeChat.Domain.Entities;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Domain.Entities;
 
-namespace FadeChat.Application.Chat.Events;
+namespace SpillTea.Application.Chat.Events;
 
 public record ChatMessageReadEvent(int? MessageId, string SenderId, string? MessageGuid = null) : INotification;
 

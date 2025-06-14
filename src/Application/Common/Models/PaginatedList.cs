@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Application.Common.Models;
+namespace SpillTea.Application.Common.Models;
 
 public class PaginatedList<T>
 {

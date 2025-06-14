@@ -1,6 +1,6 @@
-﻿using ValidationException = FadeChat.Application.Common.Exceptions.ValidationException;
+using ValidationException = SpillTea.Application.Common.Exceptions.ValidationException;
 
-namespace FadeChat.Application.Common.Behaviours;
+namespace SpillTea.Application.Common.Behaviours;
 
 public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
      where TRequest : notnull

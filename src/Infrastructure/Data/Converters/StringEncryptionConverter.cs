@@ -1,7 +1,7 @@
-using FadeChat.Infrastructure.Data.Encryption.Interfaces;
+using SpillTea.Infrastructure.Data.Encryption.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace FadeChat.Infrastructure.Data.Converters;
+namespace SpillTea.Infrastructure.Data.Converters;
 
 internal sealed class StringEncryptionConverter(
     IStringEncryptionProvider stringEncryptionProvider,

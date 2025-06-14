@@ -1,7 +1,7 @@
-﻿using FadeChat.Application.Common.Models;
+using SpillTea.Application.Common.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace FadeChat.Infrastructure.Identity;
+namespace SpillTea.Infrastructure.Identity;
 
 public static class IdentityResultExtensions
 {

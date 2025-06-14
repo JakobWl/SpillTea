@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Application.FunctionalTests;
+namespace SpillTea.Application.FunctionalTests;
 
 using static Testing;
 

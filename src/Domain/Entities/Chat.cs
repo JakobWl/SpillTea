@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FadeChat.Domain.Entities;
+namespace SpillTea.Domain.Entities;
 
 public class Chat : BaseAuditableEntity
 {

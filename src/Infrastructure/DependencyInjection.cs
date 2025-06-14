@@ -1,12 +1,12 @@
-﻿using FadeChat.Application.Common.Interfaces;
-using FadeChat.Application.User.Services;
-using FadeChat.Domain.Constants;
-using FadeChat.Domain.Entities;
-using FadeChat.Infrastructure.Data;
-using FadeChat.Infrastructure.Data.Encryption;
-using FadeChat.Infrastructure.Data.Encryption.Interfaces;
-using FadeChat.Infrastructure.Data.Interceptors;
-using FadeChat.Infrastructure.Identity;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Application.User.Services;
+using SpillTea.Domain.Constants;
+using SpillTea.Domain.Entities;
+using SpillTea.Infrastructure.Data;
+using SpillTea.Infrastructure.Data.Encryption;
+using SpillTea.Infrastructure.Data.Encryption.Interfaces;
+using SpillTea.Infrastructure.Data.Interceptors;
+using SpillTea.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,14 +15,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace FadeChat.Infrastructure;
+namespace SpillTea.Infrastructure;
 
 public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
-        var connectionString = builder.Configuration.GetConnectionString("FadeChatDb");
-        Guard.Against.Null(connectionString, message: "Connection string 'FadeChatDb' not found.");
+        var connectionString = builder.Configuration.GetConnectionString("SpillTeaDb");
+        Guard.Against.Null(connectionString, message: "Connection string 'SpillTeaDb' not found.");
 
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
@@ -55,7 +55,7 @@ public static class DependencyInjection
 
         builder.Services.ConfigureApplicationCookie(opts =>
         {
-            opts.Cookie.Name = "FadeChat.Cookie";
+            opts.Cookie.Name = "SpillTea.Cookie";
             opts.Cookie.SameSite = SameSiteMode.None;
             opts.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             opts.LoginPath = "/api/Users/login";

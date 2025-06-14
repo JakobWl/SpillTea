@@ -1,8 +1,8 @@
-﻿using FadeChat.Application.Chat.Dtos;
-using FadeChat.Application.Common.Interfaces;
-using FadeChat.Application.Common.Models;
+using SpillTea.Application.Chat.Dtos;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Application.Common.Models;
 
-namespace FadeChat.Application.Chat.Queries;
+namespace SpillTea.Application.Chat.Queries;
 
 public sealed record GetChatsWithPaginationQuery : IRequest<PaginatedList<ChatDto>>
 {

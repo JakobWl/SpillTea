@@ -10,12 +10,15 @@ webUrl = "https://localhost:44447/";
 IProcess webProcess = null;
 
 Task("Build")
-    .Does(() => {
+    .Does(() =>
+    {
         Information("Building project...");
-        DotNetBuild("./FadeChat.sln", new DotNetBuildSettings {
+        DotNetBuild("./SpillTea.sln", new DotNetBuildSettings
+        {
             Configuration = configuration
         });
-        if (DirectoryExists(webClientPath)) {
+        if (DirectoryExists(webClientPath))
+        {
             Information("Installing client app dependencies...");
             NpmInstall(settings => settings.WorkingDirectory = webClientPath);
             Information("Building client app...");
@@ -24,9 +27,11 @@ Task("Build")
     });
 
 Task("Run")
-    .Does(() => {
+    .Does(() =>
+    {
         Information("Starting web project...");
-        var processSettings = new ProcessSettings {
+        var processSettings = new ProcessSettings
+        {
             Arguments = $"run --project {webServerPath} --configuration {configuration} --no-build --no-restore",
             RedirectStandardOutput = true,
             RedirectStandardError = true
@@ -38,25 +43,33 @@ Task("Run")
         var retries = 0;
         var isAvailable = false;
 
-        while (retries < maxRetries && !isAvailable) {
-            try {
-                using (var client = new System.Net.Http.HttpClient()) {
+        while (retries < maxRetries && !isAvailable)
+        {
+            try
+            {
+                using (var client = new System.Net.Http.HttpClient())
+                {
                     var response = client.GetAsync(webUrl).Result;
-                    if (response.IsSuccessStatusCode) {
+                    if (response.IsSuccessStatusCode)
+                    {
                         isAvailable = true;
                     }
                 }
-            } catch {
+            }
+            catch
+            {
                 // Ignore exceptions and retry
             }
 
-            if (!isAvailable) {
+            if (!isAvailable)
+            {
                 retries++;
                 System.Threading.Thread.Sleep(delay);
             }
         }
 
-        if (!isAvailable) {
+        if (!isAvailable)
+        {
             throw new Exception("Web project is not available after waiting.");
         }
 
@@ -65,29 +78,33 @@ Task("Run")
 
 Task("Test")
     .ContinueOnError()
-    .Does(() => {
+    .Does(() =>
+    {
         Information("Testing project...");
 
-        var testSettings = new DotNetTestSettings {
+        var testSettings = new DotNetTestSettings
+        {
             Configuration = configuration,
             NoBuild = true
         };
 
-        if (target == "Basic") {
+        if (target == "Basic")
+        {
             testSettings.Filter = "FullyQualifiedName!~AcceptanceTests";
         }
 
-        DotNetTest("./FadeChat.sln", testSettings);
+        DotNetTest("./SpillTea.sln", testSettings);
     });
 
 Teardown(context =>
 {
-        if (webProcess != null) {
-            Information("Stopping web project...");
-            webProcess.Kill();
-            webProcess.WaitForExit();
-            Information("Web project stopped.");
-        }
+    if (webProcess != null)
+    {
+        Information("Stopping web project...");
+        webProcess.Kill();
+        webProcess.WaitForExit();
+        Information("Web project stopped.");
+    }
 });
 
 Task("Default")

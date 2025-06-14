@@ -1,7 +1,7 @@
-﻿using System.Security.Claims;
-using FadeChat.Application.User.Services;
+using System.Security.Claims;
+using SpillTea.Application.User.Services;
 
-namespace FadeChat.Application.User.Extensions;
+namespace SpillTea.Application.User.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {

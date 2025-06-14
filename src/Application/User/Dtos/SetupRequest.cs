@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Application.User.Dtos;
+namespace SpillTea.Application.User.Dtos;
 
 public class SetupRequest
 {

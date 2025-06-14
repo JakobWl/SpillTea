@@ -1,9 +1,9 @@
-﻿using FadeChat.Domain.Common;
+using SpillTea.Domain.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace FadeChat.Infrastructure.Data.Interceptors;
+namespace SpillTea.Infrastructure.Data.Interceptors;
 
 public class DispatchDomainEventsInterceptor(IMediator mediator) : SaveChangesInterceptor
 {

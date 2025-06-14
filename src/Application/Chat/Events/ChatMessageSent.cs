@@ -1,10 +1,10 @@
-﻿using FadeChat.Application.Chat.Dtos;
-using FadeChat.Application.Common.Interfaces;
-using FadeChat.Domain.Entities;
+using SpillTea.Application.Chat.Dtos;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Domain.Entities;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
-namespace FadeChat.Application.Chat.Events;
+namespace SpillTea.Application.Chat.Events;
 
 public record ChatMessageSentEvent(ChatMessageDto Message) : INotification;
 

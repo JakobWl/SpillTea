@@ -1,6 +1,6 @@
-﻿using FadeChat.Application.Common.Models;
+using SpillTea.Application.Common.Models;
 
-namespace FadeChat.Application.Common.Mappings;
+namespace SpillTea.Application.Common.Mappings;
 
 public static class MappingExtensions
 {

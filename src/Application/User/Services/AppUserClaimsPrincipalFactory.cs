@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace FadeChat.Application.User.Services;
+namespace SpillTea.Application.User.Services;
 
 using User = Domain.Entities.User;
 

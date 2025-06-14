@@ -1,6 +1,6 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 
-namespace FadeChat.Application.FunctionalTests;
+namespace SpillTea.Application.FunctionalTests;
 
 public interface ITestDatabase
 {

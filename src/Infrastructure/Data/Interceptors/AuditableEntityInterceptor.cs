@@ -1,10 +1,10 @@
-﻿using FadeChat.Application.Common.Interfaces;
-using FadeChat.Domain.Common;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace FadeChat.Infrastructure.Data.Interceptors;
+namespace SpillTea.Infrastructure.Data.Interceptors;
 
 public class AuditableEntityInterceptor(IUser user,
     TimeProvider dateTime) : SaveChangesInterceptor

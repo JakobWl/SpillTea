@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Application.Common.Interfaces;
+namespace SpillTea.Application.Common.Interfaces;
 
 public interface IUser
 {

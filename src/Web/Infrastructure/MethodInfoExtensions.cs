@@ -1,6 +1,6 @@
-﻿using System.Reflection;
+using System.Reflection;
 
-namespace FadeChat.Web.Infrastructure;
+namespace SpillTea.Web.Infrastructure;
 
 public static class MethodInfoExtensions
 {

@@ -1,8 +1,8 @@
-﻿using FadeChat.Application.Common.Interfaces;
+using SpillTea.Application.Common.Interfaces;
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
 
-namespace FadeChat.Application.Common.Behaviours;
+namespace SpillTea.Application.Common.Behaviours;
 
 public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where TRequest : notnull
 {
@@ -28,7 +28,7 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where T
             userName = await _identityService.GetUserNameAsync(userId);
         }
 
-        _logger.LogInformation("FadeChat Request: {Name} {@UserId} {@UserName} {@Request}",
+        _logger.LogInformation("SpillTea Request: {Name} {@UserId} {@UserName} {@Request}",
             requestName, userId, userName, request);
     }
 }

@@ -1,6 +1,6 @@
-using FadeChat.Domain.Constants;
-using FadeChat.Infrastructure.Data;
-using FadeChat.Infrastructure.Identity;
+using SpillTea.Domain.Constants;
+using SpillTea.Infrastructure.Data;
+using SpillTea.Infrastructure.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 
-namespace FadeChat.Application.FunctionalTests;
-using User = FadeChat.Domain.Entities.User;
+namespace SpillTea.Application.FunctionalTests;
+using User = SpillTea.Domain.Entities.User;
 
 [SetUpFixture]
 public class Testing

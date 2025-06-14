@@ -1,3 +1,3 @@
-﻿global using FadeChat.Domain.Common;
-global using FadeChat.Domain.Entities;
-global using FadeChat.Domain.Enums;
+global using SpillTea.Domain.Common;
+global using SpillTea.Domain.Entities;
+global using SpillTea.Domain.Enums;

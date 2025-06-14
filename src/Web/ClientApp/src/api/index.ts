@@ -4,7 +4,7 @@ import { ChatsClient, UsersClient } from "./client";
 import { Platform } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 
-const COOKIE_STORAGE_KEY = "fadechat.cookie";
+const COOKIE_STORAGE_KEY = "spilltea.cookie";
 
 export const axiosInstance = axios.create({
 	baseURL: config.apiUrl,

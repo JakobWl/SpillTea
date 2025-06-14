@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "FadeChat",
-    "slug": "FadeChat",
+    "name": "SpillTea",
+    "slug": "SpillTea",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "fadechat",
+          "scheme": "spilltea",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

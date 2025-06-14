@@ -1,10 +1,10 @@
-﻿using FadeChat.Domain.Common;
-using FadeChat.Infrastructure.Data.Converters;
-using FadeChat.Infrastructure.Data.Encryption.Interfaces;
+using SpillTea.Domain.Common;
+using SpillTea.Infrastructure.Data.Converters;
+using SpillTea.Infrastructure.Data.Encryption.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace FadeChat.Infrastructure.Data.Extensions;
+namespace SpillTea.Infrastructure.Data.Extensions;
 
 public static class ModelBuilderExtensions
 {

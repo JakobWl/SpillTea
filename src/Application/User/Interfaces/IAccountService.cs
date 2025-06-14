@@ -1,6 +1,6 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
-namespace FadeChat.Application.User.Interfaces;
+namespace SpillTea.Application.User.Interfaces;
 
 public interface IAccountService
 {

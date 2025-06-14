@@ -1,4 +1,4 @@
-namespace FadeChat.Web.AcceptanceTests.StepDefinitions;
+namespace SpillTea.Web.AcceptanceTests.StepDefinitions;
 
 [Binding]
 public sealed class LoginStepDefinitions

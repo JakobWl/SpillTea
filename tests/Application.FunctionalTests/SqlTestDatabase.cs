@@ -1,7 +1,7 @@
-﻿using System.Data.Common;
-using FadeChat.Infrastructure.Data;
-using FadeChat.Infrastructure.Data.Encryption.Interfaces;
-using FadeChat.Infrastructure.Data.Encryption;
+using System.Data.Common;
+using SpillTea.Infrastructure.Data;
+using SpillTea.Infrastructure.Data.Encryption.Interfaces;
+using SpillTea.Infrastructure.Data.Encryption;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Respawn;
 
-namespace FadeChat.Application.FunctionalTests;
+namespace SpillTea.Application.FunctionalTests;
 
 public class SqlTestDatabase : ITestDatabase
 {
@@ -25,7 +25,7 @@ public class SqlTestDatabase : ITestDatabase
             .AddEnvironmentVariables()
             .Build();
 
-        var connectionString = configuration.GetConnectionString("FadeChatDb");
+        var connectionString = configuration.GetConnectionString("SpillTeaDb");
 
         Guard.Against.Null(connectionString);
 

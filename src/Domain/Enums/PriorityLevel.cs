@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Domain.Enums;
+namespace SpillTea.Domain.Enums;
 
 public enum PriorityLevel
 {

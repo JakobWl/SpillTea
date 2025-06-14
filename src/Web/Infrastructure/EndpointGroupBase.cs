@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Web.Infrastructure;
+namespace SpillTea.Web.Infrastructure;
 
 public abstract class EndpointGroupBase
 {

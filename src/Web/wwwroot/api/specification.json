@@ -2,15 +2,13 @@
   "x-generator": "NSwag v14.3.0.0 (NJsonSchema v11.2.0.0 (Newtonsoft.Json v13.0.0.0))",
   "openapi": "3.0.0",
   "info": {
-    "title": "FadeChat API",
+    "title": "SpillTea API",
     "version": "1.0.0"
   },
   "paths": {
     "/api/Chat": {
       "get": {
-        "tags": [
-          "Chat"
-        ],
+        "tags": ["Chat"],
         "operationId": "GetRecentMessages",
         "responses": {
           "200": {
@@ -24,9 +22,7 @@
         ]
       },
       "post": {
-        "tags": [
-          "Chat"
-        ],
+        "tags": ["Chat"],
         "operationId": "SendMessage",
         "parameters": [
           {
@@ -53,9 +49,7 @@
     },
     "/api/TodoItems": {
       "get": {
-        "tags": [
-          "TodoItems"
-        ],
+        "tags": ["TodoItems"],
         "operationId": "GetTodoItemsWithPagination",
         "parameters": [
           {
@@ -108,9 +102,7 @@
         ]
       },
       "post": {
-        "tags": [
-          "TodoItems"
-        ],
+        "tags": ["TodoItems"],
         "operationId": "CreateTodoItem",
         "requestBody": {
           "x-name": "command",
@@ -146,9 +138,7 @@
     },
     "/api/TodoItems/{id}": {
       "put": {
-        "tags": [
-          "TodoItems"
-        ],
+        "tags": ["TodoItems"],
         "operationId": "UpdateTodoItem",
         "parameters": [
           {
@@ -189,9 +179,7 @@
         ]
       },
       "delete": {
-        "tags": [
-          "TodoItems"
-        ],
+        "tags": ["TodoItems"],
         "operationId": "DeleteTodoItem",
         "parameters": [
           {
@@ -219,9 +207,7 @@
     },
     "/api/TodoItems/UpdateDetail/{id}": {
       "put": {
-        "tags": [
-          "TodoItems"
-        ],
+        "tags": ["TodoItems"],
         "operationId": "UpdateTodoItemDetail",
         "parameters": [
           {
@@ -264,9 +250,7 @@
     },
     "/api/TodoLists": {
       "get": {
-        "tags": [
-          "TodoLists"
-        ],
+        "tags": ["TodoLists"],
         "operationId": "GetTodoLists",
         "responses": {
           "200": {
@@ -287,9 +271,7 @@
         ]
       },
       "post": {
-        "tags": [
-          "TodoLists"
-        ],
+        "tags": ["TodoLists"],
         "operationId": "CreateTodoList",
         "requestBody": {
           "x-name": "command",
@@ -325,9 +307,7 @@
     },
     "/api/TodoLists/{id}": {
       "put": {
-        "tags": [
-          "TodoLists"
-        ],
+        "tags": ["TodoLists"],
         "operationId": "UpdateTodoList",
         "parameters": [
           {
@@ -368,9 +348,7 @@
         ]
       },
       "delete": {
-        "tags": [
-          "TodoLists"
-        ],
+        "tags": ["TodoLists"],
         "operationId": "DeleteTodoList",
         "parameters": [
           {
@@ -398,9 +376,7 @@
     },
     "/api/WeatherForecasts": {
       "get": {
-        "tags": [
-          "WeatherForecasts"
-        ],
+        "tags": ["WeatherForecasts"],
         "operationId": "GetWeatherForecasts",
         "responses": {
           "200": {
@@ -897,18 +873,8 @@
       "PriorityLevel": {
         "type": "integer",
         "description": "",
-        "x-enumNames": [
-          "None",
-          "Low",
-          "Medium",
-          "High"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ]
+        "x-enumNames": ["None", "Low", "Medium", "High"],
+        "enum": [0, 1, 2, 3]
       },
       "TodosVm": {
         "type": "object",

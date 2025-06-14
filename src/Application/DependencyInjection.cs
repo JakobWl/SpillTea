@@ -1,11 +1,11 @@
-﻿using System.Reflection;
-using FadeChat.Application.Common.Behaviours;
-using FadeChat.Application.User.Interfaces;
-using FadeChat.Application.User.Services;
+using System.Reflection;
+using SpillTea.Application.Common.Behaviours;
+using SpillTea.Application.User.Interfaces;
+using SpillTea.Application.User.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace FadeChat.Application;
+namespace SpillTea.Application;
 
 public static class DependencyInjection
 {

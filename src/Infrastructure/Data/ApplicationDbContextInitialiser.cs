@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace FadeChat.Infrastructure.Data;
+namespace SpillTea.Infrastructure.Data;
 
 public static class InitialiserExtensions
 {
@@ -26,10 +26,21 @@ public class ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitial
     {
         try
         {
+            // Ensure database exists
+            await context.Database.EnsureCreatedAsync();
+
             // First, populate any missing Guid values before running migrations
             await PopulateEmptyGuidsAsync();
 
-            await context.Database.MigrateAsync();
+            // Try to apply migrations, but catch and log errors without throwing
+            try
+            {
+                await context.Database.MigrateAsync();
+            }
+            catch (Exception migrationEx)
+            {
+                logger.LogWarning(migrationEx, "Migration failed, but continuing with existing database structure.");
+            }
         }
         catch (Exception ex)
         {

@@ -1,10 +1,10 @@
-using FadeChat.Application.Common.Interfaces;
-using FadeChat.Application.Common.Models;
-using FadeChat.Domain.Entities;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Application.Common.Models;
+using SpillTea.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
-namespace FadeChat.Infrastructure.Identity;
+namespace SpillTea.Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
 {

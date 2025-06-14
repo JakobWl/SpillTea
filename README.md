@@ -1,6 +1,6 @@
-# FadeChat
+# SpillTea
 
-FadeChat is a real-time chat application that allows users to connect with random people around the world. Built with ASP.NET Core 9 and React Native (Expo), it provides a modern, mobile-first chat experience with strong authentication.
+SpillTea is a real-time chat application that allows users to connect with random people around the world. Built with ASP.NET Core 9 and React Native (Expo), it provides a modern, mobile-first chat experience with strong authentication.
 
 ## Features
 

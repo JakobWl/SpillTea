@@ -1,7 +1,7 @@
-﻿using System.Data.Common;
-using FadeChat.Infrastructure.Data;
-using FadeChat.Infrastructure.Data.Encryption.Interfaces;
-using FadeChat.Infrastructure.Data.Encryption;
+using System.Data.Common;
+using SpillTea.Infrastructure.Data;
+using SpillTea.Infrastructure.Data.Encryption.Interfaces;
+using SpillTea.Infrastructure.Data.Encryption;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -10,11 +10,11 @@ using Microsoft.Extensions.Options;
 using Respawn;
 using Testcontainers.MsSql;
 
-namespace FadeChat.Application.FunctionalTests;
+namespace SpillTea.Application.FunctionalTests;
 
 public class SqlTestcontainersTestDatabase : ITestDatabase
 {
-    private const string DefaultDatabase = "FadeChatTestDb";
+    private const string DefaultDatabase = "SpillTeaTestDb";
     private readonly MsSqlContainer _container;
     private DbConnection _connection = null!;
     private string _connectionString = null!;

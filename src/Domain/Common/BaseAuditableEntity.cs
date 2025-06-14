@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Domain.Common;
+namespace SpillTea.Domain.Common;
 
 public abstract class BaseAuditableEntity : BaseEntity
 {

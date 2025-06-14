@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
-namespace FadeChat.Domain.Entities;
+namespace SpillTea.Domain.Entities;
 
 public class User : IdentityUser
 {

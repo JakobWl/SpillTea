@@ -1,3 +1,3 @@
 global using Ardalis.GuardClauses;
-global using FadeChat.Web.Infrastructure;
+global using SpillTea.Web.Infrastructure;
 global using MediatR;

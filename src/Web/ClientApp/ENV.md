@@ -1,6 +1,6 @@
-# Environment Configuration for FadeChat
+# Environment Configuration for SpillTea
 
-This document explains how environment variables are configured in the FadeChat app.
+This document explains how environment variables are configured in the SpillTea app.
 
 ## Environment Files
 

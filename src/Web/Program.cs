@@ -1,11 +1,11 @@
 using System.Runtime.InteropServices;
 using System.Text;
-using FadeChat.Application;
-using FadeChat.Application.Chat.Hubs;
-using FadeChat.Application.User.Dtos;
-using FadeChat.Infrastructure;
-using FadeChat.Infrastructure.Data;
-using FadeChat.Web;
+using SpillTea.Application;
+using SpillTea.Application.Chat.Hubs;
+using SpillTea.Application.User.Dtos;
+using SpillTea.Infrastructure;
+using SpillTea.Infrastructure.Data;
+using SpillTea.Web;
 using Serilog;
 using Serilog.Events;
 
@@ -112,14 +112,16 @@ finally
 
 static void PrintBanner(WebApplicationBuilder appBuilder, string env)
 {
-    // https://patorjk.com/software/taag/#p=display&f=Doom&t=FadeChat
+    // https://patorjk.com/software/taag/#p=display&f=Doom&t=SpillTea
     const string banner = """
-                          ______        _      _____ _           _   
-                          |  ___|      | |    /  __ \ |         | |  
-                          | |_ __ _  __| | ___| /  \/ |__   __ _| |_ 
-                          |  _/ _` |/ _` |/ _ \ |   | '_ \ / _` | __|
-                          | || (_| | (_| |  __/ \__/\ | | | (_| | |_ 
-                          \_| \__,_|\__,_|\___|\____/_| |_|\__,_|\__|
+                           _____       _ _ _ _______        
+                          /  ___|     (_) | |__   __|       
+                          \ `--. _ __  _| | |  | | ___  __ _ 
+                           `--. \ '_ \| | | |  | |/ _ \/ _` |
+                          /\__/ / |_) | | | |  | |  __/ (_| |
+                          \____/| .__/|_|_|_|  |_|\___|\__,_|
+                                | |                          
+                                |_|                          
                           """;
     Console.ForegroundColor = ConsoleColor.Cyan;
     Console.WriteLine(banner);
@@ -165,7 +167,7 @@ static void PrintBanner(WebApplicationBuilder appBuilder, string env)
 
 #endregion
 
-namespace FadeChat.Web
+namespace SpillTea.Web
 {
     public class Program;
 }

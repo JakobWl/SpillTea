@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
-namespace FadeChat.Web.Infrastructure;
+namespace SpillTea.Web.Infrastructure;
 
 public static class IEndpointRouteBuilderExtensions
 {

@@ -1,9 +1,9 @@
-using FadeChat.Application.Chat.Dtos;
-using FadeChat.Application.Chat.Queries;
-using FadeChat.Application.Common.Models;
+using SpillTea.Application.Chat.Dtos;
+using SpillTea.Application.Chat.Queries;
+using SpillTea.Application.Common.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace FadeChat.Web.Endpoints;
+namespace SpillTea.Web.Endpoints;
 
 public class Chats : EndpointGroupBase
 {

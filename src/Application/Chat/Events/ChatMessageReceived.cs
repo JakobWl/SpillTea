@@ -1,8 +1,8 @@
-using FadeChat.Application.Common.Interfaces;
-using FadeChat.Domain.Entities;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace FadeChat.Application.Chat.Events;
+namespace SpillTea.Application.Chat.Events;
 
 public record ChatMessageReceivedEvent(int? MessageId, string ReceiverId, string? MessageGuid = null) : INotification;
 

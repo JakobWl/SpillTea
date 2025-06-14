@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Domain.Constants;
+namespace SpillTea.Domain.Constants;
 
 public abstract class Policies
 {

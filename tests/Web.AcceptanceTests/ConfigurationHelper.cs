@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 
-namespace FadeChat.Web.AcceptanceTests;
+namespace SpillTea.Web.AcceptanceTests;
 
 public static class ConfigurationHelper
 {

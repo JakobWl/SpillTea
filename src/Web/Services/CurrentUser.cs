@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using FadeChat.Application.Common.Interfaces;
-using FadeChat.Application.User.Extensions;
+using System.Security.Claims;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Application.User.Extensions;
 
-namespace FadeChat.Web.Services;
+namespace SpillTea.Web.Services;
 
 public class CurrentUser(IHttpContextAccessor httpContextAccessor) : IUser
 {

@@ -17,14 +17,6 @@ import { Platform } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
-const discovery = {
-	authorizationEndpoint: `${config.apiUrl}/api/Users/google/login`,
-};
-
-const facebookDiscovery = {
-	authorizationEndpoint: `${config.apiUrl}/api/Users/facebook/login`,
-};
-
 interface LoginCredentials {
 	email: string;
 	password: string;
@@ -63,61 +55,55 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
-	const redirectUri = makeRedirectUri({
-		scheme: "fadechat",
-		path: "login",
-	});
-
-	const [request, response, promptAsync] = useAuthRequest(
-		{
-			clientId: "doesnt-matter", // Not used in this flow
-			redirectUri,
-			scopes: [],
-			usePKCE: false,
-		},
-		discovery,
-	);
-
-	const [facebookRequest, facebookResponse, promptFacebookAsync] =
-		useAuthRequest(
-			{
-				clientId: "doesnt-matter",
-				redirectUri,
-				scopes: [],
-				usePKCE: false,
-			},
-			facebookDiscovery,
-		);
+	const redirectUri = makeRedirectUri();
+	console.log("Redirect URI:", redirectUri);
 
 	const fetchUser = useCallback(async () => {
 		console.log("Attempting to fetch current user...");
+		console.log("API URL being used:", config.apiUrl);
+
+		// Test basic connectivity first
+		try {
+			console.log(
+				"Testing basic connectivity to:",
+				`${config.apiUrl}/api/Users/me`,
+			);
+			const response = await fetch(`${config.apiUrl}/api/Users/me`, {
+				method: "GET",
+				credentials: "include",
+			});
+			console.log("Basic fetch response status:", response.status);
+		} catch (fetchError) {
+			console.log("Basic fetch failed:", fetchError);
+		}
+
 		try {
 			const currentUser = await usersClient.getCurrentUser();
+			console.log("User fetched successfully:", currentUser);
 			setUser(currentUser);
 			setIsAuthenticated(true);
 			await authStorage.setUser(currentUser);
+			console.log("Authentication state set to true");
 		} catch (error) {
+			console.log("Failed to fetch user - full error:", error);
+			console.log("Error status:", (error as any)?.status);
+			console.log("Error message:", (error as any)?.message);
 			setUser(null);
 			setIsAuthenticated(false);
 			await authStorage.clearUser();
+			console.log("Authentication state set to false");
 		}
 	}, []);
 
+	// Handle OAuth callback via deep linking
 	useEffect(() => {
-		const handleAuthResponse = async () => {
-			if (response || facebookResponse) {
-				const currentResponse = response || facebookResponse;
-				if (currentResponse?.type === "success") {
-					await fetchUser();
-				} else if (currentResponse?.type === "error") {
-					console.error("Authentication error:", currentResponse.error);
-				}
-				setIsLoading(false);
-			}
+		const handleDeepLink = async () => {
+			// Check if user is authenticated after potential OAuth redirect
+			await fetchUser();
 		};
 
-		handleAuthResponse();
-	}, [response, facebookResponse, fetchUser]);
+		handleDeepLink();
+	}, [fetchUser]);
 
 	useEffect(() => {
 		const checkAuthState = async () => {
@@ -156,9 +142,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const loginWithGoogle = async () => {
 		if (Platform.OS !== "web") {
 			setIsLoading(true);
-			await promptAsync({
-				url: `${config.apiUrl}/api/Users/google/login?returnUrl=${redirectUri}`,
-			});
+			const loginUrl = `${config.apiUrl}/api/Users/google/login?returnUrl=${encodeURIComponent(redirectUri)}`;
+			console.log("Opening Google auth session URL:", loginUrl);
+
+			const result = await WebBrowser.openAuthSessionAsync(
+				loginUrl,
+				redirectUri,
+			);
+			console.log("WebBrowser auth session result:", result);
+
+			// After the auth session closes, check if user is now authenticated
+			await fetchUser();
+			setIsLoading(false);
 			return true;
 		} else {
 			try {
@@ -175,9 +170,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const loginWithFacebook = async (): Promise<boolean> => {
 		if (Platform.OS !== "web") {
 			setIsLoading(true);
-			await promptFacebookAsync({
-				url: `${config.apiUrl}/api/Users/facebook/login?returnUrl=${redirectUri}`,
-			});
+			const loginUrl = `${config.apiUrl}/api/Users/facebook/login?returnUrl=${encodeURIComponent(redirectUri)}`;
+			console.log("Opening Facebook auth session URL:", loginUrl);
+
+			const result = await WebBrowser.openAuthSessionAsync(
+				loginUrl,
+				redirectUri,
+			);
+			console.log("WebBrowser auth session result:", result);
+
+			// After the auth session closes, check if user is now authenticated
+			await fetchUser();
+			setIsLoading(false);
 			return true;
 		} else {
 			try {

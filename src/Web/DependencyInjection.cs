@@ -1,15 +1,15 @@
-﻿using Azure.Identity;
-using FadeChat.Application.Common.Interfaces;
-using FadeChat.Infrastructure.Data;
-using FadeChat.Web.Nswag;
-using FadeChat.Web.Services;
+using Azure.Identity;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Infrastructure.Data;
+using SpillTea.Web.Nswag;
+using SpillTea.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
-namespace FadeChat.Web;
+namespace SpillTea.Web;
 
 public static class DependencyInjection
 {
@@ -83,7 +83,7 @@ public static class DependencyInjection
 
         builder.Services.AddOpenApiDocument((configure, _) =>
         {
-            configure.Title = "FadeChat API";
+            configure.Title = "SpillTea API";
             configure.AddSecurity("oauth2", new OpenApiSecurityScheme {
                 Type = OpenApiSecuritySchemeType.OAuth2,
                 Flows = new OpenApiOAuthFlows {

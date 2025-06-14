@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>FadeChat.Application.FunctionalTests</RootNamespace>
-        <AssemblyName>FadeChat.Application.FunctionalTests</AssemblyName>
+            <RootNamespace>SpillTea.Application.FunctionalTests</RootNamespace>
+    <AssemblyName>SpillTea.Application.FunctionalTests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

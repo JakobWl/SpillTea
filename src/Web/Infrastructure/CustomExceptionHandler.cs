@@ -1,8 +1,8 @@
-﻿using FadeChat.Application.Common.Exceptions;
+using SpillTea.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FadeChat.Web.Infrastructure;
+namespace SpillTea.Web.Infrastructure;
 
 public class CustomExceptionHandler : IExceptionHandler
 {

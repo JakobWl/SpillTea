@@ -1,6 +1,6 @@
-﻿using FadeChat.Domain.Entities;
+using SpillTea.Domain.Entities;
 
-namespace FadeChat.Application.Common.Interfaces;
+namespace SpillTea.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {

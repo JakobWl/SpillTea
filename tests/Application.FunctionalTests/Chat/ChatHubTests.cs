@@ -1,10 +1,10 @@
 using System.Diagnostics;
-using FadeChat.Application.Chat.Dtos;
-using FadeChat.Domain.Entities;
+using SpillTea.Application.Chat.Dtos;
+using SpillTea.Domain.Entities;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 
-namespace FadeChat.Application.FunctionalTests.Chat;
+namespace SpillTea.Application.FunctionalTests.Chat;
 
 public class ChatHubTests : BaseTestFixture
 {

@@ -1,9 +1,9 @@
-﻿using FadeChat.Application.Common.Exceptions;
+using SpillTea.Application.Common.Exceptions;
 using FluentAssertions;
 using FluentValidation.Results;
 using NUnit.Framework;
 
-namespace FadeChat.Application.UnitTests.Common.Exceptions;
+namespace SpillTea.Application.UnitTests.Common.Exceptions;
 
 public class ValidationExceptionTests
 {

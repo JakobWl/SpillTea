@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace FadeChat.Infrastructure.Data.Migrations
+namespace SpillTea.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
     public partial class AddChatsAndMessages : Migration

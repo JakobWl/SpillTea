@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
-using FadeChat.Infrastructure.Data.Encryption.Interfaces;
+using SpillTea.Infrastructure.Data.Encryption.Interfaces;
 using Microsoft.Extensions.Options;
 
-namespace FadeChat.Infrastructure.Data.Encryption;
+namespace SpillTea.Infrastructure.Data.Encryption;
 
 public class StorageEncryptionProvider(IOptions<CryptographyOptions> cryptographyOptions) : IStorageEncryptionProvider
 {

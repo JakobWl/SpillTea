@@ -1,6 +1,6 @@
-﻿using FluentValidation.Results;
+using FluentValidation.Results;
 
-namespace FadeChat.Application.Common.Exceptions;
+namespace SpillTea.Application.Common.Exceptions;
 
 public class ValidationException() : Exception("One or more validation failures have occurred.")
 {

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>FadeChat.Infrastructure</RootNamespace>
-    <AssemblyName>FadeChat.Infrastructure</AssemblyName>
+    <RootNamespace>SpillTea.Infrastructure</RootNamespace>
+    <AssemblyName>SpillTea.Infrastructure</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

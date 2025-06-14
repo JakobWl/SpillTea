@@ -1,15 +1,15 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
-using FadeChat.Application.Chat.Dtos;
-using FadeChat.Application.Chat.Events;
-using FadeChat.Application.Common.Interfaces;
-using FadeChat.Application.Common.Security;
-using FadeChat.Domain.Entities;
+using SpillTea.Application.Chat.Dtos;
+using SpillTea.Application.Chat.Events;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Application.Common.Security;
+using SpillTea.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace FadeChat.Application.Chat.Hubs;
+namespace SpillTea.Application.Chat.Hubs;
 
 using User = Domain.Entities.User;
 

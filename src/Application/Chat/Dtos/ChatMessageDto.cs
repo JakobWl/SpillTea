@@ -1,6 +1,6 @@
-using FadeChat.Domain.Entities;
+using SpillTea.Domain.Entities;
 
-namespace FadeChat.Application.Chat.Dtos;
+namespace SpillTea.Application.Chat.Dtos;
 
 public class ChatMessageDto
 {

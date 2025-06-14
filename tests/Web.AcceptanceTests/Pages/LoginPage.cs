@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Web.AcceptanceTests.Pages;
+namespace SpillTea.Web.AcceptanceTests.Pages;
 
 public class LoginPage : BasePage
 {

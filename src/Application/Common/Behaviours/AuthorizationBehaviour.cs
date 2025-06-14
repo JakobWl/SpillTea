@@ -1,9 +1,9 @@
-﻿using System.Reflection;
-using FadeChat.Application.Common.Exceptions;
-using FadeChat.Application.Common.Interfaces;
-using FadeChat.Application.Common.Security;
+using System.Reflection;
+using SpillTea.Application.Common.Exceptions;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Application.Common.Security;
 
-namespace FadeChat.Application.Common.Behaviours;
+namespace SpillTea.Application.Common.Behaviours;
 
 public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {

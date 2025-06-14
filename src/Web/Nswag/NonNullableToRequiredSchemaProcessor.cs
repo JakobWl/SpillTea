@@ -1,7 +1,7 @@
 using NJsonSchema;
 using NJsonSchema.Generation;
 
-namespace FadeChat.Web.Nswag;
+namespace SpillTea.Web.Nswag;
 
 /**
  * Makes sure that the generated types aren't both `null` and `undefined`.

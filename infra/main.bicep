@@ -67,9 +67,15 @@ module monitoring 'core/monitor/monitoring.bicep' = {
   params: {
     location: location
     tags: tags
-    logAnalyticsName: !empty(logAnalyticsName) ? logAnalyticsName : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
-    applicationInsightsName: !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
-    applicationInsightsDashboardName: !empty(applicationInsightsDashboardName) ? applicationInsightsDashboardName : '${abbrs.portalDashboards}${resourceToken}'
+    logAnalyticsName: !empty(logAnalyticsName)
+      ? logAnalyticsName
+      : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
+    applicationInsightsName: !empty(applicationInsightsName)
+      ? applicationInsightsName
+      : '${abbrs.insightsComponents}${resourceToken}'
+    applicationInsightsDashboardName: !empty(applicationInsightsDashboardName)
+      ? applicationInsightsDashboardName
+      : '${abbrs.portalDashboards}${resourceToken}'
   }
   scope: rg
 }
@@ -98,7 +104,6 @@ module web 'services/web.bicep' = {
   scope: rg
 }
 
-
 module database 'core/database/sqlserver/sqlserver.bicep' = {
   name: 'database'
   params: {
@@ -107,7 +112,7 @@ module database 'core/database/sqlserver/sqlserver.bicep' = {
     tags: tags
     databaseName: !empty(dbName) ? dbName : '${abbrs.sqlServersDatabases}${resourceToken}'
     keyVaultName: keyVault.outputs.name
-    connectionStringKey: 'ConnectionStrings--FadeChatDb'
+    connectionStringKey: 'ConnectionStrings--SpillTeaDb'
     sqlAdminPassword: dbAdminPassword
     appUserPassword: dbAppUserPassword
   }

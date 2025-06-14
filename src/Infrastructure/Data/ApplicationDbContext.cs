@@ -1,12 +1,12 @@
-﻿using FadeChat.Application.Common.Interfaces;
-using FadeChat.Domain.Entities;
-using FadeChat.Infrastructure.Data.Encryption.Interfaces;
-using FadeChat.Infrastructure.Data.Extensions;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Domain.Entities;
+using SpillTea.Infrastructure.Data.Encryption.Interfaces;
+using SpillTea.Infrastructure.Data.Extensions;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace FadeChat.Infrastructure.Data;
+namespace SpillTea.Infrastructure.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User>(options), IApplicationDbContext
 {

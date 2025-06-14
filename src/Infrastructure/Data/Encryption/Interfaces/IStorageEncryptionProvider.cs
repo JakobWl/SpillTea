@@ -1,4 +1,4 @@
-namespace FadeChat.Infrastructure.Data.Encryption.Interfaces;
+namespace SpillTea.Infrastructure.Data.Encryption.Interfaces;
 
 public interface IStorageEncryptionProvider
 {

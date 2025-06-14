@@ -1,8 +1,8 @@
-﻿using System.Data.Common;
-using FadeChat.Application.Common.Interfaces;
-using FadeChat.Infrastructure.Data;
-using FadeChat.Infrastructure.Data.Encryption;
-using FadeChat.Web;
+using System.Data.Common;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Infrastructure.Data;
+using SpillTea.Infrastructure.Data.Encryption;
+using SpillTea.Web;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace FadeChat.Application.FunctionalTests;
+namespace SpillTea.Application.FunctionalTests;
 
 using static Testing;
 

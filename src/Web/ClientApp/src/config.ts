@@ -6,12 +6,10 @@ const apiUrl = API_URL || 'https://localhost:5001';
 const signalrUrl = SIGNALR_URL || 'https://localhost:5001/hubs/chat';
 const environment = ENV || 'development';
 
-// Helper to convert local URLs to the correct IP when running in an emulator
+// Helper to convert local URLs - with ADB port forwarding, Android can use localhost directly
 const convertLocalhost = (url: string): string => {
-  if (Platform.OS === 'android' && url.includes('localhost')) {
-    // Android emulator can't access localhost directly, need to use 10.0.2.2
-    return url.replace('localhost', '10.0.2.2');
-  }
+  // With ADB reverse port forwarding (adb reverse tcp:5001 tcp:5001), 
+  // Android emulator can access localhost directly, no conversion needed
   return url;
 };
 

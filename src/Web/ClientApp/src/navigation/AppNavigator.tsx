@@ -165,9 +165,23 @@ const AppNavigator = () => {
 	// Get auth state from context
 	const { isAuthenticated, isLoading } = useAuth();
 
+	console.log(
+		"AppNavigator - isAuthenticated:",
+		isAuthenticated,
+		"isLoading:",
+		isLoading,
+	);
+
 	if (isLoading) {
+		console.log("AppNavigator - Showing loading screen");
 		return <LoadingScreen />;
 	}
+
+	console.log(
+		"AppNavigator - Rendering",
+		isAuthenticated ? "Main" : "Auth",
+		"navigator",
+	);
 
 	return (
 		<RootStack.Navigator screenOptions={{ headerShown: false }}>

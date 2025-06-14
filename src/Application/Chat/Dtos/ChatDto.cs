@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Application.Chat.Dtos;
+namespace SpillTea.Application.Chat.Dtos;
 
 public class ChatDto
 {

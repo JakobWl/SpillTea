@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>FadeChat.Infrastructure.IntegrationTests</RootNamespace>
-        <AssemblyName>FadeChat.Infrastructure.IntegrationTests</AssemblyName>
+            <RootNamespace>SpillTea.Infrastructure.IntegrationTests</RootNamespace>
+    <AssemblyName>SpillTea.Infrastructure.IntegrationTests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

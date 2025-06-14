@@ -1,4 +1,4 @@
-﻿namespace FadeChat.Application.Common.Exceptions;
+namespace SpillTea.Application.Common.Exceptions;
 
 public class ForbiddenAccessException : Exception
 {

@@ -1,8 +1,8 @@
-﻿using FadeChat.Application.Common.Interfaces;
-using FadeChat.Application.Common.Security;
-using FadeChat.Application.User.Dtos;
+using SpillTea.Application.Common.Interfaces;
+using SpillTea.Application.Common.Security;
+using SpillTea.Application.User.Dtos;
 
-namespace FadeChat.Application.User.Queries;
+namespace SpillTea.Application.User.Queries;
 
 [Authorize]
 public record GetCurrentUserQuery : IRequest<CurrentUserDto>;
