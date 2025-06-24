@@ -66,9 +66,26 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
 			await usersClient.postApiUsersRegister(registerRequest);
 			setIsLoading(false);
 			navigation.navigate("Login");
-		} catch (error) {
-			setErrorMessage("Registration failed. Please try again.");
+		} catch (error: any) {
 			console.error("Registration error:", error);
+
+			let errorMsg = "Registration failed. Please try again.";
+
+			if (error?.response?.data?.title) {
+				errorMsg = error.response.data.title;
+			} else if (error?.response?.data?.message) {
+				errorMsg = error.response.data.message;
+			} else if (error?.message) {
+				errorMsg = error.message;
+			} else if (
+				error?.code === "NETWORK_ERROR" ||
+				error?.message?.includes("Network Error")
+			) {
+				errorMsg =
+					"Network error. Please check your connection and make sure the server is running.";
+			}
+
+			setErrorMessage(errorMsg);
 			setIsLoading(false);
 		}
 	};

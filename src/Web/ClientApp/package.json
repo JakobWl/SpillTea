@@ -3,13 +3,12 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start --tunnel",
-    "adb-setup": "\"%LOCALAPPDATA%\\Android\\Sdk\\platform-tools\\adb.exe\" reverse tcp:5001 tcp:5001",
+    "start": "expo start --localhost",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web",
+    "web": "expo start --web --localhost",
     "start:prod": "NODE_ENV=production expo start",
-    "web:prod": "NODE_ENV=production expo start --web",
+    "web:prod": "NODE_ENV=production expo start --web --localhost",
     "android:prod": "NODE_ENV=production expo start --android",
     "ios:prod": "NODE_ENV=production expo start --ios",
     "use-direct-config": "bash use-direct-config.sh"
