@@ -3,18 +3,18 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start --localhost",
+    "start": "node start-dev.js",
+    "start:lt": "node start-dev.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web --localhost",
     "start:prod": "NODE_ENV=production expo start",
     "web:prod": "NODE_ENV=production expo start --web --localhost",
     "android:prod": "NODE_ENV=production expo start --android",
-    "ios:prod": "NODE_ENV=production expo start --ios",
-    "use-direct-config": "bash use-direct-config.sh"
+    "ios:prod": "NODE_ENV=production expo start --ios"
   },
   "dependencies": {
-    "@expo/vector-icons": "^14.0.4",
+    "@expo/vector-icons": "~14.0.4",
     "@microsoft/signalr": "^8.0.7",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
@@ -22,7 +22,7 @@
     "@tanstack/react-query": "^5.71.10",
     "@types/js-cookie": "^3.0.6",
     "axios": "^1.8.4",
-    "expo": "~52.0.46",
+    "expo": "~52.0.47",
     "expo-auth-session": "~6.0.3",
     "expo-constants": "~17.0.8",
     "expo-crypto": "~14.0.2",
